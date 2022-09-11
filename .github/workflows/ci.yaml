@@ -32,6 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     name: CI using Neo4j
     services:
+      jetstream:
+        image: nats:alpine
+        ports: 
+          - 4222:4222
+        options: --name jetstream
       neo4j:
         image: neo4j:latest # TODO(mihaimaruseac): Pin to hash
         env:
@@ -51,6 +56,16 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - name: Setup the project
         run: go mod download
+      - name: start_jetstream
+        run: |
+          chmod a+x ${{ github.workspace }}/.github/workflows/entrypoint.sh
+          docker cp ${{ github.workspace }}/.github/workflows/entrypoint.sh jetstream:/usr/local/bin/docker-entrypoint.sh
+          docker restart jetstream
+      - name: documents_stream
+        uses: nats-io/jetstream-gh-action/create/stream@main
+        with:
+          config: .github/workflows/nats_config.json
+          server: jetstream
       - name: Run tests
         run: make test
       - name: Run integration tests
