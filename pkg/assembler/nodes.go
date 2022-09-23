@@ -126,6 +126,32 @@ func (bn BuilderNode) IdentifiablePropertyNames() []string {
 	return []string{"type", "id"}
 }
 
+// RepoNode is a node that represents an source repo of the artifact
+type RepoNode struct {
+	Name   string
+	Digest string
+}
+
+func (rn RepoNode) Type() string {
+	return "Repo"
+}
+
+func (rn RepoNode) Properties() map[string]interface{} {
+	properties := make(map[string]interface{})
+	properties["name"] = rn.Name
+	properties["digest"] = rn.Digest
+	return properties
+}
+
+func (rn RepoNode) PropertyNames() []string {
+	return []string{"name", "digest"}
+}
+
+func (rn RepoNode) IdentifiablePropertyNames() []string {
+	// A repo needs both the name and digest identified by digest
+	return []string{"name", "digest"}
+}
+
 // IdentityForEdge is an edge that represents the fact that an
 // `IdentityNode` is an identity for an `AttestationNode`.
 type IdentityForEdge struct {
@@ -231,5 +257,32 @@ func (e DependsOnEdge) PropertyNames() []string {
 }
 
 func (e DependsOnEdge) IdentifiablePropertyNames() []string {
+	return []string{}
+}
+
+// RepoByEdge is an edge that represents the fact that an
+// `ArtifactNode` source is located in `RepoNode`
+type RepoByEdge struct {
+	ArtifactNode ArtifactNode
+	RepoNode     RepoNode
+}
+
+func (r RepoByEdge) Type() string {
+	return "Repo"
+}
+
+func (r RepoByEdge) Nodes() (v, u GuacNode) {
+	return r.ArtifactNode, r.RepoNode
+}
+
+func (r RepoByEdge) Properties() map[string]interface{} {
+	return map[string]interface{}{}
+}
+
+func (r RepoByEdge) PropertyNames() []string {
+	return []string{}
+}
+
+func (r RepoByEdge) IdentifiablePropertyNames() []string {
 	return []string{}
 }

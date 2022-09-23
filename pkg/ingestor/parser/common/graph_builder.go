@@ -27,6 +27,7 @@ type genericGraphBuilder struct {
 	FoundAttestations     []assembler.AttestationNode
 	FoundBuilders         []assembler.BuilderNode
 	FoundDependencies     []assembler.ArtifactNode
+	FoundRepo             []assembler.RepoNode
 }
 
 func NewGenericGraphBuilder() *genericGraphBuilder {
@@ -36,6 +37,7 @@ func NewGenericGraphBuilder() *genericGraphBuilder {
 		FoundAttestations:     []assembler.AttestationNode{},
 		FoundBuilders:         []assembler.BuilderNode{},
 		FoundDependencies:     []assembler.ArtifactNode{},
+		FoundRepo:             []assembler.RepoNode{},
 	}
 }
 
@@ -68,6 +70,9 @@ func (b *genericGraphBuilder) createEdges(FoundIdentities []assembler.IdentityNo
 		for _, d := range b.FoundDependencies {
 			edges = append(edges, assembler.DependsOnEdge{ArtifactNode: s, Dependency: d})
 		}
+		for _, r := range b.FoundRepo {
+			edges = append(edges, assembler.RepoByEdge{ArtifactNode: s, RepoNode: r})
+		}
 	}
 	return edges
 }
@@ -88,6 +93,9 @@ func (b *genericGraphBuilder) createNodes() []assembler.GuacNode {
 	}
 	for _, b := range b.FoundBuilders {
 		nodes = append(nodes, b)
+	}
+	for _, r := range b.FoundRepo {
+		nodes = append(nodes, r)
 	}
 	return nodes
 }
