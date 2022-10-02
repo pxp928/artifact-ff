@@ -65,10 +65,10 @@ func getCredsPath() string {
 // NewGCSClient initializes the gcs and sets it for polling or one time run
 func NewGCSClient(ctx context.Context, poll bool, interval time.Duration) (*gcs, error) {
 	// TODO: Change to pass in token via command line
-	if getCredsPath() == "" {
-		return nil, errors.New("gcs bucket not specified")
-	}
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv(gcsCredsEnv)))
+	// if getCredsPath() == "" {
+	// 	return nil, errors.New("gcs bucket not specified")
+	// }
+	client, err := storage.NewClient(ctx, option.WithoutAuthentication())
 	if err != nil {
 		return nil, err
 	}

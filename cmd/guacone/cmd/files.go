@@ -25,7 +25,7 @@ import (
 	"github.com/guacsec/guac/pkg/assembler"
 	"github.com/guacsec/guac/pkg/assembler/graphdb"
 	"github.com/guacsec/guac/pkg/handler/collector"
-	"github.com/guacsec/guac/pkg/handler/collector/file"
+	"github.com/guacsec/guac/pkg/handler/collector/gcs"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/guacsec/guac/pkg/handler/processor/process"
 	"github.com/guacsec/guac/pkg/ingestor/parser"
@@ -57,13 +57,13 @@ func init() {
 }
 
 var exampleCmd = &cobra.Command{
-	Use:   "files [flags] file_path",
-	Short: "take a folder of files and create a GUAC graph",
+	Use:   "gcs [flags]",
+	Short: "take a GCS of files and create a GUAC graph",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := logging.WithLogger(context.Background())
 		logger := logging.FromContext(ctx)
 
-		opts, err := validateFlags(args)
+		opts, err := validateFlags()
 		if err != nil {
 			fmt.Printf("unable to validate flags: %v\n", err)
 			_ = cmd.Help()
@@ -71,10 +71,14 @@ var exampleCmd = &cobra.Command{
 		}
 
 		// Register collector
-		fileCollector := file.NewFileCollector(ctx, opts.path, false, time.Second)
-		err = collector.RegisterDocumentCollector(fileCollector, file.FileCollector)
+		gcsCollector, err := gcs.NewGCSClient(ctx, false, time.Second)
 		if err != nil {
-			logger.Errorf("unable to register file collector: %v", err)
+			logger.Errorf("unable to register gcs collector: %v", err)
+		}
+		//fileCollector := file.NewFileCollector(ctx, opts.path, false, time.Second)
+		err = collector.RegisterDocumentCollector(gcsCollector, gcs.CollectorGCS)
+		if err != nil {
+			logger.Errorf("unable to register gcs collector: %v", err)
 		}
 
 		// Get pipeline of components
@@ -128,7 +132,7 @@ var exampleCmd = &cobra.Command{
 	},
 }
 
-func validateFlags(args []string) (options, error) {
+func validateFlags() (options, error) {
 	var opts options
 	credsSplit := strings.Split(flags.creds, ":")
 	if len(credsSplit) != 2 {
@@ -137,11 +141,6 @@ func validateFlags(args []string) (options, error) {
 	opts.user = credsSplit[0]
 	opts.pass = credsSplit[1]
 	opts.dbAddr = flags.dbAddr
-
-	if len(args) != 1 {
-		return opts, fmt.Errorf("expected positional argument for file_path")
-	}
-	opts.path = args[0]
 
 	return opts, nil
 }
