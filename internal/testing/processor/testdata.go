@@ -32,6 +32,9 @@ var (
 	//go:embed testdata/invalid-spdx.json
 	SpdxInvalidExample []byte
 
+	//go:embed testdata/spdx_vuln.json
+	SpdxVuln []byte
+
 	// Example scorecard
 	//go:embed testdata/kubernetes-scorecard.json
 	ScorecardExample []byte
@@ -67,6 +70,6 @@ var (
 	//go:embed testdata/github-review.json
 	ITE6ReviewExample []byte
 
-	//go:embed testdata/certify-osv.json
-	ITE6OSVExample []byte
+	//go:embed testdata/certify-vuln.json
+	ITE6OSVExmple []byte
 )
