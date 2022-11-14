@@ -36,6 +36,7 @@ const (
 )
 
 type osvCertificationParser struct {
+	doc         *processor.Document
 	packageNode []assembler.PackageNode
 	attestation assembler.AttestationNode
 	vulns       []assembler.VulnerabilityNode
@@ -52,6 +53,7 @@ func NewOSVCertificationParser() common.DocumentParser {
 
 // Parse breaks out the document into the graph components
 func (c *osvCertificationParser) Parse(ctx context.Context, doc *processor.Document) error {
+	c.doc = doc
 	statement, err := parseOSVCertifyPredicate(doc.Blob)
 	if err != nil {
 		return fmt.Errorf("failed to parse slsa predicate: %w", err)
@@ -82,6 +84,7 @@ func (c *osvCertificationParser) getAttestation(blob []byte, source string, stat
 		Digest:          algorithmSHA256 + ":" + hex.EncodeToString(h[:]),
 		AttestationType: attestationType,
 		Payload:         map[string]interface{}{},
+		NodeData:        *assembler.NewObjectMetadata(c.doc.SourceInformation),
 	}
 	attNode.Payload["producer_id"] = statement.Predicate.Producer.Id
 	attNode.Payload["producer_type"] = statement.Predicate.Producer.Type
@@ -99,6 +102,7 @@ func (c *osvCertificationParser) getVulns(blob []byte, source string, statement 
 	for _, id := range statement.Predicate.Attributes[0].Evidence.Results {
 		vulNode := assembler.VulnerabilityNode{}
 		vulNode.ID = id.OSVID
+		vulNode.NodeData = *assembler.NewObjectMetadata(c.doc.SourceInformation)
 		c.vulns = append(c.vulns, vulNode)
 	}
 }

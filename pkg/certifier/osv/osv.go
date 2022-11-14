@@ -37,10 +37,16 @@ func (o *OSVCertifier) CertifyVulns(ctx context.Context, client graphdb.Client, 
 		packNodes = append(packNodes, foundPack)
 	}
 
-	err = getVulnerabilities(packNodes, docChannel)
-	if err != nil {
-		return err
+	i := 0
+	for i < len(packNodes) {
+		query, lastIndex := getQuery(i, packNodes)
+		err = getVulnerabilities(query, docChannel)
+		i = lastIndex
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
@@ -48,14 +54,26 @@ func (o *OSVCertifier) Type() string {
 	return CertifierOSV
 }
 
-func getVulnerabilities(packNodes []assembler.PackageNode, docChannel chan<- *processor.Document) error {
+func getQuery(lastIndex int, packNodes []assembler.PackageNode) (osv_query.BatchedQuery, int) {
 	var query osv_query.BatchedQuery
-	for _, pack := range packNodes {
-		purlQuery := osv_query.MakePURLRequest(pack.Purl)
-		purlQuery.Package.PURL = pack.Purl
-		purlQuery.Package.Digest = pack.Digest
+	var stoppedIndex int
+	j := 1
+	for i := lastIndex; i < len(packNodes); i++ {
+		purlQuery := osv_query.MakePURLRequest(packNodes[i].Purl)
+		purlQuery.Package.PURL = packNodes[i].Purl
+		purlQuery.Package.Digest = packNodes[i].Digest
 		query.Queries = append(query.Queries, purlQuery)
+		j++
+		if j == 1000 {
+			stoppedIndex = i
+			return query, stoppedIndex
+		}
 	}
+	stoppedIndex = len(packNodes)
+	return query, stoppedIndex
+}
+
+func getVulnerabilities(query osv_query.BatchedQuery, docChannel chan<- *processor.Document) error {
 
 	resp, err := osv_query.MakeRequest(query)
 	if err != nil {
@@ -104,7 +122,7 @@ func createAttestation(query osv_query.Query, vulns []osv_scanner.Entry) *attest
 			subjects = append(subjects, intoto.Subject{
 				Name: query.Package.PURL,
 				Digest: slsa.DigestSet{
-					digestSplit[0]: digest,
+					digestSplit[0]: digestSplit[1],
 				},
 			})
 		}

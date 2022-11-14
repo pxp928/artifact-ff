@@ -38,7 +38,7 @@ func StoreGraph(g Graph, client graphdb.Client) error {
 			return err
 		}
 		queryPartForNodeAttributes(&sb, true, n, "n")
-		queryPartForNodeAttributes(&sb, false, n, "n")
+		//queryPartForNodeAttributes(&sb, false, n, "n")
 		node_queries[i] = sb.String()
 		node_dicts[i] = map[string]interface{}{}
 		for k, v := range n.Properties() {
