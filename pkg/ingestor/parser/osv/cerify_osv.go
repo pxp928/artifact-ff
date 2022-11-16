@@ -91,7 +91,7 @@ func (c *osvCertificationParser) getAttestation(blob []byte, source string, stat
 	attNode.Payload["attribute"] = statement.Predicate.Attributes[0].Attribute
 	attNode.Payload["scanner_id"] = statement.Predicate.Attributes[0].Evidence.Scanner.Id
 	attNode.Payload["scanner_type"] = statement.Predicate.Attributes[0].Evidence.Scanner.Type
-	attNode.Payload["date"] = statement.Predicate.Attributes[0].Evidence.Date.String()
+	attNode.Payload["scannedOn"] = statement.Predicate.Attributes[0].Evidence.ScannedOn.String()
 	for i, id := range statement.Predicate.Attributes[0].Evidence.Results {
 		attNode.Payload["osv_id_"+strconv.Itoa(i)] = id.OSVID
 	}

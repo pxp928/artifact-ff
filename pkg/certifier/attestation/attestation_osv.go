@@ -45,9 +45,9 @@ type Attribute struct {
 
 // Certifier identifies the entity
 type Evidence struct {
-	Scanner Scanner    `json:"scanner"`
-	Results []Result   `json:"results"`
-	Date    *time.Time `json:"date"`
+	Scanner   Scanner    `json:"scanner"`
+	Results   []Result   `json:"results"`
+	ScannedOn *time.Time `json:"scannedOn"`
 }
 
 type Result struct {

@@ -138,7 +138,7 @@ func createAttestation(query osv_query.Query, vulns []osv_scanner.Entry) *attest
 	attribute.Attribute = "scanned"
 	attribute.Evidence.Scanner.Id = "osv.dev"
 	attribute.Evidence.Scanner.Type = "osv"
-	attribute.Evidence.Date = &currentTime
+	attribute.Evidence.ScannedOn = &currentTime
 
 	attestation.Predicate.Attributes = append(attestation.Predicate.Attributes, attribute)
 
