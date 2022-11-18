@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	PredicateSCAI = "http://in-toto.io/attestation/scai/attribute-assertion/v0.1"
+	PredicateSCAI = "https://in-toto.io/attestation/vuln/v0.1"
 )
 
 // StatementHeader defines the common fields for all statements
@@ -35,7 +35,7 @@ type StatementHeader struct {
 type AssertionStatement struct {
 	StatementHeader
 	// Predicate contains type specific metadata.
-	Predicate AssertionPredicate `json:"predicate"`
+	Predicate VulnerabilityPredicate `json:"predicate"`
 }
 
 type Attribute struct {
@@ -59,12 +59,14 @@ type Scanner struct {
 	Id   string `json:"id"`
 }
 
-type Producer struct {
-	Type string `json:"type"`
-	Id   string `json:"id"`
+type Invocation struct {
+	Parameters []string `json:"parameters"`
+	Uri        string   `json:"uri"`
+	EventID    string   `json:"event_id"`
+	ProducerID string   `json:"producer_id"`
 }
 
-type AssertionPredicate struct {
-	Producer   Producer    `json:"producer"`
+type VulnerabilityPredicate struct {
+	Invocation Invocation  `json:"invocation"`
 	Attributes []Attribute `json:"attributes"`
 }
