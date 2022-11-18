@@ -39,7 +39,7 @@ func Test_osvCertificationParser(t *testing.T) {
 		name: "testing",
 		doc: &processor.Document{
 			Blob:   testdata.ITE6OSVExmple,
-			Type:   processor.DocumentITE6OSV,
+			Type:   processor.DocumentITE6Vul,
 			Format: processor.FormatJSON,
 			SourceInformation: processor.SourceInformation{
 				Collector: "TestCollector",
