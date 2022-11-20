@@ -86,22 +86,25 @@ func (c *osvCertificationParser) getAttestation(blob []byte, source string, stat
 		Payload:         map[string]interface{}{},
 		NodeData:        *assembler.NewObjectMetadata(c.doc.SourceInformation),
 	}
-	attNode.Payload["producer_id"] = statement.Predicate.Producer.Id
-	attNode.Payload["producer_type"] = statement.Predicate.Producer.Type
-	attNode.Payload["attribute"] = statement.Predicate.Attributes[0].Attribute
-	attNode.Payload["scanner_id"] = statement.Predicate.Attributes[0].Evidence.Scanner.Id
-	attNode.Payload["scanner_type"] = statement.Predicate.Attributes[0].Evidence.Scanner.Type
-	attNode.Payload["scannedOn"] = statement.Predicate.Attributes[0].Evidence.ScannedOn.String()
-	for i, id := range statement.Predicate.Attributes[0].Evidence.Results {
-		attNode.Payload["osv_id_"+strconv.Itoa(i)] = id.OSVID
+	attNode.Payload["invocation_parameters"] = statement.Predicate.Invocation.Parameters
+	attNode.Payload["invocation_uri"] = statement.Predicate.Invocation.Uri
+	attNode.Payload["invocation_eventID"] = statement.Predicate.Invocation.EventID
+	attNode.Payload["invocation_producerID"] = statement.Predicate.Invocation.ProducerID
+	attNode.Payload["scanner_uri"] = statement.Predicate.Scanner.Uri
+	attNode.Payload["scanner_version"] = statement.Predicate.Scanner.Version
+	attNode.Payload["scanner_db_uri"] = statement.Predicate.Scanner.Database.Uri
+	attNode.Payload["scanner_db_version"] = statement.Predicate.Scanner.Database.Version
+	for i, result := range statement.Predicate.Scanner.Result {
+		attNode.Payload["result_vulnerabilityID"+strconv.Itoa(i)] = result.VulnerabilityId
+		attNode.Payload["result_alias"+strconv.Itoa(i)] = result.Aliases
 	}
 	c.attestation = attNode
 }
 
 func (c *osvCertificationParser) getVulns(blob []byte, source string, statement *attestation_osv.AssertionStatement) {
-	for _, id := range statement.Predicate.Attributes[0].Evidence.Results {
+	for _, id := range statement.Predicate.Scanner.Result {
 		vulNode := assembler.VulnerabilityNode{}
-		vulNode.ID = id.OSVID
+		vulNode.ID = id.VulnerabilityId
 		vulNode.NodeData = *assembler.NewObjectMetadata(c.doc.SourceInformation)
 		c.vulns = append(c.vulns, vulNode)
 	}

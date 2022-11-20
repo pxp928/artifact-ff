@@ -38,35 +38,36 @@ type AssertionStatement struct {
 	Predicate VulnerabilityPredicate `json:"predicate"`
 }
 
-type Attribute struct {
-	Attribute string   `json:"attribute"`
-	Evidence  Evidence `json:"evidence"`
-}
-
-// Certifier identifies the entity
-type Evidence struct {
-	Scanner   Scanner    `json:"scanner"`
-	Results   []Result   `json:"results"`
-	ScannedOn *time.Time `json:"scannedOn"`
+type metadata struct {
+	ScannedOn *time.Time `json:"scannedOn,omitempty"`
 }
 
 type Result struct {
-	OSVID string `json:"OSVID"`
+	VulnerabilityId string   `json:"vulnerability_id,omitempty"`
+	Aliases         []string `json:"aliases,omitempty"`
+}
+
+type db struct {
+	Uri     string `json:"uri,omitempty"`
+	Version string `json:"version,omitempty"`
 }
 
 type Scanner struct {
-	Type string `json:"type"`
-	Id   string `json:"id"`
+	Uri      string   `json:"uri,omitempty"`
+	Version  string   `json:"version,omitempty"`
+	Database db       `json:"db,omitempty"`
+	Result   []Result `json:"result,omitempty"`
 }
 
 type Invocation struct {
-	Parameters []string `json:"parameters"`
-	Uri        string   `json:"uri"`
-	EventID    string   `json:"event_id"`
-	ProducerID string   `json:"producer_id"`
+	Parameters []string `json:"parameters,omitempty"`
+	Uri        string   `json:"uri,omitempty"`
+	EventID    string   `json:"event_id,omitempty"`
+	ProducerID string   `json:"producer_id,omitempty"`
 }
 
 type VulnerabilityPredicate struct {
-	Invocation Invocation  `json:"invocation"`
-	Attributes []Attribute `json:"attributes"`
+	Invocation Invocation `json:"invocation,omitempty"`
+	Scanner    Scanner    `json:"scanner,omitempty"`
+	Metadata   metadata   `json:"metadata,omitempty"`
 }
