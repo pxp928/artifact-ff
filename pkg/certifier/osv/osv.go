@@ -30,31 +30,33 @@ func NewOSVCertificationParser() certifier.Certifier {
 
 func (o *OSVCertifier) CertifyVulns(ctx context.Context, rootComponent *certifier.Component, docChannel chan<- *processor.Document) error {
 	o.rootComponents = rootComponent
-	err := o.certifyHelper(ctx, rootComponent, rootComponent.DepPackages, docChannel)
+	_, err := o.certifyHelper(ctx, rootComponent, rootComponent.DepPackages, docChannel)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *OSVCertifier) certifyHelper(ctx context.Context, topLevel *certifier.Component, depPackages []*certifier.Component, docChannel chan<- *processor.Document) error {
+func (o *OSVCertifier) certifyHelper(ctx context.Context, topLevel *certifier.Component, depPackages []*certifier.Component, docChannel chan<- *processor.Document) ([]osv_scanner.Entry, error) {
 	packNodes := []assembler.PackageNode{}
+	totalDepVul := []osv_scanner.Entry{}
 	for _, depPack := range depPackages {
 		if len(depPack.DepPackages) > 0 {
-			err := o.certifyHelper(ctx, depPack, depPack.DepPackages, docChannel)
+			depVulns, err := o.certifyHelper(ctx, depPack, depPack.DepPackages, docChannel)
 			if err != nil {
-				return nil
+				return nil, nil
 			}
+			totalDepVul = append(totalDepVul, depVulns...)
 		}
 		packNodes = append(packNodes, depPack.CurPackage)
 	}
+
 	i := 0
-	totalDepVul := []osv_scanner.Entry{}
 	for i < len(packNodes) {
 		query, lastIndex := getQuery(i, packNodes)
 		vulns, err := getVulnerabilities(query, docChannel)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		i = lastIndex
 		totalDepVul = append(totalDepVul, vulns...)
@@ -62,10 +64,10 @@ func (o *OSVCertifier) certifyHelper(ctx context.Context, topLevel *certifier.Co
 
 	doc, err := generateDocument(topLevel.CurPackage.Purl, topLevel.CurPackage.Digest, totalDepVul)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	docChannel <- doc
-	return nil
+	return totalDepVul, nil
 }
 
 func getQuery(lastIndex int, packNodes []assembler.PackageNode) (osv_query.BatchedQuery, int) {
@@ -126,7 +128,6 @@ func generateDocument(purl string, digest []string, vulns []osv_scanner.Entry) (
 func createAttestation(purl string, digest []string, vulns []osv_scanner.Entry) *attestation_osv.AssertionStatement {
 	currentTime := time.Now()
 	var subjects []intoto.Subject
-	var scanner attestation_osv.Scanner
 
 	attestation := &attestation_osv.AssertionStatement{}
 	attestation.StatementHeader.Type = "https://in-toto.io/Statement/v0.1"
@@ -150,8 +151,8 @@ func createAttestation(purl string, digest []string, vulns []osv_scanner.Entry) 
 	attestation.StatementHeader.Subject = subjects
 	attestation.Predicate.Invocation.Uri = "guac"
 	attestation.Predicate.Invocation.ProducerID = "guecsec/guac"
-	scanner.Uri = "osv.dev"
-	scanner.Version = "0.0.14"
+	attestation.Predicate.Scanner.Uri = "osv.dev"
+	attestation.Predicate.Scanner.Version = "0.0.14"
 	attestation.Predicate.Metadata.ScannedOn = &currentTime
 
 	for _, vuln := range vulns {

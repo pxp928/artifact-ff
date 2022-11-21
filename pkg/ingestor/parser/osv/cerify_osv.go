@@ -94,6 +94,7 @@ func (c *osvCertificationParser) getAttestation(blob []byte, source string, stat
 	attNode.Payload["scanner_version"] = statement.Predicate.Scanner.Version
 	attNode.Payload["scanner_db_uri"] = statement.Predicate.Scanner.Database.Uri
 	attNode.Payload["scanner_db_version"] = statement.Predicate.Scanner.Database.Version
+	attNode.Payload["metadata_scannedOn"] = statement.Predicate.Metadata.ScannedOn.String()
 	for i, result := range statement.Predicate.Scanner.Result {
 		attNode.Payload["result_vulnerabilityID"+strconv.Itoa(i)] = result.VulnerabilityId
 		attNode.Payload["result_alias"+strconv.Itoa(i)] = result.Aliases
@@ -138,10 +139,10 @@ func (c *osvCertificationParser) CreateEdges(ctx context.Context, foundIdentitie
 		edges = append(edges, assembler.IdentityForEdge{IdentityNode: i, AttestationNode: c.attestation})
 	}
 	for _, pack := range c.packageNode {
-		edges = append(edges, assembler.AttestationForPackage{AttestationNode: c.attestation, PackageNode: pack})
+		edges = append(edges, assembler.AttestationForEdge{AttestationNode: c.attestation, ForPackage: pack})
 	}
 	for _, vuln := range c.vulns {
-		edges = append(edges, assembler.VulnerableEdge{VulnNode: vuln, AtteNodes: c.attestation})
+		edges = append(edges, assembler.VulnerableEdge{VulnerabilityNode: vuln, AttestationNode: c.attestation})
 	}
 	return edges
 }

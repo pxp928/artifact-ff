@@ -339,33 +339,6 @@ func (e AttestationForEdge) IdentifiablePropertyNames() []string {
 	return []string{}
 }
 
-// AttestationForPackage is an edge that represents the fact that an
-// `AttestationNode` is an attestation for an `PackageNode`.
-type AttestationForPackage struct {
-	AttestationNode AttestationNode
-	PackageNode     PackageNode
-}
-
-func (e AttestationForPackage) Type() string {
-	return "Attestation"
-}
-
-func (e AttestationForPackage) Nodes() (v, u GuacNode) {
-	return e.AttestationNode, e.PackageNode
-}
-
-func (e AttestationForPackage) Properties() map[string]interface{} {
-	return map[string]interface{}{}
-}
-
-func (e AttestationForPackage) PropertyNames() []string {
-	return []string{}
-}
-
-func (e AttestationForPackage) IdentifiablePropertyNames() []string {
-	return []string{}
-}
-
 // BuiltByEdge is an edge that represents the fact that an
 // `ArtifactNode` has been built by a `BuilderNode`
 type BuiltByEdge struct {
@@ -512,5 +485,32 @@ func (e MetadataForEdge) PropertyNames() []string {
 }
 
 func (e MetadataForEdge) IdentifiablePropertyNames() []string {
+	return []string{}
+}
+
+// VulnerableEdge is an edge that represents the fact that an
+// artifact is vulnerable or not based on certification
+type VulnerableEdge struct {
+	AttestationNode   AttestationNode
+	VulnerabilityNode VulnerabilityNode
+}
+
+func (e VulnerableEdge) Type() string {
+	return "Vulnerable"
+}
+
+func (e VulnerableEdge) Nodes() (v, u GuacNode) {
+	return e.AttestationNode, e.VulnerabilityNode
+}
+
+func (e VulnerableEdge) Properties() map[string]interface{} {
+	return map[string]interface{}{}
+}
+
+func (e VulnerableEdge) PropertyNames() []string {
+	return []string{}
+}
+
+func (e VulnerableEdge) IdentifiablePropertyNames() []string {
 	return []string{}
 }
