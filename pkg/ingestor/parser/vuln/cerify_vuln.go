@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package certify_osv
+package certify_vuln
 
 import (
 	"context"
@@ -35,7 +35,7 @@ const (
 	attestationType string = "CERTIFY_OSV"
 )
 
-type osvCertificationParser struct {
+type vulnCertificationParser struct {
 	doc         *processor.Document
 	packageNode []assembler.PackageNode
 	attestation assembler.AttestationNode
@@ -44,7 +44,7 @@ type osvCertificationParser struct {
 
 // NewCerifyParser initializes the cerifyParser
 func NewOSVCertificationParser() common.DocumentParser {
-	return &osvCertificationParser{
+	return &vulnCertificationParser{
 		packageNode: []assembler.PackageNode{},
 		attestation: assembler.AttestationNode{},
 		vulns:       []assembler.VulnerabilityNode{},
@@ -52,7 +52,7 @@ func NewOSVCertificationParser() common.DocumentParser {
 }
 
 // Parse breaks out the document into the graph components
-func (c *osvCertificationParser) Parse(ctx context.Context, doc *processor.Document) error {
+func (c *vulnCertificationParser) Parse(ctx context.Context, doc *processor.Document) error {
 	c.doc = doc
 	statement, err := parseOSVCertifyPredicate(doc.Blob)
 	if err != nil {
@@ -64,7 +64,7 @@ func (c *osvCertificationParser) Parse(ctx context.Context, doc *processor.Docum
 	return nil
 }
 
-func (c *osvCertificationParser) getSubject(statement *attestation_osv.AssertionStatement) {
+func (c *vulnCertificationParser) getSubject(statement *attestation_osv.AssertionStatement) {
 	currentPackage := assembler.PackageNode{}
 	for _, sub := range statement.Subject {
 		currentPackage.Purl = sub.Name
@@ -77,7 +77,7 @@ func (c *osvCertificationParser) getSubject(statement *attestation_osv.Assertion
 	}
 }
 
-func (c *osvCertificationParser) getAttestation(blob []byte, source string, statement *attestation_osv.AssertionStatement) {
+func (c *vulnCertificationParser) getAttestation(blob []byte, source string, statement *attestation_osv.AssertionStatement) {
 	h := sha256.Sum256(blob)
 	attNode := assembler.AttestationNode{
 		FilePath:        source,
@@ -102,7 +102,7 @@ func (c *osvCertificationParser) getAttestation(blob []byte, source string, stat
 	c.attestation = attNode
 }
 
-func (c *osvCertificationParser) getVulns(blob []byte, source string, statement *attestation_osv.AssertionStatement) {
+func (c *vulnCertificationParser) getVulns(blob []byte, source string, statement *attestation_osv.AssertionStatement) {
 	for _, id := range statement.Predicate.Scanner.Result {
 		vulNode := assembler.VulnerabilityNode{}
 		vulNode.ID = id.VulnerabilityId
@@ -120,7 +120,7 @@ func parseOSVCertifyPredicate(p []byte) (*attestation_osv.AssertionStatement, er
 }
 
 // CreateNodes creates the GuacNode for the graph inputs
-func (c *osvCertificationParser) CreateNodes(ctx context.Context) []assembler.GuacNode {
+func (c *vulnCertificationParser) CreateNodes(ctx context.Context) []assembler.GuacNode {
 	nodes := []assembler.GuacNode{}
 	for _, pack := range c.packageNode {
 		nodes = append(nodes, pack)
@@ -133,7 +133,7 @@ func (c *osvCertificationParser) CreateNodes(ctx context.Context) []assembler.Gu
 }
 
 // CreateEdges creates the GuacEdges that form the relationship for the graph inputs
-func (c *osvCertificationParser) CreateEdges(ctx context.Context, foundIdentities []assembler.IdentityNode) []assembler.GuacEdge {
+func (c *vulnCertificationParser) CreateEdges(ctx context.Context, foundIdentities []assembler.IdentityNode) []assembler.GuacEdge {
 	edges := []assembler.GuacEdge{}
 	for _, i := range foundIdentities {
 		edges = append(edges, assembler.IdentityForEdge{IdentityNode: i, AttestationNode: c.attestation})
@@ -148,6 +148,6 @@ func (c *osvCertificationParser) CreateEdges(ctx context.Context, foundIdentitie
 }
 
 // GetIdentities gets the identity node from the document if they exist
-func (c *osvCertificationParser) GetIdentities(ctx context.Context) []assembler.IdentityNode {
+func (c *vulnCertificationParser) GetIdentities(ctx context.Context) []assembler.IdentityNode {
 	return nil
 }

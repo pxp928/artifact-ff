@@ -70,6 +70,6 @@ var (
 	//go:embed testdata/github-review.json
 	ITE6ReviewExample []byte
 
-	//go:embed testdata/certify-osv.json
-	ITE6OSVExmple []byte
+	//go:embed testdata/certify-vuln.json
+	ITE6VulnExmple []byte
 )

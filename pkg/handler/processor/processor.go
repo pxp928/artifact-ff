@@ -55,7 +55,6 @@ const (
 	DocumentITE6SLSA    DocumentType = "SLSA"
 	DocumentITE6Vul     DocumentType = "ITE6VUL"
 	DocumentITE6Generic DocumentType = "ITE6"
-	DocumentITE6Vul     DocumentType = "ITE6VUL"
 	DocumentDSSE        DocumentType = "DSSE"
 	DocumentSPDX        DocumentType = "SPDX"
 	DocumentJsonLines   DocumentType = "JSON_LINES"

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package certify_osv
+package certify_vuln
 
 import (
 	"context"
@@ -177,7 +177,7 @@ func Test_osvCertificationParser(t *testing.T) {
 	}{{
 		name: "valid vulnerability certifier document",
 		doc: &processor.Document{
-			Blob:   processor_data.ITE6OSVExmple,
+			Blob:   processor_data.ITE6VulnExmple,
 			Format: processor.FormatJSON,
 			Type:   processor.DocumentITE6Vul,
 			SourceInformation: processor.SourceInformation{
