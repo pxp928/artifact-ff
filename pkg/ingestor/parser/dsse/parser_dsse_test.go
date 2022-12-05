@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/guacsec/guac/internal/testing/ingestor/testdata"
+	processor_test "github.com/guacsec/guac/internal/testing/processor"
 	"github.com/guacsec/guac/pkg/assembler"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/guacsec/guac/pkg/ingestor/verifier"
@@ -42,7 +43,7 @@ func Test_DsseParser(t *testing.T) {
 		wantErr      bool
 	}{{
 		name:         "testing",
-		doc:          &testdata.Ite6DSSEDoc,
+		doc:          &processor_test.Ite6DSSEDoc,
 		wantNodes:    testdata.DsseNodes,
 		wantEdges:    testdata.DsseEdges,
 		wantIdentity: testdata.Ident,
