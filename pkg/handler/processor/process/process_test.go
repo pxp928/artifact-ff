@@ -17,6 +17,10 @@ package process
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -24,7 +28,6 @@ import (
 	nats_test "github.com/guacsec/guac/internal/testing/nats"
 	testdata "github.com/guacsec/guac/internal/testing/processor"
 	"github.com/guacsec/guac/pkg/emitter"
-	"github.com/guacsec/guac/pkg/handler/collector"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/guacsec/guac/pkg/handler/processor/guesser"
 )
@@ -522,12 +525,15 @@ func Test_SimpleDocProcessTest(t *testing.T) {
 	// Register
 	err = RegisterDocumentProcessor(&simpledoc.SimpleDocProc{}, simpledoc.SimpleDocType)
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
+		if !strings.Contains(err.Error(), "the document processor is being overwritten") {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
-
 	err = guesser.RegisterDocumentTypeGuesser(&simpledoc.SimpleDocProc{}, "simple-doc-guesser")
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
+		if !strings.Contains(err.Error(), "the document type guesser is being overwritten") {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -561,7 +567,7 @@ func Test_SimpleDocProcessTest(t *testing.T) {
 	}
 }
 
-func Test_ProcessSubscribeTest(t *testing.T) {
+func Test_ProcessSubscribe(t *testing.T) {
 	natsTest := nats_test.NewNatsTestServer()
 	url, err := natsTest.EnableJetStreamForTest()
 	if err != nil {
@@ -628,32 +634,57 @@ func Test_ProcessSubscribeTest(t *testing.T) {
 		expectErr: true,
 	}}
 
-	documentProcessors = map[processor.DocumentType]processor.DocumentProcessor{}
 	// Register
 	err = RegisterDocumentProcessor(&simpledoc.SimpleDocProc{}, simpledoc.SimpleDocType)
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
+		if !strings.Contains(err.Error(), "the document processor is being overwritten") {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
 	err = guesser.RegisterDocumentTypeGuesser(&simpledoc.SimpleDocProc{}, "simple-doc-guesser")
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
+		if !strings.Contains(err.Error(), "the document type guesser is being overwritten") {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			collector.Publish(ctx, &tt.doc)
+			testPublish(ctx, &tt.doc)
+
 			var cancel context.CancelFunc
-			ctx, cancel = context.WithTimeout(ctx, 3*time.Second)
+
+			ctx, cancel = context.WithTimeout(ctx, time.Second)
 			defer cancel()
+
+			errChan := make(chan error, 1)
+			defer close(errChan)
 			go func() {
-				err := Subscribe(ctx)
-				if err != nil {
-					if tt.expectErr {
-						return
-					}
-					t.Errorf("unexpected error: %v", err)
-					return
-				}
+				errChan <- Subscribe(ctx)
 			}()
+
+			numSubscribers := 1
+			subscribersDone := 0
+
+			for subscribersDone < numSubscribers {
+				err := <-errChan
+				if err != nil && !errors.Is(err, context.DeadlineExceeded) {
+					t.Errorf("nats emitter Subscribe test errored = %v", err)
+				}
+				subscribersDone += 1
+			}
 		})
 	}
+}
+
+func testPublish(ctx context.Context, d *processor.Document) error {
+	js := emitter.FromContext(ctx)
+	docByte, err := json.Marshal(d)
+	if err != nil {
+		return fmt.Errorf("failed marshal of document: %w", err)
+	}
+	_, err = js.Publish(emitter.SubjectNameDocCollected, docByte)
+	if err != nil {
+		return fmt.Errorf("failed to publish document on stream: %w", err)
+	}
+	return nil
 }

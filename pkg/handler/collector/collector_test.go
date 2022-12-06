@@ -13,24 +13,81 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package emitter
+package collector
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
 	nats_test "github.com/guacsec/guac/internal/testing/nats"
 	testdata "github.com/guacsec/guac/internal/testing/processor"
+	"github.com/guacsec/guac/pkg/emitter"
+	"github.com/guacsec/guac/pkg/handler/collector/file"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/guacsec/guac/pkg/logging"
 	uuid "github.com/satori/go.uuid"
 )
 
-func TestNatsEmitter_PublishOnEmit(t *testing.T) {
+func TestCollect(t *testing.T) {
+	ctx := logging.WithLogger(context.Background())
+
+	errHandler := func(err error) bool {
+		return err == nil
+	}
+
+	tests := []struct {
+		name          string
+		collectorType string
+		collector     Collector
+		wantErr       bool
+		want          []*processor.Document
+	}{{
+		name:      "file collector file",
+		collector: file.NewFileCollector(ctx, "./testdata", false, time.Second),
+		want: []*processor.Document{{
+			Blob:   []byte("hello\n"),
+			Type:   processor.DocumentUnknown,
+			Format: processor.FormatUnknown,
+			SourceInformation: processor.SourceInformation{
+				Collector: string(file.FileCollector),
+				Source:    "file:///testdata/hello",
+			}},
+		},
+		wantErr: false,
+	},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var collectedDoc []*processor.Document
+			documentCollectors = map[string]Collector{}
+
+			err := RegisterDocumentCollector(tt.collector, tt.collector.Type())
+			if err != nil {
+				t.Error(err)
+			}
+
+			emit := func(d *processor.Document) error {
+				collectedDoc = append(collectedDoc, d)
+				return nil
+			}
+			err = Collect(ctx, emit, errHandler)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Collect() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err == nil {
+				if !reflect.DeepEqual(collectedDoc, tt.want) {
+					t.Errorf("Collect() = %v, want %v", collectedDoc, tt.want)
+				}
+			}
+		})
+	}
+}
+
+func Test_Publish(t *testing.T) {
 	expectedDocTree := testdata.DocNode(&testdata.Ite6SLSADoc)
 
 	natsTest := nats_test.NewNatsTestServer()
@@ -41,7 +98,7 @@ func TestNatsEmitter_PublishOnEmit(t *testing.T) {
 	defer natsTest.Shutdown()
 
 	ctx := context.Background()
-	jetStream := NewJetStream(url, "", "")
+	jetStream := emitter.NewJetStream(url, "", "")
 	ctx, err = jetStream.JetStreamInit(ctx)
 	if err != nil {
 		t.Fatalf("unexpected error initializing jetstream: %v", err)
@@ -51,7 +108,7 @@ func TestNatsEmitter_PublishOnEmit(t *testing.T) {
 		t.Fatalf("unexpected error recreating jetstream: %v", err)
 	}
 	defer jetStream.Close()
-	err = testPublish(ctx, &testdata.Ite6SLSADoc)
+	err = Publish(ctx, &testdata.Ite6SLSADoc)
 	if err != nil {
 		t.Fatalf("unexpected error on emit: %v", err)
 	}
@@ -87,26 +144,11 @@ func TestNatsEmitter_PublishOnEmit(t *testing.T) {
 
 }
 
-func testPublish(ctx context.Context, d *processor.Document) error {
-	logger := logging.FromContext(ctx)
-	js := FromContext(ctx)
-	docByte, err := json.Marshal(d)
-	if err != nil {
-		return fmt.Errorf("failed marshal of document: %w", err)
-	}
-	_, err = js.Publish(SubjectNameDocCollected, docByte)
-	if err != nil {
-		return fmt.Errorf("failed to publish document on stream: %w", err)
-	}
-	logger.Infof("doc published: %+v", d)
-	return nil
-}
-
 func testSubscribe(ctx context.Context, docChannel chan<- processor.DocumentTree) error {
 	logger := logging.FromContext(ctx)
-	js := FromContext(ctx)
+	js := emitter.FromContext(ctx)
 	id := uuid.NewV4().String()
-	sub, err := js.PullSubscribe(SubjectNameDocCollected, "processor")
+	sub, err := js.PullSubscribe(emitter.SubjectNameDocCollected, "processor")
 	if err != nil {
 		logger.Errorf("processor subscribe failed: %s", err)
 		return err
