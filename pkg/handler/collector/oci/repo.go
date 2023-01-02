@@ -30,10 +30,10 @@ import (
 )
 
 const (
-	OCICollector = "OCICollector"
+	OCIRepoCollector = "OCIRepoCollector"
 )
 
-type ociCollector struct {
+type ociRepoCollector struct {
 	repo          string
 	tag           string
 	checkedDigest []string
@@ -41,8 +41,8 @@ type ociCollector struct {
 	interval      time.Duration
 }
 
-func NewOCICollector(ctx context.Context, repo string, tag string, poll bool, interval time.Duration) *ociCollector {
-	return &ociCollector{
+func NewOCIRepoCollector(ctx context.Context, repo string, tag string, poll bool, interval time.Duration) *ociRepoCollector {
+	return &ociRepoCollector{
 		repo:          repo,
 		tag:           tag,
 		checkedDigest: []string{},
@@ -52,7 +52,7 @@ func NewOCICollector(ctx context.Context, repo string, tag string, poll bool, in
 }
 
 // RetrieveArtifacts get the artifacts from the collector source based on polling or one time
-func (o *ociCollector) RetrieveArtifacts(ctx context.Context, docChannel chan<- *processor.Document) error {
+func (o *ociRepoCollector) RetrieveArtifacts(ctx context.Context, docChannel chan<- *processor.Document) error {
 	if o.poll {
 		if o.tag != "" {
 			return errors.New("image tag should not specified when using polling")
@@ -78,7 +78,22 @@ func (o *ociCollector) RetrieveArtifacts(ctx context.Context, docChannel chan<- 
 	return nil
 }
 
-func (o *ociCollector) getTagsAndFetch(ctx context.Context, docChannel chan<- *processor.Document) error {
+func getTagList(ctx context.Context, rc *regclient.RegClient, image ref.Ref) ([]string, error) {
+	collectedTags := []string{}
+	tags, err := rc.TagList(ctx, image)
+	if err != nil {
+		return nil, fmt.Errorf("reading tags for %s: %w", image.Repository, err)
+	}
+
+	for _, tag := range tags.Tags {
+		if !strings.HasSuffix(tag, "sbom") && !strings.HasSuffix(tag, "att") && !strings.HasSuffix(tag, "sig") {
+			collectedTags = append(collectedTags, tag)
+		}
+	}
+	return collectedTags, nil
+}
+
+func (o *ociRepoCollector) getTagsAndFetch(ctx context.Context, docChannel chan<- *processor.Document) error {
 	rcOpts := []regclient.Opt{}
 	rcOpts = append(rcOpts, regclient.WithDockerCreds())
 	rcOpts = append(rcOpts, regclient.WithDockerCerts())
@@ -106,29 +121,26 @@ func (o *ociCollector) getTagsAndFetch(ctx context.Context, docChannel chan<- *p
 		rc := regclient.New(rcOpts...)
 		defer rc.Close(ctx, r)
 
-		tags, err := rc.TagList(ctx, r)
+		collectedTags, err := getTagList(ctx, rc, r)
 		if err != nil {
-			return fmt.Errorf("reading tags for %s: %w", o.repo, err)
+			return err
 		}
-
-		for _, tag := range tags.Tags {
-			if !strings.HasSuffix(tag, "sbom") && !strings.HasSuffix(tag, "att") && !strings.HasSuffix(tag, "sig") {
-				imageTag := fmt.Sprintf("%v:%v", o.repo, tag)
-				r, err := ref.New(imageTag)
-				if err != nil {
-					return err
-				}
-				err = o.fetchOCIArtifacts(ctx, rc, r, docChannel)
-				if err != nil {
-					return err
-				}
+		for _, tag := range collectedTags {
+			imageTag := fmt.Sprintf("%v:%v", o.repo, tag)
+			r, err := ref.New(imageTag)
+			if err != nil {
+				return err
+			}
+			err = o.fetchOCIArtifacts(ctx, rc, r, docChannel)
+			if err != nil {
+				return err
 			}
 		}
 	}
 	return nil
 }
 
-func (o *ociCollector) fetchOCIArtifacts(ctx context.Context, rc *regclient.RegClient, image ref.Ref, docChannel chan<- *processor.Document) error {
+func (o *ociRepoCollector) fetchOCIArtifacts(ctx context.Context, rc *regclient.RegClient, image ref.Ref, docChannel chan<- *processor.Document) error {
 	logger := logging.FromContext(ctx)
 
 	// attempt to request only the headers, avoids Docker Hub rate limits
@@ -201,7 +213,7 @@ func (o *ociCollector) fetchOCIArtifacts(ctx context.Context, rc *regclient.RegC
 					Type:   processor.DocumentUnknown,
 					Format: processor.FormatUnknown,
 					SourceInformation: processor.SourceInformation{
-						Collector: string(OCICollector),
+						Collector: string(OCIRepoCollector),
 						Source:    imageTag,
 					},
 				}
@@ -224,6 +236,6 @@ func contains(elems []string, v string) bool {
 }
 
 // Type is the collector type of the collector
-func (o *ociCollector) Type() string {
-	return OCICollector
+func (o *ociRepoCollector) Type() string {
+	return OCIRepoCollector
 }

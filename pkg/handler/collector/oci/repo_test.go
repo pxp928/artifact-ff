@@ -58,7 +58,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				Type:   processor.DocumentUnknown,
 				Format: processor.FormatUnknown,
 				SourceInformation: processor.SourceInformation{
-					Collector: string(OCICollector),
+					Collector: string(OCIRepoCollector),
 					Source:    "ppatel1989/go-multi-test:sha256-a743268cd3c56f921f3fb706cc0425c8ab78119fd433e38bb7c5dcd5635b0d10.sbom",
 				},
 			},
@@ -67,7 +67,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				Type:   processor.DocumentUnknown,
 				Format: processor.FormatUnknown,
 				SourceInformation: processor.SourceInformation{
-					Collector: string(OCICollector),
+					Collector: string(OCIRepoCollector),
 					Source:    "ppatel1989/go-multi-test:sha256-1bc7e53e25de5c00ecaeca1473ab56bfaf4e39cea747edcf7db467389a287931.sbom",
 				},
 			},
@@ -76,7 +76,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				Type:   processor.DocumentUnknown,
 				Format: processor.FormatUnknown,
 				SourceInformation: processor.SourceInformation{
-					Collector: string(OCICollector),
+					Collector: string(OCIRepoCollector),
 					Source:    "ppatel1989/go-multi-test:sha256-534035553d1270a98dab3512fde0987e7709ec6b878c8fd60fdaf0d8e1611979.sbom",
 				},
 			},
@@ -96,7 +96,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				Type:   processor.DocumentUnknown,
 				Format: processor.FormatUnknown,
 				SourceInformation: processor.SourceInformation{
-					Collector: string(OCICollector),
+					Collector: string(OCIRepoCollector),
 					Source:    "ppatel1989/guac-test-image:sha256-9e183c89765d92a440f44ac7059385c778cbadad0ee8fe3208360efb07c0ba09.att",
 				},
 			},
@@ -105,7 +105,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				Type:   processor.DocumentUnknown,
 				Format: processor.FormatUnknown,
 				SourceInformation: processor.SourceInformation{
-					Collector: string(OCICollector),
+					Collector: string(OCIRepoCollector),
 					Source:    "ppatel1989/guac-test-image:sha256-9e183c89765d92a440f44ac7059385c778cbadad0ee8fe3208360efb07c0ba09.sbom",
 				},
 			},
@@ -124,7 +124,7 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := NewOCICollector(ctx, tt.fields.repo, tt.fields.tag, tt.fields.poll, tt.fields.interval)
+			g := NewOCIRepoCollector(ctx, tt.fields.repo, tt.fields.tag, tt.fields.poll, tt.fields.interval)
 
 			var cancel context.CancelFunc
 			if tt.fields.poll {
@@ -176,8 +176,8 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 					}
 				}
 
-				if g.Type() != OCICollector {
-					t.Errorf("g.Type() = %s, want %s", g.Type(), OCICollector)
+				if g.Type() != OCIRepoCollector {
+					t.Errorf("g.Type() = %s, want %s", g.Type(), OCIRepoCollector)
 				}
 			}
 
