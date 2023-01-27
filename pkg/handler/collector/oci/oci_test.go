@@ -23,12 +23,12 @@ import (
 
 	"github.com/guacsec/guac/internal/testing/dochelper"
 	"github.com/guacsec/guac/internal/testing/testdata"
+	"github.com/guacsec/guac/pkg/handler/collector"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/pkg/errors"
 )
 
 func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
-	ctx := context.Background()
 	type fields struct {
 		repoTags map[string][]string
 		poll     bool
@@ -154,7 +154,14 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			g := NewOCICollector(ctx, tt.fields.repoTags, tt.fields.poll, tt.fields.interval)
+
+			// Register collector
+			err := collector.RegisterDocumentCollector(g, OCICollector)
+			if err != nil && !errors.Is(err, collector.ErrCollectorOverwrite) {
+				t.Errorf("unexpected error: %v", err)
+			}
 
 			var cancel context.CancelFunc
 			if tt.fields.poll {
@@ -162,42 +169,31 @@ func Test_ociCollector_RetrieveArtifacts(t *testing.T) {
 				defer cancel()
 			}
 
-			var err error
-			docChan := make(chan *processor.Document, 1)
-			errChan := make(chan error, 1)
-			defer close(docChan)
-			defer close(errChan)
-			go func() {
-				errChan <- g.RetrieveArtifacts(ctx, docChan)
-			}()
-			numCollectors := 1
-			collectorsDone := 0
-
 			collectedDocs := []*processor.Document{}
 
-			for collectorsDone < numCollectors {
-				select {
-				case d := <-docChan:
-					collectedDocs = append(collectedDocs, d)
-				case err = <-errChan:
-					if err != nil {
-						if !tt.wantErr {
-							t.Errorf("g.RetrieveArtifacts() error = %v, wantErr %v", err, tt.wantErr)
-							return
-						}
-						if !strings.Contains(err.Error(), tt.errMessage.Error()) {
-							t.Errorf("g.RetrieveArtifacts() error = %v, wantErr %v", err, tt.errMessage)
-							return
-						}
-					}
-					collectorsDone += 1
-				}
-			}
-			// Drain anything left in document channel
-			for len(docChan) > 0 {
-				d := <-docChan
+			emit := func(d *processor.Document) error {
 				collectedDocs = append(collectedDocs, d)
+				return nil
 			}
+
+			// Collect
+			errHandler := func(err error) bool {
+				if err != nil {
+					if !tt.wantErr {
+						t.Errorf("g.RetrieveArtifacts() error = %v, wantErr %v", err, tt.wantErr)
+						return false
+					}
+					if !strings.Contains(err.Error(), tt.errMessage.Error()) {
+						t.Errorf("g.RetrieveArtifacts() error = %v, wantErr %v", err, tt.errMessage)
+						return false
+					}
+				}
+				return true
+			}
+			if err := collector.Collect(ctx, emit, errHandler); err != nil {
+				t.Error(err)
+			}
+
 			if err == nil {
 				for i := range collectedDocs {
 					result := dochelper.DocTreeEqual(dochelper.DocNode(collectedDocs[i]), dochelper.DocNode(tt.want[i]))

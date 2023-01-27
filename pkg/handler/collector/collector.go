@@ -49,12 +49,18 @@ type Emitter func(*processor.Document) error
 type ErrHandler func(error) bool
 
 var (
-	documentCollectors = map[string]Collector{}
+	documentCollectors    = map[string]Collector{}
+	ErrCollectorOverwrite = fmt.Errorf("the document collector is being overwritten")
 )
+
+func collectorTypeOverwriteError(collectorType string) error {
+	return fmt.Errorf("%w: %s", ErrCollectorOverwrite, collectorType)
+}
 
 func RegisterDocumentCollector(c Collector, collectorType string) error {
 	if _, ok := documentCollectors[collectorType]; ok {
-		return fmt.Errorf("the document collector is being overwritten: %s", collectorType)
+		documentCollectors[collectorType] = c
+		return collectorTypeOverwriteError(collectorType)
 	}
 	documentCollectors[collectorType] = c
 
