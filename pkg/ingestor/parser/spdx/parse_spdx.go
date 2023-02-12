@@ -255,6 +255,8 @@ func getContainsEdge(foundNode assembler.GuacNode, relatedNode assembler.GuacNod
 	}
 	if relatedNode.Type() == "Artifact" {
 		e.ContainedArtifact = relatedNode.(assembler.ArtifactNode)
+	} else if relatedNode.Type() == "Package" {
+		e.ContainedPackage = relatedNode.(assembler.PackageNode)
 	} else {
 		return nil, errors.New("node type mismatch during contains edge creation")
 	}

@@ -421,6 +421,7 @@ func (e DependsOnEdge) IdentifiablePropertyNames() []string {
 type ContainsEdge struct {
 	PackageNode       PackageNode
 	ContainedArtifact ArtifactNode
+	ContainedPackage  PackageNode
 }
 
 func (e ContainsEdge) Type() string {
@@ -428,7 +429,17 @@ func (e ContainsEdge) Type() string {
 }
 
 func (e ContainsEdge) Nodes() (v, u GuacNode) {
-	return e.PackageNode, e.ContainedArtifact
+	uA, uP := isDefined(e.ContainedArtifact), isDefined(e.ContainedPackage)
+	if uA == uP {
+		panic("only one of package and artifact dependency node defined for DependsOn relationship")
+	}
+
+	if uA {
+		u = e.ContainedArtifact
+	} else {
+		u = e.ContainedPackage
+	}
+	return e.PackageNode, u
 }
 
 func (e ContainsEdge) Properties() map[string]interface{} {
