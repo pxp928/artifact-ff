@@ -17,6 +17,7 @@ package neo4jBackend
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
@@ -114,6 +115,7 @@ func (c *neo4jClient) CertifyPkg(ctx context.Context, certifyPkgSpec *model.Cert
 
 			sb.WriteString(returnValue)
 
+			fmt.Println(sb.String())
 			result, err := tx.Run(sb.String(), queryValues)
 			if err != nil {
 				return nil, err
