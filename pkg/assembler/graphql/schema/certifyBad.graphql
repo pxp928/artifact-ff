@@ -35,21 +35,56 @@ type CertifyBad {
 }
 
 """
+PackageSourceOrArtifactSpec allows using PackageSourceOrArtifact union as
+input type to be used in read queries.
+Exactly one of the value must be set to non-nil.
+"""
+input PackageSourceOrArtifactSpec {
+  package: PkgSpec
+  source: SourceSpec
+  artifact: ArtifactSpec
+}
+
+"""
+PackageSourceOrArtifactInput allows using PackageSourceOrArtifact union as
+input type to be used in mutations.
+Exactly one of the value must be set to non-nil.
+"""
+input PackageSourceOrArtifactInput {
+  package: PkgInputSpec
+  source: SourceInputSpec
+  artifact: ArtifactInputSpec
+}
+
+"""
 CertifyBadSpec allows filtering the list of CertifyBad to return.
 Note: Package, Source or artifact must be specified but not at the same time
 For package - a PackageName or PackageVersion must be specified (name or name, version, qualifiers and subpath)
 For source - a SourceName must be specified (name, tag or commit)
 """
 input CertifyBadSpec {
-  package: PkgSpec
-  source: SourceSpec
-  artifact: ArtifactSpec
+  subject: PackageSourceOrArtifactSpec
   justification: String
   origin: String
   collector: String
 }
 
+# TODO: use this for ingestion for CertifyBad and HasSourceAt
+enum PkgMatchType {
+  ALL_VERSIONS
+  SPECIFIC_VERSION
+}
+
+input MatchFlags {
+  pkg: PkgMatchType!
+}
+
 extend type Query {
   "Returns all CertifyBad"
   CertifyBad(certifyBadSpec: CertifyBadSpec): [CertifyBad!]!
+}
+
+extend type Mutation {
+  "Adds a certification that two packages are similar"
+  ingestCertifyBad(subject: PackageSourceOrArtifactInput!, certifyPkg: CertifyPkgInputSpec!): CertifyBad!
 }
