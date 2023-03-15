@@ -45,6 +45,18 @@ func (v *CVEInputSpec) GetYear() string { return v.Year }
 // GetCveId returns CVEInputSpec.CveId, and is useful for accessing the field via an interface.
 func (v *CVEInputSpec) GetCveId() string { return v.CveId }
 
+// CVESpec allows filtering the list of cves to return.
+type CVESpec struct {
+	Year  *string `json:"year"`
+	CveId *string `json:"cveId"`
+}
+
+// GetYear returns CVESpec.Year, and is useful for accessing the field via an interface.
+func (v *CVESpec) GetYear() *string { return v.Year }
+
+// GetCveId returns CVESpec.CveId, and is useful for accessing the field via an interface.
+func (v *CVESpec) GetCveId() *string { return v.CveId }
+
 // CertifyBadArtifactIngestArtifact includes the requested fields of the GraphQL type Artifact.
 // The GraphQL type's documentation follows.
 //
@@ -1559,6 +1571,49 @@ func (v *CertifyPkgResponse) GetIngestCertifyPkg() CertifyPkgIngestCertifyPkg {
 	return v.IngestCertifyPkg
 }
 
+// CertifyVulnSpec allows filtering the list of CertifyVuln to return.
+//
+// Specifying just the package allows to query for all vulnerabilities associated with the package.
+// Only OSV, CVE or GHSA can be specified at once
+type CertifyVulnSpec struct {
+	Package        *PkgSpec          `json:"package"`
+	Vulnerability  *OsvCveOrGhsaSpec `json:"vulnerability"`
+	TimeScanned    *time.Time        `json:"timeScanned"`
+	DbUri          *string           `json:"dbUri"`
+	DbVersion      *string           `json:"dbVersion"`
+	ScannerUri     *string           `json:"scannerUri"`
+	ScannerVersion *string           `json:"scannerVersion"`
+	Origin         *string           `json:"origin"`
+	Collector      *string           `json:"collector"`
+}
+
+// GetPackage returns CertifyVulnSpec.Package, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetPackage() *PkgSpec { return v.Package }
+
+// GetVulnerability returns CertifyVulnSpec.Vulnerability, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetVulnerability() *OsvCveOrGhsaSpec { return v.Vulnerability }
+
+// GetTimeScanned returns CertifyVulnSpec.TimeScanned, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetTimeScanned() *time.Time { return v.TimeScanned }
+
+// GetDbUri returns CertifyVulnSpec.DbUri, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetDbUri() *string { return v.DbUri }
+
+// GetDbVersion returns CertifyVulnSpec.DbVersion, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetDbVersion() *string { return v.DbVersion }
+
+// GetScannerUri returns CertifyVulnSpec.ScannerUri, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetScannerUri() *string { return v.ScannerUri }
+
+// GetScannerVersion returns CertifyVulnSpec.ScannerVersion, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetScannerVersion() *string { return v.ScannerVersion }
+
+// GetOrigin returns CertifyVulnSpec.Origin, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetOrigin() *string { return v.Origin }
+
+// GetCollector returns CertifyVulnSpec.Collector, and is useful for accessing the field via an interface.
+func (v *CertifyVulnSpec) GetCollector() *string { return v.Collector }
+
 // GHSAInputSpec is the same as GHSASpec, but used for mutation ingestion.
 type GHSAInputSpec struct {
 	GhsaId string `json:"ghsaId"`
@@ -1566,6 +1621,16 @@ type GHSAInputSpec struct {
 
 // GetGhsaId returns GHSAInputSpec.GhsaId, and is useful for accessing the field via an interface.
 func (v *GHSAInputSpec) GetGhsaId() string { return v.GhsaId }
+
+// GHSASpec allows filtering the list of GHSA to return.
+//
+// The argument will be canonicalized to lowercase.
+type GHSASpec struct {
+	GhsaId *string `json:"ghsaId"`
+}
+
+// GetGhsaId returns GHSASpec.GhsaId, and is useful for accessing the field via an interface.
+func (v *GHSASpec) GetGhsaId() *string { return v.GhsaId }
 
 // HasSBOMInputSpec is the same as HasSBOM but for mutation input.
 //
@@ -3861,6 +3926,32 @@ type OSVInputSpec struct {
 // GetOsvId returns OSVInputSpec.OsvId, and is useful for accessing the field via an interface.
 func (v *OSVInputSpec) GetOsvId() string { return v.OsvId }
 
+// OSVSpec allows filtering the list of OSV to return.
+type OSVSpec struct {
+	OsvId *string `json:"osvId"`
+}
+
+// GetOsvId returns OSVSpec.OsvId, and is useful for accessing the field via an interface.
+func (v *OSVSpec) GetOsvId() *string { return v.OsvId }
+
+// OsvCveOrGhsaSpec allows using OsvCveOrGhsa union as
+// input type to be used in read queries.
+// Exactly one of the value must be set to non-nil.
+type OsvCveOrGhsaSpec struct {
+	Osv  *OSVSpec  `json:"osv"`
+	Cve  *CVESpec  `json:"cve"`
+	Ghsa *GHSASpec `json:"ghsa"`
+}
+
+// GetOsv returns OsvCveOrGhsaSpec.Osv, and is useful for accessing the field via an interface.
+func (v *OsvCveOrGhsaSpec) GetOsv() *OSVSpec { return v.Osv }
+
+// GetCve returns OsvCveOrGhsaSpec.Cve, and is useful for accessing the field via an interface.
+func (v *OsvCveOrGhsaSpec) GetCve() *CVESpec { return v.Cve }
+
+// GetGhsa returns OsvCveOrGhsaSpec.Ghsa, and is useful for accessing the field via an interface.
+func (v *OsvCveOrGhsaSpec) GetGhsa() *GHSASpec { return v.Ghsa }
+
 // PackageQualifierInputSpec is the same as PackageQualifier, but usable as
 // mutation input.
 //
@@ -3880,6 +3971,28 @@ func (v *PackageQualifierInputSpec) GetKey() string { return v.Key }
 // GetValue returns PackageQualifierInputSpec.Value, and is useful for accessing the field via an interface.
 func (v *PackageQualifierInputSpec) GetValue() string { return v.Value }
 
+// PackageQualifierSpec is the same as PackageQualifier, but usable as query
+// input.
+//
+// GraphQL does not allow input types to contain composite types and does not allow
+// composite types to contain input types. So, although in this case these two
+// types are semantically the same, we have to duplicate the definition.
+//
+// Keys are mandatory, but values could also be `null` if we want to match all
+// values for a specific key.
+//
+// TODO(mihaimaruseac): Formalize empty vs null when the schema is fully done
+type PackageQualifierSpec struct {
+	Key   string  `json:"key"`
+	Value *string `json:"value"`
+}
+
+// GetKey returns PackageQualifierSpec.Key, and is useful for accessing the field via an interface.
+func (v *PackageQualifierSpec) GetKey() string { return v.Key }
+
+// GetValue returns PackageQualifierSpec.Value, and is useful for accessing the field via an interface.
+func (v *PackageQualifierSpec) GetValue() *string { return v.Value }
+
 // PackageSourceOrArtifactInput allows using PackageSourceOrArtifact union as
 // input type to be used in mutations.
 //
@@ -3898,6 +4011,93 @@ func (v *PackageSourceOrArtifactInput) GetSource() *SourceInputSpec { return v.S
 
 // GetArtifact returns PackageSourceOrArtifactInput.Artifact, and is useful for accessing the field via an interface.
 func (v *PackageSourceOrArtifactInput) GetArtifact() *ArtifactInputSpec { return v.Artifact }
+
+// PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage includes the requested fields of the GraphQL type Package.
+// The GraphQL type's documentation follows.
+//
+// Package represents a package.
+//
+// In the pURL representation, each Package matches a `pkg:<type>` partial pURL.
+// The `type` field matches the pURL types but we might also use `"guac"` for the
+// cases where the pURL representation is not complete or when we have custom
+// rules.
+//
+// This node is a singleton: backends guarantee that there is exactly one node
+// with the same `type` value.
+//
+// Also note that this is named `Package`, not `PackageType`. This is only to make
+// queries more readable.
+type PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage struct {
+	allPkgTree `json:"-"`
+}
+
+// GetType returns PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage.Type, and is useful for accessing the field via an interface.
+func (v *PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage) GetType() string {
+	return v.allPkgTree.Type
+}
+
+// GetNamespaces returns PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage.Namespaces, and is useful for accessing the field via an interface.
+func (v *PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage) GetNamespaces() []allPkgTreeNamespacesPackageNamespace {
+	return v.allPkgTree.Namespaces
+}
+
+func (v *PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.allPkgTree)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalPackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage struct {
+	Type string `json:"type"`
+
+	Namespaces []allPkgTreeNamespacesPackageNamespace `json:"namespaces"`
+}
+
+func (v *PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage) __premarshalJSON() (*__premarshalPackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage, error) {
+	var retval __premarshalPackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage
+
+	retval.Type = v.allPkgTree.Type
+	retval.Namespaces = v.allPkgTree.Namespaces
+	return &retval, nil
+}
+
+// PackagesRequiringCertifyVulnerabilityResponse is returned by PackagesRequiringCertifyVulnerability on success.
+type PackagesRequiringCertifyVulnerabilityResponse struct {
+	// query for all packages that do not contain a certify vulnerability attestation or if the time last scanned is past a certain threshold.
+	PackagesRequiringCertifyVulnerability []PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage `json:"packagesRequiringCertifyVulnerability"`
+}
+
+// GetPackagesRequiringCertifyVulnerability returns PackagesRequiringCertifyVulnerabilityResponse.PackagesRequiringCertifyVulnerability, and is useful for accessing the field via an interface.
+func (v *PackagesRequiringCertifyVulnerabilityResponse) GetPackagesRequiringCertifyVulnerability() []PackagesRequiringCertifyVulnerabilityPackagesRequiringCertifyVulnerabilityPackage {
+	return v.PackagesRequiringCertifyVulnerability
+}
 
 // PkgInputSpec specifies a package for a mutation.
 //
@@ -3938,6 +4138,49 @@ const (
 	PkgMatchTypeAllVersions     PkgMatchType = "ALL_VERSIONS"
 	PkgMatchTypeSpecificVersion PkgMatchType = "SPECIFIC_VERSION"
 )
+
+// PkgSpec allows filtering the list of packages to return.
+//
+// Each field matches a qualifier from pURL. Use `null` to match on all values at
+// that level. For example, to get all packages in GUAC backend, use a PkgSpec
+// where every field is `null`.
+//
+// Empty string at a field means matching with the empty string. If passing in
+// qualifiers, all of the values in the list must match. Since we want to return
+// nodes with any number of qualifiers if no qualifiers are passed in the input, we
+// must also return the same set of nodes it the qualifiers list is empty. To match
+// on nodes that don't contain any qualifier, set `matchOnlyEmptyQualifiers` to
+// true. If this field is true, then the qualifiers argument is ignored.
+type PkgSpec struct {
+	Type                     *string                `json:"type"`
+	Namespace                *string                `json:"namespace"`
+	Name                     *string                `json:"name"`
+	Version                  *string                `json:"version"`
+	Qualifiers               []PackageQualifierSpec `json:"qualifiers"`
+	MatchOnlyEmptyQualifiers *bool                  `json:"matchOnlyEmptyQualifiers"`
+	Subpath                  *string                `json:"subpath"`
+}
+
+// GetType returns PkgSpec.Type, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetType() *string { return v.Type }
+
+// GetNamespace returns PkgSpec.Namespace, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetNamespace() *string { return v.Namespace }
+
+// GetName returns PkgSpec.Name, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetName() *string { return v.Name }
+
+// GetVersion returns PkgSpec.Version, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetVersion() *string { return v.Version }
+
+// GetQualifiers returns PkgSpec.Qualifiers, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetQualifiers() []PackageQualifierSpec { return v.Qualifiers }
+
+// GetMatchOnlyEmptyQualifiers returns PkgSpec.MatchOnlyEmptyQualifiers, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetMatchOnlyEmptyQualifiers() *bool { return v.MatchOnlyEmptyQualifiers }
+
+// GetSubpath returns PkgSpec.Subpath, and is useful for accessing the field via an interface.
+func (v *PkgSpec) GetSubpath() *string { return v.Subpath }
 
 // SLSAForArtifactIngestArtifact includes the requested fields of the GraphQL type Artifact.
 // The GraphQL type's documentation follows.
@@ -7498,6 +7741,16 @@ func (v *__IsVulnerabilityGHSAInput) GetGhsa() GHSAInputSpec { return v.Ghsa }
 // GetIsVulnerability returns __IsVulnerabilityGHSAInput.IsVulnerability, and is useful for accessing the field via an interface.
 func (v *__IsVulnerabilityGHSAInput) GetIsVulnerability() IsVulnerabilityInputSpec {
 	return v.IsVulnerability
+}
+
+// __PackagesRequiringCertifyVulnerabilityInput is used internally by genqlient
+type __PackagesRequiringCertifyVulnerabilityInput struct {
+	VulnSpec *CertifyVulnSpec `json:"vulnSpec"`
+}
+
+// GetVulnSpec returns __PackagesRequiringCertifyVulnerabilityInput.VulnSpec, and is useful for accessing the field via an interface.
+func (v *__PackagesRequiringCertifyVulnerabilityInput) GetVulnSpec() *CertifyVulnSpec {
+	return v.VulnSpec
 }
 
 // __SLSAForArtifactInput is used internally by genqlient
@@ -13690,6 +13943,55 @@ fragment allCveTree on CVE {
 	var err error
 
 	var data IsVulnerabilityGHSAResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func PackagesRequiringCertifyVulnerability(
+	ctx context.Context,
+	client graphql.Client,
+	vulnSpec *CertifyVulnSpec,
+) (*PackagesRequiringCertifyVulnerabilityResponse, error) {
+	req := &graphql.Request{
+		OpName: "PackagesRequiringCertifyVulnerability",
+		Query: `
+query PackagesRequiringCertifyVulnerability ($vulnSpec: CertifyVulnSpec) {
+	packagesRequiringCertifyVulnerability(vulnSpec: $vulnSpec) {
+		... allPkgTree
+	}
+}
+fragment allPkgTree on Package {
+	type
+	namespaces {
+		namespace
+		names {
+			name
+			versions {
+				version
+				qualifiers {
+					key
+					value
+				}
+				subpath
+			}
+		}
+	}
+}
+`,
+		Variables: &__PackagesRequiringCertifyVulnerabilityInput{
+			VulnSpec: vulnSpec,
+		},
+	}
+	var err error
+
+	var data PackagesRequiringCertifyVulnerabilityResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

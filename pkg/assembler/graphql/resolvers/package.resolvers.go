@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 )
@@ -18,4 +19,9 @@ func (r *mutationResolver) IngestPackage(ctx context.Context, pkg *model.PkgInpu
 // Packages is the resolver for the packages field.
 func (r *queryResolver) Packages(ctx context.Context, pkgSpec *model.PkgSpec) ([]*model.Package, error) {
 	return r.Backend.Packages(ctx, pkgSpec)
+}
+
+// PackagesRequiringCertifyVulnerability is the resolver for the packagesRequiringCertifyVulnerability field.
+func (r *queryResolver) PackagesRequiringCertifyVulnerability(ctx context.Context, vulnSpec *model.CertifyVulnSpec) ([]*model.Package, error) {
+	panic(fmt.Errorf("not implemented: PackagesRequiringCertifyVulnerability - packagesRequiringCertifyVulnerability"))
 }

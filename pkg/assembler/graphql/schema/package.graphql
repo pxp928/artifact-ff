@@ -186,6 +186,8 @@ input PackageQualifierInputSpec {
 extend type Query {
   "Returns all packages"
   packages(pkgSpec: PkgSpec): [Package!]!
+  "query for all packages that do not contain a certify vulnerability attestation or if the time last scanned is past a certain threshold."
+  packagesRequiringCertifyVulnerability(vulnSpec: CertifyVulnSpec): [Package!]!
 }
 
 extend type Mutation {

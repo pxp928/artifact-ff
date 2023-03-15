@@ -17,6 +17,7 @@ package neo4jBackend
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -573,6 +574,11 @@ func removeInvalidCharFromProperty(key string) string {
 	// neo4j does not accept "." in its properties. If the qualifier contains a "." that must
 	// be replaced by an "-"
 	return strings.ReplaceAll(key, ".", "_")
+}
+
+// TODO: implement for neo4j
+func (c *neo4jClient) PackagesRequiringCertifyVulnerability(ctx context.Context, vulnSpec *model.CertifyVulnSpec) ([]*model.Package, error) {
+	panic(fmt.Errorf("not implemented: PackagesRequiringCertifyVulnerability - PackagesRequiringCertifyVulnerability"))
 }
 
 func (c *neo4jClient) IngestPackage(ctx context.Context, pkg *model.PkgInputSpec) (*model.Package, error) {

@@ -17,6 +17,7 @@ package testing
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 )
@@ -215,6 +216,12 @@ func (c *demoClient) Packages(ctx context.Context, pkgSpec *model.PkgSpec) ([]*m
 		}
 	}
 	return packages, nil
+}
+
+// TODO (pxp928): implement once the back edges are integrated. Get all packages that do not contain a certify vulnerability attestation
+// or if the time last scanned is past a certain threshold.
+func (c *demoClient) PackagesRequiringCertifyVulnerability(ctx context.Context, vulnSpec *model.CertifyVulnSpec) ([]*model.Package, error) {
+	panic(fmt.Errorf("not implemented: PackagesRequiringCertifyVulnerability - PackagesRequiringCertifyVulnerability"))
 }
 
 func filterPackageNamespace(pkg *model.Package, pkgSpec *model.PkgSpec) *model.Package {

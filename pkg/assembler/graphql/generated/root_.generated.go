@@ -209,25 +209,26 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Artifacts           func(childComplexity int, artifactSpec *model.ArtifactSpec) int
-		Builders            func(childComplexity int, builderSpec *model.BuilderSpec) int
-		CertifyBad          func(childComplexity int, certifyBadSpec *model.CertifyBadSpec) int
-		CertifyPkg          func(childComplexity int, certifyPkgSpec *model.CertifyPkgSpec) int
-		CertifyVEXStatement func(childComplexity int, certifyVEXStatementSpec *model.CertifyVEXStatementSpec) int
-		CertifyVuln         func(childComplexity int, certifyVulnSpec *model.CertifyVulnSpec) int
-		Cve                 func(childComplexity int, cveSpec *model.CVESpec) int
-		Ghsa                func(childComplexity int, ghsaSpec *model.GHSASpec) int
-		HasSbom             func(childComplexity int, hasSBOMSpec *model.HasSBOMSpec) int
-		HasSlsa             func(childComplexity int, hasSLSASpec *model.HasSLSASpec) int
-		HasSourceAt         func(childComplexity int, hasSourceAtSpec *model.HasSourceAtSpec) int
-		HashEqual           func(childComplexity int, hashEqualSpec *model.HashEqualSpec) int
-		IsDependency        func(childComplexity int, isDependencySpec *model.IsDependencySpec) int
-		IsOccurrence        func(childComplexity int, isOccurrenceSpec *model.IsOccurrenceSpec) int
-		IsVulnerability     func(childComplexity int, isVulnerabilitySpec *model.IsVulnerabilitySpec) int
-		Osv                 func(childComplexity int, osvSpec *model.OSVSpec) int
-		Packages            func(childComplexity int, pkgSpec *model.PkgSpec) int
-		Scorecards          func(childComplexity int, scorecardSpec *model.CertifyScorecardSpec) int
-		Sources             func(childComplexity int, sourceSpec *model.SourceSpec) int
+		Artifacts                             func(childComplexity int, artifactSpec *model.ArtifactSpec) int
+		Builders                              func(childComplexity int, builderSpec *model.BuilderSpec) int
+		CertifyBad                            func(childComplexity int, certifyBadSpec *model.CertifyBadSpec) int
+		CertifyPkg                            func(childComplexity int, certifyPkgSpec *model.CertifyPkgSpec) int
+		CertifyVEXStatement                   func(childComplexity int, certifyVEXStatementSpec *model.CertifyVEXStatementSpec) int
+		CertifyVuln                           func(childComplexity int, certifyVulnSpec *model.CertifyVulnSpec) int
+		Cve                                   func(childComplexity int, cveSpec *model.CVESpec) int
+		Ghsa                                  func(childComplexity int, ghsaSpec *model.GHSASpec) int
+		HasSbom                               func(childComplexity int, hasSBOMSpec *model.HasSBOMSpec) int
+		HasSlsa                               func(childComplexity int, hasSLSASpec *model.HasSLSASpec) int
+		HasSourceAt                           func(childComplexity int, hasSourceAtSpec *model.HasSourceAtSpec) int
+		HashEqual                             func(childComplexity int, hashEqualSpec *model.HashEqualSpec) int
+		IsDependency                          func(childComplexity int, isDependencySpec *model.IsDependencySpec) int
+		IsOccurrence                          func(childComplexity int, isOccurrenceSpec *model.IsOccurrenceSpec) int
+		IsVulnerability                       func(childComplexity int, isVulnerabilitySpec *model.IsVulnerabilitySpec) int
+		Osv                                   func(childComplexity int, osvSpec *model.OSVSpec) int
+		Packages                              func(childComplexity int, pkgSpec *model.PkgSpec) int
+		PackagesRequiringCertifyVulnerability func(childComplexity int, vulnSpec *model.CertifyVulnSpec) int
+		Scorecards                            func(childComplexity int, scorecardSpec *model.CertifyScorecardSpec) int
+		Sources                               func(childComplexity int, sourceSpec *model.SourceSpec) int
 	}
 
 	SLSA struct {
@@ -1251,6 +1252,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Packages(childComplexity, args["pkgSpec"].(*model.PkgSpec)), true
+
+	case "Query.packagesRequiringCertifyVulnerability":
+		if e.complexity.Query.PackagesRequiringCertifyVulnerability == nil {
+			break
+		}
+
+		args, err := ec.field_Query_packagesRequiringCertifyVulnerability_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.PackagesRequiringCertifyVulnerability(childComplexity, args["vulnSpec"].(*model.CertifyVulnSpec)), true
 
 	case "Query.scorecards":
 		if e.complexity.Query.Scorecards == nil {
@@ -3333,6 +3346,8 @@ input PackageQualifierInputSpec {
 extend type Query {
   "Returns all packages"
   packages(pkgSpec: PkgSpec): [Package!]!
+  "query for all packages that do not contain a certify vulnerability attestation or if the time last scanned is past a certain threshold."
+  packagesRequiringCertifyVulnerability(vulnSpec: CertifyVulnSpec): [Package!]!
 }
 
 extend type Mutation {
