@@ -1,0 +1,950 @@
+type Artifact {
+  id: ID!
+  algorithm: String!
+  digest: String!
+}
+
+type Builder {
+  id: ID!
+  uri: String!
+}
+
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the CertifyBad. It contains the subject (which can be either a package, source or artifact),
+#  justification, origin of the attestation, and collector
+"PackageSourceOrArtifact is a union of Package, Source, and Artifact."
+union PackageSourceOrArtifact = Package | Source | Artifact
+
+
+"""
+CertifyBad is an attestation represents when a package, source or artifact is considered bad
+
+subject - union type that can be either a package, source or artifact object type
+justification (property) - string value representing why the subject is considered bad
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+
+Note: Attestation must occur at the PackageName or the PackageVersion or at the SourceName.
+"""
+type CertifyBad {
+  id: ID!
+  subject: PackageSourceOrArtifact!
+  pkgMatchType: PkgMatchType!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+
+
+"""
+PkgMatchType is an enum to determine if the attestation should be done at the
+specific version or package name
+"""
+enum PkgMatchType {
+  ALL_VERSIONS
+  SPECIFIC_VERSION
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the CertifyGood. It contains the subject (which
+#  can be either a package, source or artifact), justification, origin of the
+#  attestation, and collector
+
+"""
+CertifyGood is an attestation represents when a package, source or artifact is considered good
+
+subject - union type that can be either a package, source or artifact object type
+justification (property) - string value representing why the subject is considered good
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+
+Note: Attestation must occur at the PackageName or the PackageVersion or at the SourceName.
+"""
+type CertifyGood {
+  id: ID!
+  subject: PackageSourceOrArtifact!
+  pkgMatchType: PkgMatchType!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema to certify Scorecard for a source repository.
+
+"""
+CertifyScorecard is an attestation which represents the scorecard of a
+particular source repository.
+"""
+type CertifyScorecard {
+  id: ID!
+  "The source repository that is being scanned (attestation subject)"
+  source: Source!
+  "The Scorecard attached to the repository (attestation object)"
+  scorecard: Scorecard!
+}
+
+"""
+Scorecard contains all of the fields present in a Scorecard attestation.
+
+We also include fields to specify under what conditions the check was performed
+(time of scan, version of scanners, etc.) as well as how this information got
+included into GUAC (origin document and the collector for that document).
+"""
+type Scorecard {
+  "Individual Scorecard check scores (Branch-Protection, Code-Review, ...)"
+  checks: [ScorecardCheck!]!
+  "Overall Scorecard score for the source"
+  aggregateScore: Float!
+  "Exact timestamp when the source was last scanned (in RFC 3339 format)"
+  timeScanned: DateTime!
+  "Version of the Scorecard scanner used to analyze the source"
+  scorecardVersion: String!
+  "Commit of the Scorecards repository at the time of scanning the source"
+  scorecardCommit: String!
+  "Document from which this attestation is generated from"
+  origin: String!
+  "GUAC collector for the document"
+  collector: String!
+}
+
+"""
+ScorecardCheck are the individual checks from scorecard and their values as a
+key-value pair.
+
+For example:  Branch-Protection, Code-Review...etc
+
+Based off scorecard's:
+type jsonCheckResultV2 struct {
+  Details []string                 `json:"details"`
+  Score   int                      `json:"score"`
+  Reason  string                   `json:"reason"`
+  Name    string                   `json:"name"`
+  Doc     jsonCheckDocumentationV2 `json:"documentation"`
+}
+This node cannot be directly referred by other parts of GUAC.
+"""
+type ScorecardCheck {
+  check: String!
+  score: Int!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for certifying VEX statements.
+
+"PackageOrArtifact is a union of Package and Artifact."
+union PackageOrArtifact = Package | Artifact
+
+enum VexStatus {
+  NOT_AFFECTED
+  AFFECTED
+  FIXED
+  UNDER_INVESTIGATION
+}
+
+enum VexJustification {
+  COMPONENT_NOT_PRESENT
+  VULNERABLE_CODE_NOT_PRESENT
+  VULNERABLE_CODE_NOT_IN_EXECUTE_PATH
+  VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY
+  INLINE_MITIGATIONS_ALREADY_EXIST
+  NOT_PROVIDED
+}
+
+"""
+CertifyVEXStatement is an attestation that represents when a package or
+artifact has a VEX about a specific vulnerability (CVE, GHSA or OSV).
+"""
+type CertifyVEXStatement {
+  id: ID!
+  "Subject of attestation"
+  subject: PackageOrArtifact!
+  "Attested vulnerability"
+  vulnerability: Vulnerability!
+  "status of the vulnerabilities with respect to the products and components listed in the statement"
+  status: VexStatus!
+  "Justification for VEX"
+  vexJustification: VexJustification!
+  "impact_statement or action_statement depending on the status filed"
+  statement: String!
+  "statusNotes may convey information about how status was determined"
+  statusNotes: String!
+  "Timestamp (exact time in RFC 3339 format) for the VEX statement"
+  knownSince: DateTime!
+  "Document from which this attestation is generated from"
+  origin: String!
+  "GUAC collector for the document"
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the vulnerability certifications.
+
+"""
+NoVuln is a special vulnerability node to attest that no vulnerability has been
+found during a vulnerability scan.
+
+Backends guarantee that this is a singleton node.
+
+We define an ID field due to GraphQL restrictions.
+"""
+type NoVuln {
+  id: ID!
+  value: String!
+}
+
+"Vulnerability is a union of OSV, CVE, GHSA or the NoVuln node."
+union Vulnerability = OSV | CVE | GHSA | NoVuln
+
+"""
+CertifyVuln is an attestation that represents when a package has a
+vulnerability (OSV, CVE, or GHSA) or the special NoVuln value to attest that at
+the time of scanning no vulnerability was found.
+"""
+type CertifyVuln {
+  id: ID!
+  "The package that is attested"
+  package: Package!
+  "The vulnerability object. Can be an OSV, CVE, or GHSA or the special NoVuln node."
+  vulnerability: Vulnerability!
+  "Metadata attached to the certification"
+  metadata: VulnerabilityMetaData!
+}
+
+"""
+VulnerabilityMetaData is the metadata attached to vulnerability certification.
+
+It contains metadata about the scanner process that created the certification.
+"""
+type VulnerabilityMetaData {
+  "Time of scan (in RFC 3339 format)"
+  timeScanned: DateTime!
+  "URI of the vulnerability database used by the scanner"
+  dbUri: String!
+  "Version of the vulnerability database used by the scanner"
+  dbVersion: String!
+  "URI of the scanner"
+  scannerUri: String!
+  "Version of the scanner"
+  scannerVersion: String!
+  "Document from which this attestation is generated from"
+  origin: String!
+  "GUAC collector for the document"
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the CVE trie/tree. It contains the year
+# along with the ID associated with vulnerability (CVE ID).
+
+"""
+CVE represents common vulnerabilities and exposures. It contains the year along
+with the CVE ID.
+
+The `year` is mandatory.
+The `cveId` field is mandatory and canonicalized to be lowercase.
+
+This node can be referred to by other parts of GUAC.
+"""
+type CVE {
+  id: ID!
+  year: Int!
+  cveId: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the GitHub Security Advisory (GSHA) trie/tree.
+# It contains the ID associated with a vulnerability in the GitHub numbering
+# schema (GHSA ID).
+
+"""
+GHSA represents GitHub security advisories.
+
+The `id` field is mandatory and canonicalized to be lowercase.
+
+This node can be referred to by other parts of GUAC.
+"""
+type GHSA {
+  id: ID!
+  ghsaId: String!
+}
+
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the HashEqual. It contains the justification, artifacts, origin and collector.
+"""
+HashEqual is an attestation that represents when two artifact hash are similar based on a justification.
+
+artifacts (subject) - the artifacts (represented by algorithm and digest) that are equal
+justification (property) - string value representing why the artifacts are the equal
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+"""
+type HashEqual {
+  id: ID!
+  artifacts: [Artifact!]!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the HasSBOM. It contains the subject (which can be either a package or source), uri, origin and collector.
+"""
+HasSBOM is an attestation represents that a package object or source object has an SBOM associated with a uri
+
+subject - union type that can be either a package or source object type
+uri (property) - identifier string for the SBOM
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+
+Note: Only package object or source object can be defined. Not both.
+"""
+type HasSBOM {
+  id: ID!
+  subject: PackageOrSource!
+  uri: String!
+  annotation: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for specifiying SLSA provenance.
+
+"HasSLSA records that a subject node has a SLSA attestation."
+type HasSLSA {
+  id: ID!
+  "The subject of SLSA attestation: package, source, or artifact."
+  subject: Artifact!
+  "The SLSA attestation."
+  slsa: SLSA!
+}
+
+"""
+SLSA contains all of the fields present in a SLSA attestation.
+
+The materials and builders are objects of the HasSLSA predicate, everything
+else are properties extracted from the attestation.
+
+We also include fields to specify under what conditions the check was performed
+(time of scan, version of scanners, etc.) as well as how this information got
+included into GUAC (origin document and the collector for that document).
+"""
+type SLSA {
+  "Sources of the build resulting in subject (materials)"
+  builtFrom: [Artifact!]!
+  "Builder performing the build"
+  builtBy: Builder!
+  "Type of the builder"
+  buildType: String!
+  "Individual predicates found in the attestation"
+  slsaPredicate: [SLSAPredicate!]!
+  "Version of the SLSA predicate"
+  slsaVersion: String!
+  "Timestamp (RFC3339Nano format) of build start time"
+  startedOn: DateTime!
+  "Timestamp (RFC3339Nano format) of build end time"
+  finishedOn: DateTime!
+  "Document from which this attestation is generated from"
+  origin: String!
+  "GUAC collector for the document"
+  collector: String!
+}
+
+"""
+SLSAPredicate are the values from the SLSA predicate in key-value pair form.
+
+For example, given the following predicate
+
+```
+"predicate": {
+  "buildDefinition": {
+    "externalParameters": {
+      "repository": "https://github.com/octocat/hello-world",
+      ...
+    },
+    ...
+  },
+  ...
+}
+```
+
+we have
+
+```
+key   = "buildDefinition.externalParameters.repository"
+value = "https://github.com/octocat/hello-world"
+```
+
+This node cannot be directly referred by other parts of GUAC.
+
+TODO(mihaimaruseac): Can we define these directly?
+"""
+type SLSAPredicate {
+  key: String!
+  value: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the HasSourceAt. It contains the package object, source object, since (timestamp), justification, origin and collector.
+"""
+HasSourceAt is an attestation represents that a package object has a source object since a timestamp
+
+package (subject) - the package object type that represents the package
+source (object) - the source object type that represents the source
+knownSince (property) - timestamp when this was last checked (exact time)
+justification (property) - string value representing why the package has a source specified
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+"""
+type HasSourceAt {
+  id: ID!
+  package: Package!
+  source: Source!
+  knownSince: DateTime!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the IsDependency. It contains the package object, dependent package object
+# version range of the dependent package that it applies to, justification, origin and collector.
+"""
+IsDependency is an attestation that represents when a package is dependent on another package
+
+package (subject) - the package object type that represents the package
+dependentPackage (object) - the package object type that represents the packageName (cannot be to the packageVersion)
+versionRange (property) - string value for version range that applies to the dependent package
+justification (property) - string value representing why the artifacts are the equal
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+"""
+type IsDependency {
+  id: ID!
+  package: Package!
+  dependentPackage: Package!
+  versionRange: String!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the IsOccurrence. It contains the subject (which can be either a package or source),
+#  occurrenceArtifact, justification,  origin of the attestation, and collector
+
+"""
+PackageOrSource is a union of Package and Source. Any of these objects can be specified
+"""
+union PackageOrSource = Package | Source
+
+"""
+IsOccurrence is an attestation represents when either a package or source is represented by an artifact
+
+Note: Package or Source must be specified but not both at the same time.
+Attestation must occur at the PackageVersion or at the SourceName.
+"""
+type IsOccurrence {
+  id: ID!
+  "subject - union type that can be either a package or source object type"
+  subject: PackageOrSource!
+  "artifact (object) - artifact that represent the the package or source"
+  artifact: Artifact!
+  "justification (property) - string value representing why the package or source is represented by the specified artifact"
+  justification: String!
+  "origin (property) - where this attestation was generated from (based on which document)"
+  origin: String!
+  "collector (property) - the GUAC collector that collected the document that generated this attestation"
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the IsVulnerability. It contains a OSV, vulnerability that can be of type
+# cve or ghsa, justification, origin and collector
+"""
+CveOrGhsa is a union of CVE and GHSA.
+"""
+union CveOrGhsa = CVE | GHSA
+
+"""
+IsVulnerability is an attestation that represents when an OSV ID represents a CVE or GHSA
+
+osv (subject) - the osv object type that represents OSV and its ID
+vulnerability (object) - union type that consists of cve or ghsa
+justification (property) - the reason why the osv ID represents the cve or ghsa
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+"""
+type IsVulnerability {
+  id: ID!
+  osv: OSV!
+  vulnerability: CveOrGhsa!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the OSV trie/tree. It contains the OSV ID
+# associated with the vulnerability.
+
+"""
+OSV represents an Open Source Vulnerability.
+
+The `osvId` field is mandatory and canonicalized to be lowercase.
+
+This maps to a vulnerability ID specific to the environment (e.g., GHSA ID or
+CVE ID).
+
+This node can be referred to by other parts of GUAC.
+"""
+type OSV {
+  id: ID!
+  osvId: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the package trie/tree. This tree closely matches
+# the pURL specification (https://github.com/package-url/purl-spec/blob/0dd92f26f8bb11956ffdf5e8acfcee71e8560407/README.rst)
+# but deviates from it where GUAC rules state otherwise. In principle, we want
+# this to represent a trie for packages, so information that represents a
+# smaller collection of packages is being pushed downwards in the trie.
+
+"""
+Package represents a package.
+
+In the pURL representation, each Package matches a `pkg:<type>` partial pURL.
+The `type` field matches the pURL types but we might also use `"guac"` for the
+cases where the pURL representation is not complete or when we have custom
+rules.
+
+This node is a singleton: backends guarantee that there is exactly one node
+with the same `type` value.
+
+Also note that this is named `Package`, not `PackageType`. This is only to make
+queries more readable.
+"""
+type Package {
+  id: ID!
+  type: String!
+  namespaces: [PackageNamespace!]!
+}
+
+"""
+PackageNamespace is a namespace for packages.
+
+In the pURL representation, each PackageNamespace matches the
+`pkg:<type>/<namespace>/` partial pURL.
+
+Namespaces are optional and type specific. Because they are optional, we use
+empty string to denote missing namespaces.
+"""
+type PackageNamespace {
+  id: ID!
+  namespace: String!
+  names: [PackageName!]!
+}
+
+"""
+PackageName is a name for packages.
+
+In the pURL representation, each PackageName matches the
+`pkg:<type>/<namespace>/<name>` pURL.
+
+Names are always mandatory.
+
+This is the first node in the trie that can be referred to by other parts of
+GUAC.
+"""
+type PackageName {
+  id: ID!
+  name: String!
+  versions: [PackageVersion!]!
+}
+
+"""
+PackageVersion is a package version.
+
+In the pURL representation, each PackageName matches the
+`pkg:<type>/<namespace>/<name>@<version>` pURL.
+
+Versions are optional and each Package type defines own rules for handling them.
+For this level of GUAC, these are just opaque strings.
+
+This node can be referred to by other parts of GUAC.
+
+Subpath and qualifiers are optional. Lack of qualifiers is represented by an
+empty list and lack of subpath by empty string (to be consistent with
+optionality of namespace and version). Two nodes that have different qualifiers
+and/or subpath but the same version mean two different packages in the trie
+(they are different). Two nodes that have same version but qualifiers of one are
+a subset of the qualifier of the other also mean two different packages in the
+trie.
+"""
+type PackageVersion {
+  id: ID!
+  version: String!
+  qualifiers: [PackageQualifier!]!
+  subpath: String!
+}
+
+"""
+PackageQualifier is a qualifier for a package, a key-value pair.
+
+In the pURL representation, it is a part of the `<qualifiers>` part of the
+`pkg:<type>/<namespace>/<name>@<version>?<qualifiers>` pURL.
+
+Qualifiers are optional, each Package type defines own rules for handling them,
+and multiple qualifiers could be attached to the same package.
+
+This node cannot be directly referred by other parts of GUAC.
+"""
+type PackageQualifier {
+  key: String!
+  value: String!
+}
+
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the PkgEqual. It contains a list of packages that are similar
+# along with the justification, origin and collector.
+"""
+PkgEqual is an attestation that represents when a package objects are similar
+
+packages (subject) - list of package objects
+justification (property) - string value representing why the packages are similar
+origin (property) - where this attestation was generated from (based on which document)
+collector (property) - the GUAC collector that collected the document that generated this attestation
+"""
+type PkgEqual {
+  id: ID!
+  packages: [Package!]!
+  justification: String!
+  origin: String!
+  collector: String!
+}
+#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the source trie/tree. This tree is a derivative
+# of the pURL specification where it has a type, namespace, name and finally a
+# qualifier that contain the tag or commit.
+
+"""
+Source represents a source.
+
+This can be the version control system that is being used.
+
+This node is a singleton: backends guarantee that there is exactly one node
+with the same `type` value.
+
+Also note that this is named `Source`, not `SourceType`. This is only to make
+queries more readable.
+"""
+type Source {
+  id: ID!
+  type: String!
+  namespaces: [SourceNamespace!]!
+}
+
+"""
+SourceNamespace is a namespace for sources.
+
+This is the location of the repository (such as github/gitlab/bitbucket).
+
+The `namespace` field is mandatory.
+"""
+type SourceNamespace {
+  id: ID!
+  namespace: String!
+  names: [SourceName!]!
+}
+
+"""
+SourceName is a url of the repository and its tag or commit.
+
+The `name` field is mandatory. The `tag` and `commit` fields are optional, but
+it is an error to specify both.
+
+This is the only source trie node that can be referenced by other parts of
+GUAC.
+"""
+type SourceName {
+  id: ID!
+  name: String!
+  tag: String
+  commit: String
+}

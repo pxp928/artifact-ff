@@ -27,7 +27,7 @@ import (
 	"github.com/guacsec/guac/pkg/logging"
 )
 
-func ingestData(port int) {
+func ingestData() {
 	ctx := logging.WithLogger(context.Background())
 	logger := logging.FromContext(ctx)
 
@@ -35,26 +35,13 @@ func ingestData(port int) {
 	time.Sleep(1 * time.Second)
 
 	// Create a http client to send the mutation through
-	url := fmt.Sprintf("http://localhost:%d/query", port)
+	url := fmt.Sprintf("http://localhost:8080/query")
 	httpClient := http.Client{}
 	gqlclient := graphql.NewClient(url, &httpClient)
 
 	start := time.Now()
 	logger.Infof("Ingesting test data into backend server")
-	ingestScorecards(ctx, gqlclient)
-	ingestSLSA(ctx, gqlclient)
-	ingestDependency(ctx, gqlclient)
 	ingestOccurrence(ctx, gqlclient)
-	ingestVulnerability(ctx, gqlclient)
-	ingestPkgEqual(ctx, gqlclient)
-	ingestCertifyBad(ctx, gqlclient)
-	ingestCertifyGood(ctx, gqlclient)
-	ingestHashEqual(ctx, gqlclient)
-	ingestHasSBOM(ctx, gqlclient)
-	ingestHasSourceAt(ctx, gqlclient)
-	ingestIsVulnerability(ctx, gqlclient)
-	ingestVEXStatement(ctx, gqlclient)
-	ingestReachabilityTestData(ctx, gqlclient)
 	time := time.Since(start)
 	logger.Infof("Ingesting test data into backend server took %v", time)
 }

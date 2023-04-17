@@ -75,7 +75,7 @@ func startServer() {
 	// Ingest additional test data in a go-routine.
 	port := flags.playgroundPort
 	if flags.addTestData {
-		go ingestData(port)
+		go ingestData()
 	}
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

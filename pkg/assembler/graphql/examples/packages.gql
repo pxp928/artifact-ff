@@ -159,7 +159,7 @@ mutation PkgM6 {
 }
 
 mutation PkgM7 {
-  ingestPackage(
+  addPackage(
     pkg: {type: "pypi", name: "tensorflow", version: "2.12.0", subpath: "foo", qualifiers: [{key: "distro", value: "stretch"}, {key: "arch", value: "amd64"}]}
   ) {
     namespaces {

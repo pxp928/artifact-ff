@@ -53,7 +53,7 @@ var rootCmd = &cobra.Command{
 		flags.dbAddr = viper.GetString("gdbaddr")
 		flags.realm = viper.GetString("realm")
 
-		startServer()
+		ingestData()
 	},
 }
 
