@@ -28,7 +28,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/spf13/cobra"
 
-	"github.com/guacsec/guac/pkg/assembler/backends/arangodb"
+	"github.com/guacsec/guac/pkg/assembler/backends/neo4j"
 	"github.com/guacsec/guac/pkg/assembler/graphql/generated"
 	"github.com/guacsec/guac/pkg/assembler/graphql/resolvers"
 	"github.com/guacsec/guac/pkg/logging"
@@ -120,33 +120,33 @@ func getGraphqlServer(ctx context.Context) (*handler.Server, error) {
 	// switch flags.backend {
 
 	// case neo4js:
-	// 	args := neo4j.Neo4jConfig{
-	// 		User:   flags.nUser,
-	// 		Pass:   flags.nPass,
-	// 		Realm:  flags.nRealm,
-	// 		DBAddr: flags.nAddr,
-	// 	}
-
-	// 	backend, err := neo4j.GetBackend(&args)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("Error creating neo4j backend: %w", err)
-	// 	}
-
-	// 	topResolver = resolvers.Resolver{Backend: backend}
-
-	// case arango:
-	args := arangodb.ArangoConfig{
-		User:   "root",
-		Pass:   "test123",
-		DBAddr: "http://localhost:8529",
+	args := neo4j.Neo4jConfig{
+		User:   "neo4j",
+		Pass:   "s3cr3t",
+		Realm:  "neo4j",
+		DBAddr: flags.nAddr,
 	}
 
-	backend, err := arangodb.GetBackend(ctx, &args)
+	backend, err := neo4j.GetBackend(&args)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating arango backend: %w", err)
+		return nil, fmt.Errorf("Error creating neo4j backend: %w", err)
 	}
 
 	topResolver = resolvers.Resolver{Backend: backend}
+
+	// case arango:
+	// args := arangodb.ArangoConfig{
+	// 	User:   "root",
+	// 	Pass:   "test123",
+	// 	DBAddr: "http://localhost:8529",
+	// }
+
+	// backend, err := arangodb.GetBackend(ctx, &args)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Error creating arango backend: %w", err)
+	// }
+
+	// topResolver = resolvers.Resolver{Backend: backend}
 	// case inmems:
 	// 	args := inmem.DemoCredentials{}
 	// 	backend, err := inmem.GetBackend(&args)

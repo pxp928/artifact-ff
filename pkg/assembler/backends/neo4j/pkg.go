@@ -20,6 +20,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/guacsec/guac/internal/testing/ptrfrom"
 	"github.com/guacsec/guac/pkg/assembler"
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
@@ -243,6 +244,40 @@ func (e *nameToVersion) PropertyNames() []string {
 
 func (e *nameToVersion) IdentifiablePropertyNames() []string {
 	return []string{}
+}
+
+func registerAllPackages(ctx context.Context, client *neo4jClient) {
+
+	var p1 = model.PkgInputSpec{
+		Type: "pypi",
+		Name: "tensorflow",
+	}
+
+	client.IngestPackage(ctx, p1)
+
+	var p2 = model.PkgInputSpec{
+		Type:    "pypi",
+		Name:    "tensorflow",
+		Version: ptrfrom.String("2.11.1"),
+	}
+	client.IngestPackage(ctx, p2)
+
+	var p3 = model.PkgInputSpec{
+		Type:    "pypi",
+		Name:    "tensorflow",
+		Version: ptrfrom.String("2.11.1"),
+		Subpath: ptrfrom.String("saved_model_cli.py"),
+	}
+
+	client.IngestPackage(ctx, p3)
+
+	var p4 = model.PkgInputSpec{
+		Type:      "conan",
+		Namespace: ptrfrom.String("openssl.org"),
+		Name:      "openssl",
+		Version:   ptrfrom.String("3.0.3"),
+	}
+	client.IngestPackage(ctx, p4)
 }
 
 func (c *neo4jClient) Packages(ctx context.Context, pkgSpec *model.PkgSpec) ([]*model.Package, error) {

@@ -62,36 +62,36 @@ func GetBackend(args backends.BackendArgs) (backends.Backend, error) {
 		return nil, err
 	}
 	client := &neo4jClient{driver}
-	/* if config.TestData {
-		err = registerAllPackages(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllArtifacts(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllBuilders(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllSources(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllCVE(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllGHSA(client)
-		if err != nil {
-			return nil, err
-		}
-		err = registerAllOSV(client)
-		if err != nil {
-			return nil, err
-		}
-	} */
+	//if config.TestData {
+	registerAllPackages(context.Background(), client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllArtifacts(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllBuilders(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllSources(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllCVE(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllGHSA(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = registerAllOSV(client)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//}
 	return client, nil
 }
 
