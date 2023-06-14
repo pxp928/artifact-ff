@@ -147,7 +147,9 @@ func (g *Graph) AppendGraph(gs ...Graph) {
 // TODO(mihaimaruseac): Write queries to write/read subgraphs from DB?
 
 // IngestPredicates contains the set of predicates that want to be
-// ingested based on the GUAC ontology. It also includes the software trees.
+// ingested based on the GUAC ontology. It only has evidence trees as
+// ingestion of the software trees are implicit and handled by the
+// client library.
 type IngestPredicates struct {
 	CertifyScorecard []CertifyScorecardIngest
 	IsDependency     []IsDependencyIngest

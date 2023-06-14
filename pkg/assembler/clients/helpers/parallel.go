@@ -125,61 +125,94 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 		verbs.SetLimit(20)
 
 		for _, p := range preds {
-
-			logger.Infof("assembling Package: %v", len(p.Package))
-			for _, v := range p.Package {
+			packages := p.GetPackages(ctx)
+			logger.Infof("assembling Package: %v", len(packages))
+			for _, v := range packages {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestPackage(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestPackage(ctx, gqlclient, v) })
 			}
 
-			logger.Infof("assembling Source: %v", len(p.Source))
-			for _, v := range p.Source {
+			sources := p.GetSources(ctx)
+			logger.Infof("assembling Source: %v", len(sources))
+			for _, v := range sources {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestSource(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestSource(ctx, gqlclient, v) })
 			}
 
-			logger.Infof("assembling Artifact: %v", len(p.Artifact))
-			for _, v := range p.Artifact {
+			artifacts := p.GetArtifacts(ctx)
+			logger.Infof("assembling Artifact: %v", len(artifacts))
+			for _, v := range artifacts {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestArtifact(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestArtifact(ctx, gqlclient, v) })
 			}
 
-			logger.Infof("assembling CVE: %v", len(p.CVE))
-			for _, v := range p.CVE {
+			builders := p.GetBuilders(ctx)
+			logger.Infof("assembling Builder: %v", len(builders))
+			for _, v := range builders {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestCVE(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestBuilder(ctx, gqlclient, v) })
 			}
 
-			logger.Infof("assembling OSV: %v", len(p.OSV))
-			for _, v := range p.OSV {
+			materials := p.GetMaterials(ctx)
+			logger.Infof("assembling Materials (Artifact): %v", len(materials))
+			nouns.Go(func() error { return ingestMaterials(ctx, gqlclient, materials) })
+
+			cves := p.GetCVEs(ctx)
+			logger.Infof("assembling CVE: %v", len(cves))
+			for _, v := range cves {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestOSV(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestCVE(ctx, gqlclient, v) })
 			}
 
-			logger.Infof("assembling GHSA: %v", len(p.GHSA))
-			for _, v := range p.GHSA {
+			osvs := p.GetOSVs(ctx)
+			logger.Infof("assembling OSV: %v", len(osvs))
+			for _, v := range osvs {
 				if ctx.Err() != nil {
 					break
 				}
 				v := v
-				g.Go(func() error { return ingestGHSA(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestOSV(ctx, gqlclient, v) })
 			}
 
+			ghsas := p.GetGHSAs(ctx)
+			logger.Infof("assembling GHSA: %v", len(ghsas))
+			for _, v := range ghsas {
+				if ctx.Err() != nil {
+					break
+				}
+				v := v
+				nouns.Go(func() error { return ingestGHSA(ctx, gqlclient, v) })
+			}
+		}
+
+		if err := nouns.Wait(); err != nil {
+			return err
+		}
+
+		logger.Infof("completed ingesting all nouns")
+
+		verbs, ctx := errgroup.WithContext(ctx)
+
+		// Backend can only process one write at a time, but make
+		// sure there are enough in flight so we don't wait for any round trips.
+		verbs.SetLimit(20)
+
+		for _, p := range preds {
 			logger.Infof("assembling CertifyScorecard: %v", len(p.CertifyScorecard))
 			for _, v := range p.CertifyScorecard {
 				if errGroupVerbCtx.Err() != nil {
