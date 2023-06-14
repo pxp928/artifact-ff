@@ -128,75 +128,75 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 			packages := p.GetPackages(ctx)
 			logger.Infof("assembling Package: %v", len(packages))
 			for _, v := range packages {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestPackage(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestPackage(errGroupNounCtx, gqlclient, v) })
 			}
 
-			sources := p.GetSources(ctx)
+			sources := p.GetSources(errGroupNounCtx)
 			logger.Infof("assembling Source: %v", len(sources))
 			for _, v := range sources {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestSource(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestSource(errGroupNounCtx, gqlclient, v) })
 			}
 
-			artifacts := p.GetArtifacts(ctx)
+			artifacts := p.GetArtifacts(errGroupNounCtx)
 			logger.Infof("assembling Artifact: %v", len(artifacts))
 			for _, v := range artifacts {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestArtifact(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestArtifact(errGroupNounCtx, gqlclient, v) })
 			}
 
-			builders := p.GetBuilders(ctx)
+			builders := p.GetBuilders(errGroupNounCtx)
 			logger.Infof("assembling Builder: %v", len(builders))
 			for _, v := range builders {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestBuilder(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestBuilder(errGroupNounCtx, gqlclient, v) })
 			}
 
-			materials := p.GetMaterials(ctx)
+			materials := p.GetMaterials(errGroupNounCtx)
 			logger.Infof("assembling Materials: %v", len(materials))
-			nouns.Go(func() error { return ingestMaterials(ctx, gqlclient, materials) })
+			nouns.Go(func() error { return ingestMaterials(errGroupNounCtx, gqlclient, materials) })
 
-			cves := p.GetCVEs(ctx)
+			cves := p.GetCVEs(errGroupNounCtx)
 			logger.Infof("assembling CVE: %v", len(cves))
 			for _, v := range cves {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestCVE(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestCVE(errGroupNounCtx, gqlclient, v) })
 			}
 
-			osvs := p.GetOSVs(ctx)
+			osvs := p.GetOSVs(errGroupNounCtx)
 			logger.Infof("assembling OSV: %v", len(osvs))
 			for _, v := range osvs {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestOSV(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestOSV(errGroupNounCtx, gqlclient, v) })
 			}
 
-			ghsas := p.GetGHSAs(ctx)
+			ghsas := p.GetGHSAs(errGroupNounCtx)
 			logger.Infof("assembling GHSA: %v", len(ghsas))
 			for _, v := range ghsas {
-				if ctx.Err() != nil {
+				if errGroupNounCtx.Err() != nil {
 					break
 				}
 				v := v
-				nouns.Go(func() error { return ingestGHSA(ctx, gqlclient, v) })
+				nouns.Go(func() error { return ingestGHSA(errGroupNounCtx, gqlclient, v) })
 			}
 		}
 
@@ -204,7 +204,7 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 			return err
 		}
 
-		verbs, ctx := errgroup.WithContext(ctx)
+		verbs, errGroupVerbCtx := errgroup.WithContext(ctx)
 
 		// Backend can only process one write at a time, but make
 		// sure there are enough in flight so we don't wait for any round trips.
