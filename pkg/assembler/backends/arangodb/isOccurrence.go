@@ -50,12 +50,19 @@ func (c *arangoClient) IngestOccurrence(ctx context.Context, subject model.Packa
 		return nil, fmt.Errorf("source as a subject is currently unimplemented for the IngestOccurrence")
 	}
 
-	values["pkgType"] = subject.Package.Type
-	values["name"] = subject.Package.Name
+	//values["pkgType"] = subject.Package.Type
+	//values["name"] = subject.Package.Name
+	values["nameKey"] = removePunctuationsAndReplaceWithDash(subject.Package.Name)
 	if subject.Package.Namespace != nil {
-		values["namespace"] = *subject.Package.Namespace
+		//values["namespace"] = *subject.Package.Namespace
+		if *subject.Package.Namespace == "" {
+			values["namespaceKey"] = "guacEmpty"
+		} else {
+			values["namespaceKey"] = removePunctuationsAndReplaceWithDash(*subject.Package.Namespace)
+		}
 	} else {
-		values["namespace"] = ""
+		//values["namespace"] = ""
+		values["namespaceKey"] = "guacEmpty"
 	}
 	if subject.Package.Version != nil {
 		values["version"] = *subject.Package.Version
@@ -87,22 +94,19 @@ func (c *arangoClient) IngestOccurrence(ctx context.Context, subject model.Packa
 	values[justification] = occurrence.Justification
 	values[origin] = occurrence.Origin
 	values[collector] = occurrence.Collector
-	// values["typeID"] = c.pkgTypeMap[subject.Package.Type].Id
-	// values["typeValue"] = c.pkgTypeMap[subject.Package.Type].PkgType
+	values["typeID"] = c.pkgTypeMap[subject.Package.Type].Id
+	values["typeKey"] = c.pkgTypeMap[subject.Package.Type].Key
+	values["typeValue"] = c.pkgTypeMap[subject.Package.Type].PkgType
 
 	query := `LET firstPkg = FIRST(
-		FOR pkg IN Pkg
-		  FILTER pkg.root == "pkg"
-		  FOR pkgHasType IN OUTBOUND pkg PkgHasType
-			  FILTER pkgHasType.type == @pkgType
-			FOR pkgHasNamespace IN OUTBOUND pkgHasType PkgHasNamespace
-				  FILTER pkgHasNamespace.namespace == @namespace
+			FOR pkgHasNamespace IN OUTBOUND @typeID PkgHasNamespace
+				  FILTER pkgHasNamespace._key == CONCAT("pkgNamespace", @typeKey, @namespaceKey)
 			  FOR pkgHasName IN OUTBOUND pkgHasNamespace PkgHasName
-					  FILTER pkgHasName.name == @name
+			  		  FILTER pkgHasName._key == CONCAT("pkgName", pkgHasNamespace._key, @nameKey)
 				FOR pkgHasVersion IN OUTBOUND pkgHasName PkgHasVersion
 						  FILTER pkgHasVersion.version == @version && pkgHasVersion.subpath == @subpath && pkgHasVersion.qualifier_list == @qualifier
 				  RETURN {
-					"type": pkgHasType.type,
+					"type": @typeValue,
 					"namespace": pkgHasNamespace.namespace,
 					"name": pkgHasName.name,
 					"version": pkgHasVersion.version,

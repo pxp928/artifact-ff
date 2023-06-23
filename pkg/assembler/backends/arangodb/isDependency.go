@@ -34,12 +34,19 @@ const (
 func (c *arangoClient) IngestDependency(ctx context.Context, pkg model.PkgInputSpec, depPkg model.PkgInputSpec, dependency model.IsDependencyInputSpec) (*model.IsDependency, error) {
 	values := map[string]any{}
 
-	values["pkgType"] = pkg.Type
-	values["name"] = pkg.Name
+	//values["pkgType"] = pkg.Type
+	//values["name"] = pkg.Name
+	values["nameKey"] = removePunctuationsAndReplaceWithDash(pkg.Name)
 	if pkg.Namespace != nil {
-		values["namespace"] = *pkg.Namespace
+		//values["namespace"] = *pkg.Namespace
+		if *pkg.Namespace == "" {
+			values["namespaceKey"] = "guacEmpty"
+		} else {
+			values["namespaceKey"] = removePunctuationsAndReplaceWithDash(*pkg.Namespace)
+		}
 	} else {
-		values["namespace"] = ""
+		//values["namespace"] = ""
+		values["namespaceKey"] = "guacEmpty"
 	}
 	if pkg.Version != nil {
 		values["version"] = *pkg.Version
@@ -66,32 +73,42 @@ func (c *arangoClient) IngestDependency(ctx context.Context, pkg model.PkgInputS
 	}
 	values["qualifier"] = qualifiers
 
-	values["secondPkgType"] = depPkg.Type
-	values["secondNamespace"] = depPkg.Namespace
-	values["secondName"] = depPkg.Name
+	//values["secondPkgType"] = depPkg.Type
+
+	//values["secondName"] = depPkg.Name
+	values["secondNameKey"] = removePunctuationsAndReplaceWithDash(depPkg.Name)
+	if depPkg.Namespace != nil {
+		//	values["secondNamespace"] = *depPkg.Namespace
+		if *depPkg.Namespace == "" {
+			values["secondNamespaceKey"] = "guacEmpty"
+		} else {
+			values["secondNamespaceKey"] = removePunctuationsAndReplaceWithDash(*depPkg.Namespace)
+		}
+	} else {
+		//	values["secondNamespace"] = ""
+		values["secondNamespaceKey"] = "guacEmpty"
+	}
 	values[versionRange] = dependency.VersionRange
 	values[dependencyType] = dependency.DependencyType.String()
 	values[justification] = dependency.Justification
 	values[origin] = dependency.Origin
 	values[collector] = dependency.Collector
-	// values["typeID"] = c.pkgTypeMap[pkg.Type].Id
-	// values["typeValue"] = c.pkgTypeMap[pkg.Type].PkgType
-	// values["secondTypeID"] = c.pkgTypeMap[depPkg.Type].Id
-	// values["secondTypeValue"] = c.pkgTypeMap[depPkg.Type].PkgType
+	values["typeID"] = c.pkgTypeMap[pkg.Type].Id
+	values["typeKey"] = c.pkgTypeMap[pkg.Type].Key
+	values["typeValue"] = c.pkgTypeMap[pkg.Type].PkgType
+	values["secondTypeID"] = c.pkgTypeMap[depPkg.Type].Id
+	values["secondTypeKey"] = c.pkgTypeMap[depPkg.Type].Key
+	values["secondTypeValue"] = c.pkgTypeMap[depPkg.Type].PkgType
 
 	query := `LET firstPkg = FIRST(
-		FOR pkg IN Pkg
-		FILTER pkg.root == "pkg"
-		FOR pkgHasType IN OUTBOUND pkg PkgHasType
-			FILTER pkgHasType.type == @pkgType
-		  FOR pkgHasNamespace IN OUTBOUND pkgHasType PkgHasNamespace
-				  FILTER pkgHasNamespace.namespace == @namespace
+			FOR pkgHasNamespace IN OUTBOUND @typeID PkgHasNamespace
+				  FILTER pkgHasNamespace._key == CONCAT("pkgNamespace", @typeKey, @namespaceKey)
 			  FOR pkgHasName IN OUTBOUND pkgHasNamespace PkgHasName
-					  FILTER pkgHasName.name == @name
+			  		  FILTER pkgHasName._key == CONCAT("pkgName", pkgHasNamespace._key, @nameKey)
 				FOR pkgHasVersion IN OUTBOUND pkgHasName PkgHasVersion
 						  FILTER pkgHasVersion.version == @version && pkgHasVersion.subpath == @subpath && pkgHasVersion.qualifier_list == @qualifier
 				  RETURN {
-					"type": pkgHasType.type,
+					"type": @typeValue,
 					"namespace": pkgHasNamespace.namespace,
 					"name": pkgHasName.name,
 					"version": pkgHasVersion.version,
@@ -102,16 +119,12 @@ func (c *arangoClient) IngestDependency(ctx context.Context, pkg model.PkgInputS
 	  )
 	  
 	  LET secondPkg = FIRST(
-		FOR pkg IN Pkg
-		  FILTER pkg.root == "pkg"
-		  FOR pkgHasType IN OUTBOUND pkg PkgHasType
-			  FILTER pkgHasType.type == @secondPkgType
-			FOR pkgHasNamespace IN OUTBOUND pkgHasType PkgHasNamespace
-				FILTER pkgHasNamespace.namespace == @secondNamespace
+			FOR pkgHasNamespace IN OUTBOUND @secondTypeID PkgHasNamespace
+				  FILTER pkgHasNamespace._key == CONCAT("pkgNamespace", @secondTypeKey, @secondNamespaceKey)
 			  FOR pkgHasName IN OUTBOUND pkgHasNamespace PkgHasName
-					  FILTER pkgHasName.name == @secondName
+			  		FILTER pkgHasName._key == CONCAT("pkgName", pkgHasNamespace._key, @secondNameKey)
 				  RETURN {
-					"type": pkgHasType.type,
+					"type": @secondTypeValue,
 					"namespace": pkgHasNamespace.namespace,
 					"name": pkgHasName.name,
 					"nameDoc": pkgHasName

@@ -18,6 +18,7 @@ package arangodb
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -60,23 +61,53 @@ func registerAllPackages(ctx context.Context, client *arangoClient) {
 	client.IngestPackage(ctx, p4)
 }
 
+func removePunctuationsAndReplaceWithDash(value string) string {
+	re := regexp.MustCompile(`[^\w\s]+`)
+	parts := re.FindAllString(value, -1)
+	for _, part := range parts {
+		newPart := re.ReplaceAllString(part, "-")
+		value = strings.Replace(value, part, newPart, 1)
+	}
+	return value
+}
+
 func (c *arangoClient) IngestPackage(ctx context.Context, pkg model.PkgInputSpec) (*model.Package, error) {
 	values := map[string]any{}
+
 	values["name"] = pkg.Name
+	values["nameKey"] = removePunctuationsAndReplaceWithDash(pkg.Name)
 	if pkg.Namespace != nil {
 		values["namespace"] = *pkg.Namespace
+		if *pkg.Namespace == "" {
+			values["namespaceKey"] = "guacEmpty"
+		} else {
+			values["namespaceKey"] = removePunctuationsAndReplaceWithDash(*pkg.Namespace)
+		}
 	} else {
 		values["namespace"] = ""
+		values["namespaceKey"] = "guacEmpty"
 	}
 	if pkg.Version != nil {
 		values["version"] = *pkg.Version
+		// if *pkg.Version == "" {
+		// 	values["versionKey"] = "guacEmpty"
+		// } else {
+		// 	values["versionKey"] = *pkg.Version
+		// }
 	} else {
 		values["version"] = ""
+		//values["versionKey"] = "guacEmpty"
 	}
 	if pkg.Subpath != nil {
 		values["subpath"] = *pkg.Subpath
+		// if *pkg.Subpath == "" {
+		// 	values["subpathKey"] = "guacEmpty"
+		// } else {
+		// 	values["subpathKey"] = removePunctuationsAndReplaceWithDash(*pkg.Subpath)
+		// }
 	} else {
 		values["subpath"] = ""
+		//values["subpathKey"] = "guacEmpty"
 	}
 
 	// To ensure consistency, always sort the qualifiers by key
@@ -91,25 +122,31 @@ func (c *arangoClient) IngestPackage(ctx context.Context, pkg model.PkgInputSpec
 	for _, k := range keys {
 		qualifiers = append(qualifiers, k, qualifiersMap[k])
 	}
-	values["qualifier"] = qualifiers
+	if len(qualifiers) > 0 {
+		values["qualifier"] = qualifiers
+		//values["qualifierKey"] = strings.Join(qualifiers, ",")
+	} else {
+		values["qualifier"] = qualifiers
+		//values["qualifierKey"] = "guacEmpty"
+	}
 	values["typeID"] = c.pkgTypeMap[pkg.Type].Id
 	values["typeKey"] = c.pkgTypeMap[pkg.Type].Key
 	values["typeValue"] = c.pkgTypeMap[pkg.Type].PkgType
 
 	query := `	  
 	  LET ns = FIRST(
-		UPSERT { namespace: @namespace, _parent: @typeID }
-		INSERT { namespace: @namespace, _parent: @typeID }
+		UPSERT { namespace: @namespace, _parent: @typeID, _key: CONCAT("pkgNamespace", @typeKey, @namespaceKey) }
+		INSERT { namespace: @namespace, _parent: @typeID, _key: CONCAT("pkgNamespace", @typeKey, @namespaceKey) }
 		UPDATE {}
-		IN PkgNamespace OPTIONS { indexHint: "byNamespace" }
+		IN PkgNamespace
 		RETURN NEW
 	  )
 	  
 	  LET name = FIRST(
-		UPSERT { name: @name, _parent: ns._id }
-		INSERT { name: @name, _parent: ns._id }
+		UPSERT { name: @name, _parent: ns._id, _key: CONCAT("pkgName", ns._key, @nameKey) }
+		INSERT { name: @name, _parent: ns._id, _key: CONCAT("pkgName", ns._key, @nameKey) }
 		UPDATE {}
-		IN PkgName OPTIONS { indexHint: "byName" }
+		IN PkgName
 		RETURN NEW
 	  )
 	  
@@ -117,7 +154,7 @@ func (c *arangoClient) IngestPackage(ctx context.Context, pkg model.PkgInputSpec
 		UPSERT { version: @version, subpath: @subpath, qualifier_list: @qualifier, _parent: name._id }
 		INSERT { version: @version, subpath: @subpath, qualifier_list: @qualifier, _parent: name._id }
 		UPDATE {}
-		IN PkgVersion OPTIONS { indexHint: "byAllVersion" }
+		IN PkgVersion
 		RETURN NEW
 	  )
 	
