@@ -3482,7 +3482,6 @@ input PackageOrSourceInputs {
   sources: [SourceInputSpec!]
 }
 
-
 """
 IsOccurrence is an attestation to link an artifact to a package or source.
 

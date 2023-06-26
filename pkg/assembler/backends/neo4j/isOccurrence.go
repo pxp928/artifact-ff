@@ -212,6 +212,10 @@ func (c *neo4jClient) IngestOccurrences(ctx context.Context, subjects model.Pack
 
 // Ingest IngestOccurrence
 
+func (c *neo4jClient) IngestOccurrences(ctx context.Context, subject model.PackagesOrSourcesInput, artifact []*model.ArtifactInputSpec, occurrence []*model.IsOccurrenceInputSpec) ([]*model.IsOccurrence, error) {
+	panic("not implemented")
+}
+
 func (c *neo4jClient) IngestOccurrence(ctx context.Context, subject model.PackageOrSourceInput, artifact model.ArtifactInputSpec, occurrence model.IsOccurrenceInputSpec) (*model.IsOccurrence, error) {
 
 	session := c.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})

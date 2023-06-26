@@ -221,12 +221,22 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 			}
 
 			logger.Infof("assembling IsDependency: %v", len(p.IsDependency))
-			for _, v := range p.IsDependency {
+			increment := 0
+			var collectedIsDependency []assembler.IsDependencyIngest
+			for i, isDep := range p.IsDependency {
 				if errGroupVerbCtx.Err() != nil {
 					break
 				}
-				v := v
-				verbs.Go(func() error { return ingestIsDependency(errGroupVerbCtx, gqlclient, v) })
+				collectedIsDependency = append(collectedIsDependency, isDep)
+				increment++
+				if increment == 20 {
+					verbs.Go(func() error { return ingestIsDependencies(errGroupVerbCtx, gqlclient, collectedIsDependency) })
+					collectedIsDependency = []assembler.IsDependencyIngest{}
+					increment = 0
+				}
+				if i == len(p.IsDependency)-1 {
+					verbs.Go(func() error { return ingestIsDependencies(errGroupVerbCtx, gqlclient, collectedIsDependency) })
+				}
 			}
 
 			logger.Infof("assembling IsOccurrence: %v", len(p.IsOccurrence))
@@ -234,8 +244,16 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				if errGroupVerbCtx.Err() != nil {
 					break
 				}
-				v := v
-				verbs.Go(func() error { return ingestIsOccurrence(errGroupVerbCtx, gqlclient, v) })
+				collectedIsOccurrence = append(collectedIsOccurrence, isDep)
+				increment++
+				if increment == 20 {
+					verbs.Go(func() error { return ingestIsOccurrences(errGroupVerbCtx, gqlclient, collectedIsOccurrence) })
+					collectedIsOccurrence = []assembler.IsOccurrenceIngest{}
+					increment = 0
+				}
+				if i == len(p.IsOccurrence)-1 {
+					verbs.Go(func() error { return ingestIsOccurrences(errGroupVerbCtx, gqlclient, collectedIsOccurrence) })
+				}
 			}
 
 			logger.Infof("assembling HasSLSA: %v", len(p.HasSlsa))
