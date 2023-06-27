@@ -22,6 +22,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/guacsec/guac/pkg/assembler"
+	model "github.com/guacsec/guac/pkg/assembler/clients/generated"
 	"github.com/guacsec/guac/pkg/logging"
 )
 
@@ -41,12 +42,22 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 		for _, p := range preds {
 			packages := p.GetPackages(errGroupNounCtx)
 			logger.Infof("assembling Package: %v", len(packages))
-			for _, v := range packages {
+			increment := 0
+			var collectedPackages []model.PkgInputSpec
+			for i, pkg := range packages {
 				if errGroupNounCtx.Err() != nil {
 					break
 				}
-				v := v
-				nouns.Go(func() error { return ingestPackage(errGroupNounCtx, gqlclient, v) })
+				collectedPackages = append(collectedPackages, *pkg)
+				increment++
+				if increment == 20 {
+					nouns.Go(func() error { return ingestPackages(errGroupNounCtx, gqlclient, collectedPackages) })
+					collectedPackages = []model.PkgInputSpec{}
+					increment = 0
+				}
+				if i == len(p.IsDependency)-1 {
+					nouns.Go(func() error { return ingestPackages(errGroupNounCtx, gqlclient, collectedPackages) })
+				}
 			}
 
 			sources := p.GetSources(errGroupNounCtx)
@@ -61,12 +72,22 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 
 			artifacts := p.GetArtifacts(errGroupNounCtx)
 			logger.Infof("assembling Artifact: %v", len(artifacts))
-			for _, v := range artifacts {
+			increment = 0
+			var collectedArtifacts []model.ArtifactInputSpec
+			for i, art := range artifacts {
 				if errGroupNounCtx.Err() != nil {
 					break
 				}
-				v := v
-				nouns.Go(func() error { return ingestArtifact(errGroupNounCtx, gqlclient, v) })
+				collectedArtifacts = append(collectedArtifacts, *art)
+				increment++
+				if increment == 20 {
+					nouns.Go(func() error { return ingestArtifacts(errGroupNounCtx, gqlclient, collectedArtifacts) })
+					collectedArtifacts = []model.ArtifactInputSpec{}
+					increment = 0
+				}
+				if i == len(p.IsDependency)-1 {
+					nouns.Go(func() error { return ingestArtifacts(errGroupNounCtx, gqlclient, collectedArtifacts) })
+				}
 			}
 
 			builders := p.GetBuilders(errGroupNounCtx)

@@ -17,6 +17,7 @@ package arangodb
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -74,26 +75,207 @@ func guacPkgId(pkg model.PkgInputSpec) PkgIds {
 
 	var ns string
 	if pkg.Namespace != nil {
-		ns = *pkg.Namespace
+		if *pkg.Namespace != "" {
+			ns = *pkg.Namespace
+		} else {
+			ns = "guacEmpty"
+		}
 	}
 	ids.NamespaceId = fmt.Sprintf("%s::%s", ids.TypeId, ns)
 	ids.NameId = fmt.Sprintf("%s::%s", ids.NamespaceId, pkg.Name)
 
-	if pkg.Version == nil {
-		return ids
+	var version string
+	if pkg.Version != nil {
+		if *pkg.Version != "" {
+			version = *pkg.Version
+		} else {
+			version = "guacEmpty"
+		}
 	}
 
 	var subpath string
 	if pkg.Subpath != nil {
-		subpath = *pkg.Subpath
+		if *pkg.Subpath != "" {
+			subpath = *pkg.Subpath
+		} else {
+			subpath = "guacEmpty"
+		}
 	}
 
-	ids.VersionId = fmt.Sprintf("%s::%s::%s?", ids.NameId, *pkg.Version, subpath)
-	for _, v := range pkg.Qualifiers {
-		ids.VersionId += fmt.Sprintf("%s=%s&", v.Key, v.Value)
+	ids.VersionId = fmt.Sprintf("%s::%s::%s?", ids.NameId, version, subpath)
+
+	qualifiersMap := map[string]string{}
+	keys := []string{}
+	for _, kv := range pkg.Qualifiers {
+		qualifiersMap[kv.Key] = kv.Value
+		keys = append(keys, kv.Key)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		ids.VersionId += fmt.Sprintf("%s=%s&", k, qualifiersMap[k])
 	}
 
 	return ids
+}
+
+func (c *arangoClient) IngestPackages(ctx context.Context, pkgs []*model.PkgInputSpec) ([]*model.Package, error) {
+	listOfValues := []map[string]any{}
+
+	for i := range pkgs {
+		values := map[string]any{}
+
+		// add guac keys
+		values["typeID"] = c.pkgTypeMap[pkgs[i].Type].Id
+		values["typeKey"] = c.pkgTypeMap[pkgs[i].Type].Key
+		values["typeValue"] = c.pkgTypeMap[pkgs[i].Type].PkgType
+
+		guacIds := guacPkgId(*pkgs[i])
+		values["guacNsKey"] = guacIds.NamespaceId
+		values["guacNameKey"] = guacIds.NameId
+		values["guacVersionKey"] = guacIds.VersionId
+
+		values["name"] = pkgs[i].Name
+		if pkgs[i].Namespace != nil {
+			values["namespace"] = *pkgs[i].Namespace
+		} else {
+			values["namespace"] = ""
+		}
+		if pkgs[i].Version != nil {
+			values["version"] = *pkgs[i].Version
+		} else {
+			values["version"] = ""
+		}
+		if pkgs[i].Subpath != nil {
+			values["subpath"] = *pkgs[i].Subpath
+		} else {
+			values["subpath"] = ""
+		}
+
+		// To ensure consistency, always sort the qualifiers by key
+		qualifiersMap := map[string]string{}
+		keys := []string{}
+		for _, kv := range pkgs[i].Qualifiers {
+			qualifiersMap[kv.Key] = kv.Value
+			keys = append(keys, kv.Key)
+		}
+		sort.Strings(keys)
+		qualifiers := []string{}
+		for _, k := range keys {
+			qualifiers = append(qualifiers, k, qualifiersMap[k])
+		}
+		values["qualifier"] = qualifiers
+
+		listOfValues = append(listOfValues, values)
+	}
+
+	var documents []string
+	for _, val := range listOfValues {
+		bs, _ := json.Marshal(val)
+		documents = append(documents, string(bs))
+	}
+
+	queryValues := map[string]any{}
+	queryValues["documents"] = fmt.Sprint(strings.Join(documents, ","))
+
+	var sb strings.Builder
+
+	sb.WriteString("for doc in [")
+	for i, val := range listOfValues {
+		bs, _ := json.Marshal(val)
+		if i == len(listOfValues)-1 {
+			sb.WriteString(string(bs))
+		} else {
+			sb.WriteString(string(bs) + ",")
+		}
+	}
+	sb.WriteString("]")
+
+	query := `	  
+	LET ns = FIRST(
+	  UPSERT { namespace: doc.namespace, _parent: doc.typeID , guacKey: doc.guacNsKey}
+	  INSERT { namespace: doc.namespace, _parent: doc.typeID , guacKey: doc.guacNsKey}
+	  UPDATE {}
+	  IN PkgNamespace OPTIONS { indexHint: "byNamespaceParent" }
+	  RETURN NEW
+	)
+	
+	LET name = FIRST(
+	  UPSERT { name: doc.name, _parent: ns._id, guacKey: doc.guacNameKey}
+	  INSERT { name: doc.name, _parent: ns._id, guacKey: doc.guacNameKey}
+	  UPDATE {}
+	  IN PkgName OPTIONS { indexHint: "byNameParent" }
+	  RETURN NEW
+	)
+	
+	LET pkgVersionObj = FIRST(
+	  UPSERT { version: doc.version, subpath: doc.subpath, qualifier_list: doc.qualifier, _parent: name._id, guacKey: doc.guacVersionKey}
+	  INSERT { version: doc.version, subpath: doc.subpath, qualifier_list: doc.qualifier, _parent: name._id, guacKey: doc.guacVersionKey}
+	  UPDATE {}
+	  IN PkgVersion OPTIONS { indexHint: "byAllVersionParent" }
+	  RETURN NEW
+	)
+  
+	LET pkgHasNamespaceCollection = (
+	  INSERT { _key: CONCAT("pkgHasNamespace", doc.typeKey, ns._key), _from: doc.typeID, _to: ns._id, label : "PkgHasNamespace"} INTO PkgHasNamespace OPTIONS { overwriteMode: "ignore" }
+	)
+	
+	LET pkgHasNameCollection = (
+	  INSERT { _key: CONCAT("pkgHasName", ns._key, name._key), _from: ns._id, _to: name._id, label : "PkgHasName"} INTO PkgHasName OPTIONS { overwriteMode: "ignore" }
+	)
+	
+	LET pkgHasVersionCollection = (
+	  INSERT { _key: CONCAT("pkgHasVersion", name._key, pkgVersionObj._key), _from: name._id, _to: pkgVersionObj._id, label : "PkgHasVersion"} INTO PkgHasVersion OPTIONS { overwriteMode: "ignore" }
+	)
+	  
+  RETURN {
+  "type": doc.typeValue,
+  "namespace": ns.namespace,
+  "name": name.name,
+  "version": pkgVersionObj.version,
+  "subpath": pkgVersionObj.subpath,
+  "qualifier_list": pkgVersionObj.qualifier_list
+}`
+
+	sb.WriteString(query)
+
+	cursor, err := executeQueryWithRetry(ctx, c.db, sb.String(), nil, "IngestPackages")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create vertex documents: %w", err)
+	}
+
+	type collectedData struct {
+		PkgType       string      `json:"type"`
+		Namespace     string      `json:"namespace"`
+		Name          string      `json:"name"`
+		Version       string      `json:"version"`
+		Subpath       string      `json:"subpath"`
+		QualifierList interface{} `json:"qualifier_list"`
+	}
+
+	var createdValues []collectedData
+	for {
+		var doc collectedData
+		_, err := cursor.ReadDocument(ctx, &doc)
+		if err != nil {
+			if driver.IsNoMoreDocuments(err) {
+				cursor.Close()
+				break
+			} else {
+				return nil, fmt.Errorf("failed to ingest package: %w", err)
+			}
+		} else {
+			createdValues = append(createdValues, doc)
+		}
+	}
+
+	var packageList []*model.Package
+	for _, createdValue := range createdValues {
+		pkg := generateModelPackage(createdValue.PkgType, createdValue.Namespace,
+			createdValue.Name, createdValue.Version, createdValue.Subpath, createdValue.QualifierList)
+		packageList = append(packageList, pkg)
+	}
+
+	return packageList, nil
 }
 
 func (c *arangoClient) IngestPackage(ctx context.Context, pkg model.PkgInputSpec) (*model.Package, error) {

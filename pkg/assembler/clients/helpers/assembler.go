@@ -32,10 +32,12 @@ func GetAssembler(ctx context.Context, gqlclient graphql.Client) func([]assemble
 		for _, p := range preds {
 			packages := p.GetPackages(ctx)
 			logger.Infof("assembling Package: %v", len(packages))
+			var collectedPackages []model.PkgInputSpec
 			for _, v := range packages {
-				if err := ingestPackage(ctx, gqlclient, v); err != nil {
-					return err
-				}
+				collectedPackages = append(collectedPackages, *v)
+			}
+			if err := ingestPackages(ctx, gqlclient, collectedPackages); err != nil {
+				return err
 			}
 
 			sources := p.GetSources(ctx)
@@ -48,10 +50,12 @@ func GetAssembler(ctx context.Context, gqlclient graphql.Client) func([]assemble
 
 			artifacts := p.GetArtifacts(ctx)
 			logger.Infof("assembling Artifact: %v", len(artifacts))
+			var collectedArtifacts []model.ArtifactInputSpec
 			for _, v := range artifacts {
-				if err := ingestArtifact(ctx, gqlclient, v); err != nil {
-					return err
-				}
+				collectedArtifacts = append(collectedArtifacts, *v)
+			}
+			if err := ingestArtifacts(ctx, gqlclient, collectedArtifacts); err != nil {
+				return err
 			}
 
 			builders := p.GetBuilders(ctx)
@@ -100,11 +104,12 @@ func GetAssembler(ctx context.Context, gqlclient graphql.Client) func([]assemble
 			}
 
 			logger.Infof("assembling IsDependency: %v", len(p.IsDependency))
-			for _, v := range p.IsDependency {
-				if err := ingestIsDependency(ctx, gqlclient, v); err != nil {
-					return err
-				}
-			}
+			ingestIsDependencies(ctx, gqlclient, p.IsDependency)
+			// for _, v := range p.IsDependency {
+			// 	if err := ingestIsDependency(ctx, gqlclient, v); err != nil {
+			// 		return err
+			// 	}
+			// }
 
 			logger.Infof("assembling IsOccurrence: %v", len(p.IsOccurrence))
 			for _, v := range p.IsOccurrence {
@@ -192,6 +197,11 @@ func ingestPackage(ctx context.Context, client graphql.Client, v *model.PkgInput
 	return err
 }
 
+func ingestPackages(ctx context.Context, client graphql.Client, v []model.PkgInputSpec) error {
+	_, err := model.IngestPackages(ctx, client, v)
+	return err
+}
+
 func ingestSource(ctx context.Context, client graphql.Client, v *model.SourceInputSpec) error {
 	_, err := model.IngestSource(ctx, client, *v)
 	return err
@@ -199,6 +209,11 @@ func ingestSource(ctx context.Context, client graphql.Client, v *model.SourceInp
 
 func ingestArtifact(ctx context.Context, client graphql.Client, v *model.ArtifactInputSpec) error {
 	_, err := model.IngestArtifact(ctx, client, *v)
+	return err
+}
+
+func ingestArtifacts(ctx context.Context, client graphql.Client, v []model.ArtifactInputSpec) error {
+	_, err := model.IngestArtifacts(ctx, client, v)
 	return err
 }
 

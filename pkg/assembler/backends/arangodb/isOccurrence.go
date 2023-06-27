@@ -62,6 +62,10 @@ func (c *arangoClient) IngestOccurrences(ctx context.Context, subject model.Pack
 	for i, _ := range subject.Packages {
 		values := map[string]any{}
 
+		// add guac keys
+		pkgId := guacPkgId(*subject.Packages[i])
+		values["pkgVersionGuacKey"] = pkgId.VersionId
+
 		values["pkgType"] = subject.Packages[i].Type
 		values["name"] = subject.Packages[i].Name
 		if subject.Packages[i].Namespace != nil {
@@ -130,24 +134,23 @@ func (c *arangoClient) IngestOccurrences(ctx context.Context, subject model.Pack
 
 	query := `
 	LET firstPkg = FIRST(
-		FOR pkg IN Pkg
-		FILTER pkg.root == 'pkg'
-		FOR pkgHasType IN OUTBOUND pkg PkgHasType
-		  FILTER pkgHasType.type == doc.pkgType && pkgHasType._parent == pkg._id
-		  FOR pkgHasNamespace IN OUTBOUND pkgHasType PkgHasNamespace
-			  FILTER pkgHasNamespace.namespace == doc.namespace && pkgHasNamespace._parent == pkgHasType._id
-			FOR pkgHasName IN OUTBOUND pkgHasNamespace PkgHasName
-				FILTER pkgHasName.name == doc.name && pkgHasName._parent == pkgHasNamespace._id
-			FOR pkgHasVersion IN OUTBOUND pkgHasName PkgHasVersion
-				  FILTER pkgHasVersion.version == doc.version && pkgHasVersion.subpath == doc.subpath && pkgHasVersion.qualifier_list == doc.qualifier && pkgHasVersion._parent == pkgHasName._id
+		FOR pVersion in PkgVersion
+		  FILTER pVersion.guacKey == doc.pkgVersionGuacKey
+		  FOR pName in PkgName
+		  FILTER pName._id == pVersion._parent
+		  FOR pNs in PkgNamespace
+		  FILTER pNs._id == pName._parent
+		  FOR pType in PkgType
+		  FILTER pType._id == pNs._parent
+
 			  RETURN {
-			  'type': pkgHasType.type,
-			  'namespace': pkgHasNamespace.namespace,
-			  'name': pkgHasName.name,
-			  'version': pkgHasVersion.version,
-			  'subpath': pkgHasVersion.subpath,
-			  'qualifier_list': pkgHasVersion.qualifier_list,
-			  'versionDoc': pkgHasVersion
+			  'type': pType.type,
+			  'namespace': pNs.namespace,
+			  'name': pName.name,
+			  'version': pVersion.version,
+			  'subpath': pVersion.subpath,
+			  'qualifier_list': pVersion.qualifier_list,
+			  'versionDoc': pVersion
 			  }
 		)
 	  
