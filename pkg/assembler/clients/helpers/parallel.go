@@ -52,7 +52,7 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				increment++
 				if increment == 20 {
 					nouns.Go(func() error { return ingestPackages(errGroupNounCtx, gqlclient, collectedPackages) })
-					collectedPackages = []model.PkgInputSpec{}
+					collectedPackages = make([]model.PkgInputSpec, 0)
 					increment = 0
 				}
 				if i == len(p.IsDependency)-1 {
@@ -82,7 +82,7 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				increment++
 				if increment == 20 {
 					nouns.Go(func() error { return ingestArtifacts(errGroupNounCtx, gqlclient, collectedArtifacts) })
-					collectedArtifacts = []model.ArtifactInputSpec{}
+					collectedArtifacts = make([]model.ArtifactInputSpec, 0)
 					increment = 0
 				}
 				if i == len(p.IsDependency)-1 {
@@ -252,7 +252,7 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				increment++
 				if increment == 20 {
 					verbs.Go(func() error { return ingestIsDependencies(errGroupVerbCtx, gqlclient, collectedIsDependency) })
-					collectedIsDependency = []assembler.IsDependencyIngest{}
+					collectedIsDependency = make([]assembler.IsDependencyIngest, 0)
 					increment = 0
 				}
 				if i == len(p.IsDependency)-1 {
@@ -269,7 +269,7 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				increment++
 				if increment == 20 {
 					verbs.Go(func() error { return ingestIsOccurrences(errGroupVerbCtx, gqlclient, collectedIsOccurrence) })
-					collectedIsOccurrence = []assembler.IsOccurrenceIngest{}
+					collectedIsOccurrence = make([]assembler.IsOccurrenceIngest, 0)
 					increment = 0
 				}
 				if i == len(p.IsOccurrence)-1 {

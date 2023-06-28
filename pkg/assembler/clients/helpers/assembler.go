@@ -33,6 +33,7 @@ func GetAssembler(ctx context.Context, gqlclient graphql.Client) func([]assemble
 			packages := p.GetPackages(ctx)
 			logger.Infof("assembling Package: %v", len(packages))
 			var collectedPackages []model.PkgInputSpec
+			collectedPackages = make([]model.PkgInputSpec, 0)
 			for _, v := range packages {
 				collectedPackages = append(collectedPackages, *v)
 			}
@@ -51,6 +52,7 @@ func GetAssembler(ctx context.Context, gqlclient graphql.Client) func([]assemble
 			artifacts := p.GetArtifacts(ctx)
 			logger.Infof("assembling Artifact: %v", len(artifacts))
 			var collectedArtifacts []model.ArtifactInputSpec
+			collectedArtifacts = make([]model.ArtifactInputSpec, 0)
 			for _, v := range artifacts {
 				collectedArtifacts = append(collectedArtifacts, *v)
 			}

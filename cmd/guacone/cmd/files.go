@@ -43,7 +43,10 @@ import (
 	"github.com/guacsec/guac/pkg/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
+
+const MAX_CONCURRENT_JOBS = 2
 
 type fileOptions struct {
 	// path to the pem file
@@ -120,51 +123,63 @@ var filesCmd = &cobra.Command{
 			defer csubClient.Close()
 		}
 
+		files, filesCtx := errgroup.WithContext(ctx)
+
 		// Get pipeline of components
-		processorFunc := getProcessor(ctx)
-		ingestorFunc := getIngestor(ctx)
-		collectSubEmitFunc := getCollectSubEmit(ctx, csubClient)
-		assemblerFunc := getAssembler(ctx, opts.graphqlEndpoint)
+		processorFunc := getProcessor(filesCtx)
+		ingestorFunc := getIngestor(filesCtx)
+		collectSubEmitFunc := getCollectSubEmit(filesCtx, csubClient)
+		assemblerFunc := getAssembler(filesCtx, opts.graphqlEndpoint)
 
 		totalNum := 0
 		totalSuccess := 0
 		var filesWithErrors []string
 
 		gotErr := false
-		// Set emit function to go through the entire pipeline
+
+		// Backend can only process one write at a time, but make
+		// sure there are enough in flight so we don't wait for any round trips.
+		files.SetLimit(3)
+
 		emit := func(d *processor.Document) error {
 			totalNum += 1
 			start := time.Now()
+			files.Go(func() error {
 
-			docTree, err := processorFunc(d)
-			if err != nil {
-				gotErr = true
-				filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
-				return fmt.Errorf("unable to process doc: %v, format: %v, document: %v", err, d.Format, d.Type)
-			}
+				if filesCtx.Err() != nil {
+					return fmt.Errorf("context error")
+				}
 
-			predicates, idstrings, err := ingestorFunc(docTree)
-			if err != nil {
-				gotErr = true
-				filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
-				return fmt.Errorf("unable to ingest doc tree: %v", err)
-			}
+				docTree, err := processorFunc(d)
+				if err != nil {
+					gotErr = true
+					filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
+					return fmt.Errorf("unable to process doc: %v, format: %v, document: %v", err, d.Format, d.Type)
+				}
 
-			err = collectSubEmitFunc(idstrings)
-			if err != nil {
-				logger.Infof("unable to create entries in collectsub server, but continuing: %v", err)
-			}
+				predicates, idstrings, err := ingestorFunc(docTree)
+				if err != nil {
+					gotErr = true
+					filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
+					return fmt.Errorf("unable to ingest doc tree: %v", err)
+				}
 
-			err = assemblerFunc(predicates)
-			if err != nil {
-				gotErr = true
-				filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
-				return fmt.Errorf("unable to assemble graphs: %v", err)
-			}
-			t := time.Now()
-			elapsed := t.Sub(start)
-			totalSuccess += 1
-			logger.Infof("[%v] completed doc %+v", elapsed, d.SourceInformation)
+				err = collectSubEmitFunc(idstrings)
+				if err != nil {
+					logger.Infof("unable to create entries in collectsub server, but continuing: %v", err)
+				}
+				err = assemblerFunc(predicates)
+				if err != nil {
+					gotErr = true
+					filesWithErrors = append(filesWithErrors, d.SourceInformation.Source)
+					return fmt.Errorf("unable to assemble graphs: %v", err)
+				}
+				t := time.Now()
+				elapsed := t.Sub(start)
+				totalSuccess += 1
+				logger.Infof("[%v] completed doc %+v", elapsed, d.SourceInformation)
+				return nil
+			})
 			return nil
 		}
 
@@ -177,7 +192,13 @@ var filesCmd = &cobra.Command{
 			logger.Errorf("collector ended with error: %v", err)
 			return false
 		}
+
 		if err := collector.Collect(ctx, emit, errHandler); err != nil {
+			logger.Fatal(err)
+		}
+
+		err = files.Wait()
+		if err != nil {
 			logger.Fatal(err)
 		}
 
