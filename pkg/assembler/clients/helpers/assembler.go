@@ -199,11 +199,6 @@ func ingestPackage(ctx context.Context, client graphql.Client, v *model.PkgInput
 	return err
 }
 
-func ingestPackages(ctx context.Context, client graphql.Client, v []model.PkgInputSpec) error {
-	_, err := model.IngestPackages(ctx, client, v)
-	return err
-}
-
 func ingestSource(ctx context.Context, client graphql.Client, v *model.SourceInputSpec) error {
 	_, err := model.IngestSource(ctx, client, *v)
 	return err
@@ -211,11 +206,6 @@ func ingestSource(ctx context.Context, client graphql.Client, v *model.SourceInp
 
 func ingestArtifact(ctx context.Context, client graphql.Client, v *model.ArtifactInputSpec) error {
 	_, err := model.IngestArtifact(ctx, client, *v)
-	return err
-}
-
-func ingestArtifacts(ctx context.Context, client graphql.Client, v []model.ArtifactInputSpec) error {
-	_, err := model.IngestArtifacts(ctx, client, v)
 	return err
 }
 
@@ -254,19 +244,6 @@ func ingestIsDependency(ctx context.Context, client graphql.Client, v assembler.
 	return err
 }
 
-func ingestIsDependencies(ctx context.Context, client graphql.Client, v []assembler.IsDependencyIngest) error {
-	var pkgs []model.PkgInputSpec
-	var depPkgs []model.PkgInputSpec
-	var dependencies []model.IsDependencyInputSpec
-	for _, ingest := range v {
-		pkgs = append(pkgs, *ingest.Pkg)
-		depPkgs = append(depPkgs, *ingest.DepPkg)
-		dependencies = append(dependencies, *ingest.IsDependency)
-	}
-	_, err := model.IsDependencies(ctx, client, pkgs, depPkgs, dependencies)
-	return err
-}
-
 func ingestIsOccurrence(ctx context.Context, client graphql.Client, v assembler.IsOccurrenceIngest) error {
 	if v.Pkg != nil && v.Src != nil {
 		return fmt.Errorf("unable to create IsOccurrence with both Src and Pkg subject specified")
@@ -280,28 +257,6 @@ func ingestIsOccurrence(ctx context.Context, client graphql.Client, v assembler.
 		return err
 	}
 	_, err := model.IsOccurrencePkg(ctx, client, *v.Pkg, *v.Artifact, *v.IsOccurrence)
-	return err
-}
-
-func ingestIsOccurrences(ctx context.Context, client graphql.Client, v []assembler.IsOccurrenceIngest) error {
-	var pkgs []model.PkgInputSpec
-	var sources []model.SourceInputSpec
-	var artifacts []model.ArtifactInputSpec
-	var occurrences []model.IsOccurrenceInputSpec
-	for _, ingest := range v {
-		if ingest.Pkg != nil {
-			pkgs = append(pkgs, *ingest.Pkg)
-		} else {
-			sources = append(sources, *ingest.Src)
-		}
-		artifacts = append(artifacts, *ingest.Artifact)
-		occurrences = append(occurrences, *ingest.IsOccurrence)
-	}
-	if len(sources) > 0 {
-		_, err := model.IsOccurrencesSrc(ctx, client, sources, artifacts, occurrences)
-		return err
-	}
-	_, err := model.IsOccurrencesPkg(ctx, client, pkgs, artifacts, occurrences)
 	return err
 }
 

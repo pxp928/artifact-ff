@@ -22,7 +22,6 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/guacsec/guac/pkg/assembler"
-	model "github.com/guacsec/guac/pkg/assembler/clients/generated"
 	"github.com/guacsec/guac/pkg/logging"
 )
 
@@ -42,22 +41,12 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 		for _, p := range preds {
 			packages := p.GetPackages(errGroupNounCtx)
 			logger.Infof("assembling Package: %v", len(packages))
-			increment := 0
-			var collectedPackages []model.PkgInputSpec
-			for i, pkg := range packages {
+			for _, v := range packages {
 				if errGroupNounCtx.Err() != nil {
 					break
 				}
-				collectedPackages = append(collectedPackages, *pkg)
-				increment++
-				if increment == 20 {
-					nouns.Go(func() error { return ingestPackages(errGroupNounCtx, gqlclient, collectedPackages) })
-					collectedPackages = make([]model.PkgInputSpec, 0)
-					increment = 0
-				}
-				if i == len(p.IsDependency)-1 {
-					nouns.Go(func() error { return ingestPackages(errGroupNounCtx, gqlclient, collectedPackages) })
-				}
+				v := v
+				nouns.Go(func() error { return ingestPackage(errGroupNounCtx, gqlclient, v) })
 			}
 
 			sources := p.GetSources(errGroupNounCtx)
@@ -72,22 +61,12 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 
 			artifacts := p.GetArtifacts(errGroupNounCtx)
 			logger.Infof("assembling Artifact: %v", len(artifacts))
-			increment = 0
-			var collectedArtifacts []model.ArtifactInputSpec
-			for i, art := range artifacts {
+			for _, v := range artifacts {
 				if errGroupNounCtx.Err() != nil {
 					break
 				}
-				collectedArtifacts = append(collectedArtifacts, *art)
-				increment++
-				if increment == 20 {
-					nouns.Go(func() error { return ingestArtifacts(errGroupNounCtx, gqlclient, collectedArtifacts) })
-					collectedArtifacts = make([]model.ArtifactInputSpec, 0)
-					increment = 0
-				}
-				if i == len(p.IsDependency)-1 {
-					nouns.Go(func() error { return ingestArtifacts(errGroupNounCtx, gqlclient, collectedArtifacts) })
-				}
+				v := v
+				nouns.Go(func() error { return ingestArtifact(errGroupNounCtx, gqlclient, v) })
 			}
 
 			builders := p.GetBuilders(errGroupNounCtx)
@@ -156,22 +135,12 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 			}
 
 			logger.Infof("assembling IsDependency: %v", len(p.IsDependency))
-			increment := 0
-			var collectedIsDependency []assembler.IsDependencyIngest
-			for i, isDep := range p.IsDependency {
+			for _, v := range p.IsDependency {
 				if errGroupVerbCtx.Err() != nil {
 					break
 				}
-				collectedIsDependency = append(collectedIsDependency, isDep)
-				increment++
-				if increment == 20 {
-					verbs.Go(func() error { return ingestIsDependencies(errGroupVerbCtx, gqlclient, collectedIsDependency) })
-					collectedIsDependency = make([]assembler.IsDependencyIngest, 0)
-					increment = 0
-				}
-				if i == len(p.IsDependency)-1 {
-					verbs.Go(func() error { return ingestIsDependencies(errGroupVerbCtx, gqlclient, collectedIsDependency) })
-				}
+				v := v
+				verbs.Go(func() error { return ingestIsDependency(errGroupVerbCtx, gqlclient, v) })
 			}
 
 			logger.Infof("assembling IsOccurrence: %v", len(p.IsOccurrence))
@@ -179,16 +148,8 @@ func GetParallelAssembler(ctx context.Context, gqlclient graphql.Client) func([]
 				if errGroupVerbCtx.Err() != nil {
 					break
 				}
-				collectedIsOccurrence = append(collectedIsOccurrence, isDep)
-				increment++
-				if increment == 20 {
-					verbs.Go(func() error { return ingestIsOccurrences(errGroupVerbCtx, gqlclient, collectedIsOccurrence) })
-					collectedIsOccurrence = make([]assembler.IsOccurrenceIngest, 0)
-					increment = 0
-				}
-				if i == len(p.IsOccurrence)-1 {
-					verbs.Go(func() error { return ingestIsOccurrences(errGroupVerbCtx, gqlclient, collectedIsOccurrence) })
-				}
+				v := v
+				verbs.Go(func() error { return ingestIsOccurrence(errGroupVerbCtx, gqlclient, v) })
 			}
 
 			logger.Infof("assembling HasSLSA: %v", len(p.HasSlsa))

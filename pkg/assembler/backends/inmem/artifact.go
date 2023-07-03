@@ -83,9 +83,6 @@ func (n *artStruct) setCertifyBadLinks(id uint32)  { n.badLinks = append(n.badLi
 func (n *artStruct) setCertifyGoodLinks(id uint32) { n.goodLinks = append(n.goodLinks, id) }
 
 // Ingest Artifacts
-func (c *demoClient) IngestArtifacts(ctx context.Context, artifacts []*model.ArtifactInputSpec) ([]*model.Artifact, error) {
-	panic("not implemented")
-}
 
 func (c *demoClient) IngestArtifacts(ctx context.Context, artifacts []*model.ArtifactInputSpec) ([]*model.Artifact, error) {
 	var modelArtifacts []*model.Artifact

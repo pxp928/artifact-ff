@@ -44,7 +44,7 @@ func generateModelIsOccurrence(subject model.PackageOrSource, artifact *model.Ar
 
 // Ingest IngestOccurrence
 
-func (c *arangoClient) IngestOccurrences(ctx context.Context, subject model.PackagesOrSourcesInput, artifact []*model.ArtifactInputSpec, occurrence []*model.IsOccurrenceInputSpec) ([]*model.IsOccurrence, error) {
+func (c *arangoClient) IngestOccurrences(ctx context.Context, subject model.PackageOrSourceInputs, artifact []*model.ArtifactInputSpec, occurrence []*model.IsOccurrenceInputSpec) ([]*model.IsOccurrence, error) {
 
 	// TODO(pxp928): currently only supporting package for testing. Will add in source once testing is completed
 	if len(subject.Packages) == 0 {

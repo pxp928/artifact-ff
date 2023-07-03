@@ -163,12 +163,6 @@ func (c *neo4jClient) IngestDependencies(ctx context.Context, pkgs []*model.PkgI
 	panic("not implemented")
 }
 
-// Ingest IsDependency
-
-func (c *neo4jClient) IngestDependencies(ctx context.Context, pkg []*model.PkgInputSpec, depPkg []*model.PkgInputSpec, dependency []*model.IsDependencyInputSpec) ([]*model.IsDependency, error) {
-	panic("not implemented")
-}
-
 func (c *neo4jClient) IngestDependency(ctx context.Context, pkg model.PkgInputSpec, depPkg model.PkgInputSpec, dependency model.IsDependencyInputSpec) (*model.IsDependency, error) {
 	session := c.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
 	defer session.Close()
