@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -228,24 +227,25 @@ func getIngestor(ctx context.Context) func(processor.DocumentTree) ([]assembler.
 }
 
 func getAssembler(ctx context.Context, graphqlEndpoint string) func([]assembler.IngestPredicates) error {
-	// Same as https://pkg.go.dev/net/http#DefaultTransport but with greater
-	// MaxIdleConnsPerHost so that we effectively re-use connections when doing
-	// parallel ingestion calls.
-	var dialer = &net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
-	}
-	var customTransport http.RoundTripper = &http.Transport{
-		Proxy:                 http.ProxyFromEnvironment,
-		DialContext:           dialer.DialContext,
-		ForceAttemptHTTP2:     true,
-		MaxIdleConns:          100,
-		MaxIdleConnsPerHost:   30,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}
-	httpClient := http.Client{Transport: customTransport}
+	// // Same as https://pkg.go.dev/net/http#DefaultTransport but with greater
+	// // MaxIdleConnsPerHost so that we effectively re-use connections when doing
+	// // parallel ingestion calls.
+	// var dialer = &net.Dialer{
+	// 	Timeout:   30 * time.Second,
+	// 	KeepAlive: 30 * time.Second,
+	// }
+	// var customTransport http.RoundTripper = &http.Transport{
+	// 	Proxy:                 http.ProxyFromEnvironment,
+	// 	DialContext:           dialer.DialContext,
+	// 	ForceAttemptHTTP2:     true,
+	// 	MaxIdleConns:          100,
+	// 	MaxIdleConnsPerHost:   30,
+	// 	IdleConnTimeout:       90 * time.Second,
+	// 	TLSHandshakeTimeout:   10 * time.Second,
+	// 	ExpectContinueTimeout: 1 * time.Second,
+	// }
+	// httpClient := http.Client{Transport: customTransport}
+	httpClient := http.Client{}
 	gqlclient := graphql.NewClient(graphqlEndpoint, &httpClient)
 	f := helpers.GetParallelAssembler(ctx, gqlclient)
 	return f
