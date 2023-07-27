@@ -64,6 +64,22 @@ input VulnerabilityInput {
 }
 
 """
+VulnerabilityInputs allows using Vulnerability union as
+input type to be used in batch mutations.
+
+Either noVuln must be set to true or one of osv, cve, or ghsa must be
+set to non-nil. If noVuln is set then this is an ingestion of a known lack of
+vulnerabilities, so the special NoVuln node will be used by the backend.
+Otherwise, the specific vulnerability type will be linked to this attestation.
+"""
+input VulnerabilityInputs {
+  osv: [OSVInputSpec!]
+  cve: [CVEInputSpec!]
+  ghsa: [GHSAInputSpec!]
+  noVuln: [Boolean!]
+}
+
+"""
 CertifyVuln is an attestation to attach vulnerability information to a package.
 
 This information is obtained via a scanner. If there is no vulnerability
@@ -146,4 +162,6 @@ extend type Query {
 extend type Mutation {
   "Adds a certification that a package has been scanned for vulnerabilities."
   ingestVulnerability(pkg: PkgInputSpec!, vulnerability: VulnerabilityInput!, certifyVuln: VulnerabilityMetaDataInput!): CertifyVuln!
+  "Adds bulk certifications that a package has been scanned for vulnerabilities."
+  ingestVulnerabilities(pkgs: [PkgInputSpec!]!, vulnerabilities: VulnerabilityInputs!, certifyVulns: [VulnerabilityMetaDataInput!]!): [CertifyVuln!]!
 }
