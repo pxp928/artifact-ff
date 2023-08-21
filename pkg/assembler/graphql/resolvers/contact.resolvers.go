@@ -13,7 +13,7 @@ import (
 // IngestPointOfContact is the resolver for the ingestPointOfContact field.
 func (r *mutationResolver) IngestPointOfContact(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, pointOfContact model.PointOfContactInputSpec) (string, error) {
 	ingestedPOC, err := r.Backend.IngestPointOfContact(ctx, subject, &pkgMatchType, pointOfContact)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	return ingestedPOC.ID, err

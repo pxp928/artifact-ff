@@ -13,7 +13,7 @@ import (
 // IngestHasMetadata is the resolver for the ingestHasMetadata field.
 func (r *mutationResolver) IngestHasMetadata(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, hasMetadata model.HasMetadataInputSpec) (string, error) {
 	ingestedHasMetadata, err := r.Backend.IngestHasMetadata(ctx, subject, &pkgMatchType, hasMetadata)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	return ingestedHasMetadata.ID, err

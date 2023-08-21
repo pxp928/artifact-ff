@@ -23,7 +23,7 @@ func (r *mutationResolver) IngestHasSbom(ctx context.Context, subject model.Pack
 func (r *mutationResolver) IngestHasSBOMs(ctx context.Context, subjects model.PackageOrArtifactInputs, hasSBOMs []*model.HasSBOMInputSpec) ([]string, error) {
 	ingestedHasSBOMs, err := r.Backend.IngestHasSBOMs(ctx, subjects, hasSBOMs)
 	ingestedHasSBOMSIDS := []string{}
-	if err == nil{
+	if err == nil {
 		for _, hasSBOM := range ingestedHasSBOMs {
 			ingestedHasSBOMSIDS = append(ingestedHasSBOMSIDS, hasSBOM.ID)
 		}

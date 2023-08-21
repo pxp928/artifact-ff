@@ -18,7 +18,7 @@ func (r *mutationResolver) IngestCertifyVuln(ctx context.Context, pkg model.PkgI
 	ingestedCertifyVuln, err := r.Backend.IngestCertifyVuln(ctx, pkg,
 		model.VulnerabilityInputSpec{Type: strings.ToLower(vulnerability.Type), VulnerabilityID: strings.ToLower(vulnerability.VulnerabilityID)},
 		certifyVuln)
-	if err !=  nil{
+	if err != nil {
 		return "", err
 	}
 	return ingestedCertifyVuln.ID, err
@@ -37,7 +37,7 @@ func (r *mutationResolver) IngestCertifyVulns(ctx context.Context, pkgs []*model
 	}
 	ingestedCertifyVulns, err := r.Backend.IngestCertifyVulns(ctx, pkgs, lowercaseVulnInputList, certifyVulns)
 	ingestedCertifyVulnsIDS := []string{}
-	if err == nil{
+	if err == nil {
 		for _, certifyVuln := range ingestedCertifyVulns {
 			ingestedCertifyVulnsIDS = append(ingestedCertifyVulnsIDS, certifyVuln.ID)
 		}

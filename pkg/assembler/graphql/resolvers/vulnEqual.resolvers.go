@@ -19,7 +19,7 @@ func (r *mutationResolver) IngestVulnEqual(ctx context.Context, vulnerability mo
 		model.VulnerabilityInputSpec{Type: strings.ToLower(vulnerability.Type), VulnerabilityID: strings.ToLower(vulnerability.VulnerabilityID)},
 		model.VulnerabilityInputSpec{Type: strings.ToLower(otherVulnerability.Type), VulnerabilityID: strings.ToLower(otherVulnerability.VulnerabilityID)},
 		vulnEqual)
-	if err !=  nil{
+	if err != nil {
 		return "", err
 	}
 	return ingestedVulnEqual.ID, err
