@@ -19,40 +19,40 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type MutationResolver interface {
-	IngestArtifact(ctx context.Context, artifact *model.ArtifactInputSpec) (*model.Artifact, error)
-	IngestArtifacts(ctx context.Context, artifacts []*model.ArtifactInputSpec) ([]*model.Artifact, error)
-	IngestBuilder(ctx context.Context, builder *model.BuilderInputSpec) (*model.Builder, error)
-	IngestBuilders(ctx context.Context, builders []*model.BuilderInputSpec) ([]*model.Builder, error)
-	IngestCertifyBad(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, certifyBad model.CertifyBadInputSpec) (*model.CertifyBad, error)
-	IngestCertifyBads(ctx context.Context, subjects model.PackageSourceOrArtifactInputs, pkgMatchType model.MatchFlags, certifyBads []*model.CertifyBadInputSpec) ([]*model.CertifyBad, error)
-	IngestCertifyGood(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, certifyGood model.CertifyGoodInputSpec) (*model.CertifyGood, error)
-	IngestCertifyGoods(ctx context.Context, subjects model.PackageSourceOrArtifactInputs, pkgMatchType model.MatchFlags, certifyGoods []*model.CertifyGoodInputSpec) ([]*model.CertifyGood, error)
-	IngestScorecard(ctx context.Context, source model.SourceInputSpec, scorecard model.ScorecardInputSpec) (*model.CertifyScorecard, error)
-	IngestScorecards(ctx context.Context, sources []*model.SourceInputSpec, scorecards []*model.ScorecardInputSpec) ([]*model.CertifyScorecard, error)
-	IngestVEXStatement(ctx context.Context, subject model.PackageOrArtifactInput, vulnerability model.VulnerabilityInputSpec, vexStatement model.VexStatementInputSpec) (*model.CertifyVEXStatement, error)
-	IngestCertifyVuln(ctx context.Context, pkg model.PkgInputSpec, vulnerability model.VulnerabilityInputSpec, certifyVuln model.ScanMetadataInput) (*model.CertifyVuln, error)
-	IngestCertifyVulns(ctx context.Context, pkgs []*model.PkgInputSpec, vulnerabilities []*model.VulnerabilityInputSpec, certifyVulns []*model.ScanMetadataInput) ([]*model.CertifyVuln, error)
-	IngestPointOfContact(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, pointOfContact model.PointOfContactInputSpec) (*model.PointOfContact, error)
-	IngestHasSbom(ctx context.Context, subject model.PackageOrArtifactInput, hasSbom model.HasSBOMInputSpec) (*model.HasSbom, error)
-	IngestHasSBOMs(ctx context.Context, subjects model.PackageOrArtifactInputs, hasSBOMs []*model.HasSBOMInputSpec) ([]*model.HasSbom, error)
-	IngestSlsa(ctx context.Context, subject model.ArtifactInputSpec, builtFrom []*model.ArtifactInputSpec, builtBy model.BuilderInputSpec, slsa model.SLSAInputSpec) (*model.HasSlsa, error)
-	IngestSLSAs(ctx context.Context, subjects []*model.ArtifactInputSpec, builtFromList [][]*model.ArtifactInputSpec, builtByList []*model.BuilderInputSpec, slsaList []*model.SLSAInputSpec) ([]*model.HasSlsa, error)
-	IngestHasSourceAt(ctx context.Context, pkg model.PkgInputSpec, pkgMatchType model.MatchFlags, source model.SourceInputSpec, hasSourceAt model.HasSourceAtInputSpec) (*model.HasSourceAt, error)
-	IngestHashEqual(ctx context.Context, artifact model.ArtifactInputSpec, otherArtifact model.ArtifactInputSpec, hashEqual model.HashEqualInputSpec) (*model.HashEqual, error)
-	IngestHashEquals(ctx context.Context, artifacts []*model.ArtifactInputSpec, otherArtifacts []*model.ArtifactInputSpec, hashEquals []*model.HashEqualInputSpec) ([]*model.HashEqual, error)
-	IngestDependency(ctx context.Context, pkg model.PkgInputSpec, depPkg model.PkgInputSpec, depPkgMatchType model.MatchFlags, dependency model.IsDependencyInputSpec) (*model.IsDependency, error)
-	IngestDependencies(ctx context.Context, pkgs []*model.PkgInputSpec, depPkgs []*model.PkgInputSpec, depPkgMatchType model.MatchFlags, dependencies []*model.IsDependencyInputSpec) ([]*model.IsDependency, error)
-	IngestOccurrence(ctx context.Context, subject model.PackageOrSourceInput, artifact model.ArtifactInputSpec, occurrence model.IsOccurrenceInputSpec) (*model.IsOccurrence, error)
-	IngestOccurrences(ctx context.Context, subjects model.PackageOrSourceInputs, artifacts []*model.ArtifactInputSpec, occurrences []*model.IsOccurrenceInputSpec) ([]*model.IsOccurrence, error)
-	IngestHasMetadata(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, hasMetadata model.HasMetadataInputSpec) (*model.HasMetadata, error)
-	IngestPackage(ctx context.Context, pkg model.PkgInputSpec) (*model.Package, error)
-	IngestPackages(ctx context.Context, pkgs []*model.PkgInputSpec) ([]*model.Package, error)
-	IngestPkgEqual(ctx context.Context, pkg model.PkgInputSpec, otherPackage model.PkgInputSpec, pkgEqual model.PkgEqualInputSpec) (*model.PkgEqual, error)
-	IngestSource(ctx context.Context, source model.SourceInputSpec) (*model.Source, error)
-	IngestSources(ctx context.Context, sources []*model.SourceInputSpec) ([]*model.Source, error)
-	IngestVulnEqual(ctx context.Context, vulnerability model.VulnerabilityInputSpec, otherVulnerability model.VulnerabilityInputSpec, vulnEqual model.VulnEqualInputSpec) (*model.VulnEqual, error)
-	IngestVulnerability(ctx context.Context, vuln model.VulnerabilityInputSpec) (*model.Vulnerability, error)
-	IngestVulnerabilities(ctx context.Context, vulns []*model.VulnerabilityInputSpec) ([]*model.Vulnerability, error)
+	IngestArtifact(ctx context.Context, artifact *model.ArtifactInputSpec) (string, error)
+	IngestArtifacts(ctx context.Context, artifacts []*model.ArtifactInputSpec) ([]string, error)
+	IngestBuilder(ctx context.Context, builder *model.BuilderInputSpec) (string, error)
+	IngestBuilders(ctx context.Context, builders []*model.BuilderInputSpec) ([]string, error)
+	IngestCertifyBad(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, certifyBad model.CertifyBadInputSpec) (string, error)
+	IngestCertifyBads(ctx context.Context, subjects model.PackageSourceOrArtifactInputs, pkgMatchType model.MatchFlags, certifyBads []*model.CertifyBadInputSpec) ([]string, error)
+	IngestCertifyGood(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, certifyGood model.CertifyGoodInputSpec) (string, error)
+	IngestCertifyGoods(ctx context.Context, subjects model.PackageSourceOrArtifactInputs, pkgMatchType model.MatchFlags, certifyGoods []*model.CertifyGoodInputSpec) ([]string, error)
+	IngestScorecard(ctx context.Context, source model.SourceInputSpec, scorecard model.ScorecardInputSpec) (string, error)
+	IngestScorecards(ctx context.Context, sources []*model.SourceInputSpec, scorecards []*model.ScorecardInputSpec) ([]string, error)
+	IngestVEXStatement(ctx context.Context, subject model.PackageOrArtifactInput, vulnerability model.VulnerabilityInputSpec, vexStatement model.VexStatementInputSpec) (string, error)
+	IngestCertifyVuln(ctx context.Context, pkg model.PkgInputSpec, vulnerability model.VulnerabilityInputSpec, certifyVuln model.ScanMetadataInput) (string, error)
+	IngestCertifyVulns(ctx context.Context, pkgs []*model.PkgInputSpec, vulnerabilities []*model.VulnerabilityInputSpec, certifyVulns []*model.ScanMetadataInput) ([]string, error)
+	IngestPointOfContact(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, pointOfContact model.PointOfContactInputSpec) (string, error)
+	IngestHasSbom(ctx context.Context, subject model.PackageOrArtifactInput, hasSbom model.HasSBOMInputSpec) (string, error)
+	IngestHasSBOMs(ctx context.Context, subjects model.PackageOrArtifactInputs, hasSBOMs []*model.HasSBOMInputSpec) ([]string, error)
+	IngestSlsa(ctx context.Context, subject model.ArtifactInputSpec, builtFrom []*model.ArtifactInputSpec, builtBy model.BuilderInputSpec, slsa model.SLSAInputSpec) (string, error)
+	IngestSLSAs(ctx context.Context, subjects []*model.ArtifactInputSpec, builtFromList [][]*model.ArtifactInputSpec, builtByList []*model.BuilderInputSpec, slsaList []*model.SLSAInputSpec) ([]string, error)
+	IngestHasSourceAt(ctx context.Context, pkg model.PkgInputSpec, pkgMatchType model.MatchFlags, source model.SourceInputSpec, hasSourceAt model.HasSourceAtInputSpec) (string, error)
+	IngestHashEqual(ctx context.Context, artifact model.ArtifactInputSpec, otherArtifact model.ArtifactInputSpec, hashEqual model.HashEqualInputSpec) (string, error)
+	IngestHashEquals(ctx context.Context, artifacts []*model.ArtifactInputSpec, otherArtifacts []*model.ArtifactInputSpec, hashEquals []*model.HashEqualInputSpec) ([]string, error)
+	IngestDependency(ctx context.Context, pkg model.PkgInputSpec, depPkg model.PkgInputSpec, depPkgMatchType model.MatchFlags, dependency model.IsDependencyInputSpec) (string, error)
+	IngestDependencies(ctx context.Context, pkgs []*model.PkgInputSpec, depPkgs []*model.PkgInputSpec, depPkgMatchType model.MatchFlags, dependencies []*model.IsDependencyInputSpec) ([]string, error)
+	IngestOccurrence(ctx context.Context, subject model.PackageOrSourceInput, artifact model.ArtifactInputSpec, occurrence model.IsOccurrenceInputSpec) (string, error)
+	IngestOccurrences(ctx context.Context, subjects model.PackageOrSourceInputs, artifacts []*model.ArtifactInputSpec, occurrences []*model.IsOccurrenceInputSpec) ([]string, error)
+	IngestHasMetadata(ctx context.Context, subject model.PackageSourceOrArtifactInput, pkgMatchType model.MatchFlags, hasMetadata model.HasMetadataInputSpec) (string, error)
+	IngestPackage(ctx context.Context, pkg model.PkgInputSpec) (string, error)
+	IngestPackages(ctx context.Context, pkgs []*model.PkgInputSpec) ([]string, error)
+	IngestPkgEqual(ctx context.Context, pkg model.PkgInputSpec, otherPackage model.PkgInputSpec, pkgEqual model.PkgEqualInputSpec) (string, error)
+	IngestSource(ctx context.Context, source model.SourceInputSpec) (string, error)
+	IngestSources(ctx context.Context, sources []*model.SourceInputSpec) ([]string, error)
+	IngestVulnEqual(ctx context.Context, vulnerability model.VulnerabilityInputSpec, otherVulnerability model.VulnerabilityInputSpec, vulnEqual model.VulnEqualInputSpec) (string, error)
+	IngestVulnerability(ctx context.Context, vuln model.VulnerabilityInputSpec) (string, error)
+	IngestVulnerabilities(ctx context.Context, vulns []*model.VulnerabilityInputSpec) ([]string, error)
 }
 type QueryResolver interface {
 	Artifacts(ctx context.Context, artifactSpec model.ArtifactSpec) ([]*model.Artifact, error)
@@ -1629,9 +1629,9 @@ func (ec *executionContext) _Mutation_ingestArtifact(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Artifact)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNArtifact2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐArtifact(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestArtifact(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1641,15 +1641,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestArtifact(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Artifact_id(ctx, field)
-			case "algorithm":
-				return ec.fieldContext_Artifact_algorithm(ctx, field)
-			case "digest":
-				return ec.fieldContext_Artifact_digest(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Artifact", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -1692,9 +1684,9 @@ func (ec *executionContext) _Mutation_ingestArtifacts(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Artifact)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNArtifact2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐArtifactᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestArtifacts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1704,15 +1696,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestArtifacts(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Artifact_id(ctx, field)
-			case "algorithm":
-				return ec.fieldContext_Artifact_algorithm(ctx, field)
-			case "digest":
-				return ec.fieldContext_Artifact_digest(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Artifact", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -1755,9 +1739,9 @@ func (ec *executionContext) _Mutation_ingestBuilder(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Builder)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNBuilder2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐBuilder(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestBuilder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1767,13 +1751,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestBuilder(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Builder_id(ctx, field)
-			case "uri":
-				return ec.fieldContext_Builder_uri(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Builder", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -1816,9 +1794,9 @@ func (ec *executionContext) _Mutation_ingestBuilders(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Builder)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNBuilder2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐBuilderᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestBuilders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1828,13 +1806,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestBuilders(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Builder_id(ctx, field)
-			case "uri":
-				return ec.fieldContext_Builder_uri(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Builder", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -1877,9 +1849,9 @@ func (ec *executionContext) _Mutation_ingestCertifyBad(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CertifyBad)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNCertifyBad2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyBad(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyBad(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1889,19 +1861,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyBad(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyBad_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_CertifyBad_subject(ctx, field)
-			case "justification":
-				return ec.fieldContext_CertifyBad_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_CertifyBad_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_CertifyBad_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyBad", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -1944,9 +1904,9 @@ func (ec *executionContext) _Mutation_ingestCertifyBads(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CertifyBad)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNCertifyBad2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyBadᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyBads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1956,19 +1916,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyBads(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyBad_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_CertifyBad_subject(ctx, field)
-			case "justification":
-				return ec.fieldContext_CertifyBad_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_CertifyBad_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_CertifyBad_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyBad", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2011,9 +1959,9 @@ func (ec *executionContext) _Mutation_ingestCertifyGood(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CertifyGood)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNCertifyGood2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyGood(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyGood(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2023,19 +1971,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyGood(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyGood_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_CertifyGood_subject(ctx, field)
-			case "justification":
-				return ec.fieldContext_CertifyGood_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_CertifyGood_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_CertifyGood_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyGood", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2078,9 +2014,9 @@ func (ec *executionContext) _Mutation_ingestCertifyGoods(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CertifyGood)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNCertifyGood2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyGoodᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyGoods(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2090,19 +2026,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyGoods(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyGood_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_CertifyGood_subject(ctx, field)
-			case "justification":
-				return ec.fieldContext_CertifyGood_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_CertifyGood_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_CertifyGood_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyGood", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2145,9 +2069,9 @@ func (ec *executionContext) _Mutation_ingestScorecard(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CertifyScorecard)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNCertifyScorecard2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyScorecard(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestScorecard(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2157,15 +2081,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestScorecard(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyScorecard_id(ctx, field)
-			case "source":
-				return ec.fieldContext_CertifyScorecard_source(ctx, field)
-			case "scorecard":
-				return ec.fieldContext_CertifyScorecard_scorecard(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyScorecard", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2208,9 +2124,9 @@ func (ec *executionContext) _Mutation_ingestScorecards(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CertifyScorecard)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNCertifyScorecard2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyScorecardᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestScorecards(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2220,15 +2136,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestScorecards(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyScorecard_id(ctx, field)
-			case "source":
-				return ec.fieldContext_CertifyScorecard_source(ctx, field)
-			case "scorecard":
-				return ec.fieldContext_CertifyScorecard_scorecard(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyScorecard", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2271,9 +2179,9 @@ func (ec *executionContext) _Mutation_ingestVEXStatement(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CertifyVEXStatement)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNCertifyVEXStatement2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyVEXStatement(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestVEXStatement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2283,29 +2191,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestVEXStatement(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyVEXStatement_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_CertifyVEXStatement_subject(ctx, field)
-			case "vulnerability":
-				return ec.fieldContext_CertifyVEXStatement_vulnerability(ctx, field)
-			case "status":
-				return ec.fieldContext_CertifyVEXStatement_status(ctx, field)
-			case "vexJustification":
-				return ec.fieldContext_CertifyVEXStatement_vexJustification(ctx, field)
-			case "statement":
-				return ec.fieldContext_CertifyVEXStatement_statement(ctx, field)
-			case "statusNotes":
-				return ec.fieldContext_CertifyVEXStatement_statusNotes(ctx, field)
-			case "knownSince":
-				return ec.fieldContext_CertifyVEXStatement_knownSince(ctx, field)
-			case "origin":
-				return ec.fieldContext_CertifyVEXStatement_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_CertifyVEXStatement_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyVEXStatement", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2348,9 +2234,9 @@ func (ec *executionContext) _Mutation_ingestCertifyVuln(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CertifyVuln)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNCertifyVuln2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyVuln(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyVuln(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2360,17 +2246,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyVuln(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyVuln_id(ctx, field)
-			case "package":
-				return ec.fieldContext_CertifyVuln_package(ctx, field)
-			case "vulnerability":
-				return ec.fieldContext_CertifyVuln_vulnerability(ctx, field)
-			case "metadata":
-				return ec.fieldContext_CertifyVuln_metadata(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyVuln", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2413,9 +2289,9 @@ func (ec *executionContext) _Mutation_ingestCertifyVulns(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CertifyVuln)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNCertifyVuln2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐCertifyVulnᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestCertifyVulns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2425,17 +2301,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestCertifyVulns(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CertifyVuln_id(ctx, field)
-			case "package":
-				return ec.fieldContext_CertifyVuln_package(ctx, field)
-			case "vulnerability":
-				return ec.fieldContext_CertifyVuln_vulnerability(ctx, field)
-			case "metadata":
-				return ec.fieldContext_CertifyVuln_metadata(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CertifyVuln", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2478,9 +2344,9 @@ func (ec *executionContext) _Mutation_ingestPointOfContact(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.PointOfContact)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNPointOfContact2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐPointOfContact(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestPointOfContact(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2490,25 +2356,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestPointOfContact(ctx conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_PointOfContact_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_PointOfContact_subject(ctx, field)
-			case "email":
-				return ec.fieldContext_PointOfContact_email(ctx, field)
-			case "info":
-				return ec.fieldContext_PointOfContact_info(ctx, field)
-			case "since":
-				return ec.fieldContext_PointOfContact_since(ctx, field)
-			case "justification":
-				return ec.fieldContext_PointOfContact_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_PointOfContact_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_PointOfContact_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PointOfContact", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2551,9 +2399,9 @@ func (ec *executionContext) _Mutation_ingestHasSBOM(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.HasSbom)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNHasSBOM2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasSbom(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHasSBOM(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2563,25 +2411,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHasSBOM(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasSBOM_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_HasSBOM_subject(ctx, field)
-			case "uri":
-				return ec.fieldContext_HasSBOM_uri(ctx, field)
-			case "algorithm":
-				return ec.fieldContext_HasSBOM_algorithm(ctx, field)
-			case "digest":
-				return ec.fieldContext_HasSBOM_digest(ctx, field)
-			case "downloadLocation":
-				return ec.fieldContext_HasSBOM_downloadLocation(ctx, field)
-			case "origin":
-				return ec.fieldContext_HasSBOM_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HasSBOM_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasSBOM", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2624,9 +2454,9 @@ func (ec *executionContext) _Mutation_ingestHasSBOMs(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.HasSbom)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNHasSBOM2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasSbomᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHasSBOMs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2636,25 +2466,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHasSBOMs(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasSBOM_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_HasSBOM_subject(ctx, field)
-			case "uri":
-				return ec.fieldContext_HasSBOM_uri(ctx, field)
-			case "algorithm":
-				return ec.fieldContext_HasSBOM_algorithm(ctx, field)
-			case "digest":
-				return ec.fieldContext_HasSBOM_digest(ctx, field)
-			case "downloadLocation":
-				return ec.fieldContext_HasSBOM_downloadLocation(ctx, field)
-			case "origin":
-				return ec.fieldContext_HasSBOM_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HasSBOM_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasSBOM", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2697,9 +2509,9 @@ func (ec *executionContext) _Mutation_ingestSLSA(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.HasSlsa)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNHasSLSA2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasSlsa(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestSLSA(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2709,15 +2521,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestSLSA(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasSLSA_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_HasSLSA_subject(ctx, field)
-			case "slsa":
-				return ec.fieldContext_HasSLSA_slsa(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasSLSA", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2760,9 +2564,9 @@ func (ec *executionContext) _Mutation_ingestSLSAs(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.HasSlsa)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNHasSLSA2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasSlsaᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestSLSAs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2772,15 +2576,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestSLSAs(ctx context.Contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasSLSA_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_HasSLSA_subject(ctx, field)
-			case "slsa":
-				return ec.fieldContext_HasSLSA_slsa(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasSLSA", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2823,9 +2619,9 @@ func (ec *executionContext) _Mutation_ingestHasSourceAt(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.HasSourceAt)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNHasSourceAt2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasSourceAt(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHasSourceAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2835,23 +2631,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHasSourceAt(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasSourceAt_id(ctx, field)
-			case "package":
-				return ec.fieldContext_HasSourceAt_package(ctx, field)
-			case "source":
-				return ec.fieldContext_HasSourceAt_source(ctx, field)
-			case "knownSince":
-				return ec.fieldContext_HasSourceAt_knownSince(ctx, field)
-			case "justification":
-				return ec.fieldContext_HasSourceAt_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_HasSourceAt_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HasSourceAt_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasSourceAt", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2894,9 +2674,9 @@ func (ec *executionContext) _Mutation_ingestHashEqual(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.HashEqual)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNHashEqual2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHashEqual(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHashEqual(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2906,19 +2686,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHashEqual(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HashEqual_id(ctx, field)
-			case "artifacts":
-				return ec.fieldContext_HashEqual_artifacts(ctx, field)
-			case "justification":
-				return ec.fieldContext_HashEqual_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_HashEqual_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HashEqual_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HashEqual", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2961,9 +2729,9 @@ func (ec *executionContext) _Mutation_ingestHashEquals(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.HashEqual)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNHashEqual2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHashEqualᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHashEquals(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2973,19 +2741,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHashEquals(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HashEqual_id(ctx, field)
-			case "artifacts":
-				return ec.fieldContext_HashEqual_artifacts(ctx, field)
-			case "justification":
-				return ec.fieldContext_HashEqual_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_HashEqual_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HashEqual_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HashEqual", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3028,9 +2784,9 @@ func (ec *executionContext) _Mutation_ingestDependency(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.IsDependency)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNIsDependency2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐIsDependency(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestDependency(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3040,25 +2796,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestDependency(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_IsDependency_id(ctx, field)
-			case "package":
-				return ec.fieldContext_IsDependency_package(ctx, field)
-			case "dependentPackage":
-				return ec.fieldContext_IsDependency_dependentPackage(ctx, field)
-			case "versionRange":
-				return ec.fieldContext_IsDependency_versionRange(ctx, field)
-			case "dependencyType":
-				return ec.fieldContext_IsDependency_dependencyType(ctx, field)
-			case "justification":
-				return ec.fieldContext_IsDependency_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_IsDependency_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_IsDependency_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type IsDependency", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3101,9 +2839,9 @@ func (ec *executionContext) _Mutation_ingestDependencies(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.IsDependency)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNIsDependency2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐIsDependencyᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestDependencies(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3113,25 +2851,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestDependencies(ctx context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_IsDependency_id(ctx, field)
-			case "package":
-				return ec.fieldContext_IsDependency_package(ctx, field)
-			case "dependentPackage":
-				return ec.fieldContext_IsDependency_dependentPackage(ctx, field)
-			case "versionRange":
-				return ec.fieldContext_IsDependency_versionRange(ctx, field)
-			case "dependencyType":
-				return ec.fieldContext_IsDependency_dependencyType(ctx, field)
-			case "justification":
-				return ec.fieldContext_IsDependency_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_IsDependency_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_IsDependency_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type IsDependency", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3174,9 +2894,9 @@ func (ec *executionContext) _Mutation_ingestOccurrence(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.IsOccurrence)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNIsOccurrence2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐIsOccurrence(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestOccurrence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3186,21 +2906,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestOccurrence(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_IsOccurrence_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_IsOccurrence_subject(ctx, field)
-			case "artifact":
-				return ec.fieldContext_IsOccurrence_artifact(ctx, field)
-			case "justification":
-				return ec.fieldContext_IsOccurrence_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_IsOccurrence_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_IsOccurrence_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type IsOccurrence", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3243,9 +2949,9 @@ func (ec *executionContext) _Mutation_ingestOccurrences(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.IsOccurrence)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNIsOccurrence2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐIsOccurrenceᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestOccurrences(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3255,21 +2961,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestOccurrences(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_IsOccurrence_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_IsOccurrence_subject(ctx, field)
-			case "artifact":
-				return ec.fieldContext_IsOccurrence_artifact(ctx, field)
-			case "justification":
-				return ec.fieldContext_IsOccurrence_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_IsOccurrence_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_IsOccurrence_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type IsOccurrence", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3312,9 +3004,9 @@ func (ec *executionContext) _Mutation_ingestHasMetadata(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.HasMetadata)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNHasMetadata2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐHasMetadata(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestHasMetadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3324,25 +3016,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestHasMetadata(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_HasMetadata_id(ctx, field)
-			case "subject":
-				return ec.fieldContext_HasMetadata_subject(ctx, field)
-			case "key":
-				return ec.fieldContext_HasMetadata_key(ctx, field)
-			case "value":
-				return ec.fieldContext_HasMetadata_value(ctx, field)
-			case "timestamp":
-				return ec.fieldContext_HasMetadata_timestamp(ctx, field)
-			case "justification":
-				return ec.fieldContext_HasMetadata_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_HasMetadata_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_HasMetadata_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type HasMetadata", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3385,9 +3059,9 @@ func (ec *executionContext) _Mutation_ingestPackage(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Package)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNPackage2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐPackage(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestPackage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3397,15 +3071,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestPackage(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Package_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Package_type(ctx, field)
-			case "namespaces":
-				return ec.fieldContext_Package_namespaces(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Package", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3448,9 +3114,9 @@ func (ec *executionContext) _Mutation_ingestPackages(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Package)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNPackage2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐPackageᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestPackages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3460,15 +3126,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestPackages(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Package_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Package_type(ctx, field)
-			case "namespaces":
-				return ec.fieldContext_Package_namespaces(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Package", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3511,9 +3169,9 @@ func (ec *executionContext) _Mutation_ingestPkgEqual(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.PkgEqual)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNPkgEqual2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐPkgEqual(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestPkgEqual(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3523,19 +3181,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestPkgEqual(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_PkgEqual_id(ctx, field)
-			case "packages":
-				return ec.fieldContext_PkgEqual_packages(ctx, field)
-			case "justification":
-				return ec.fieldContext_PkgEqual_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_PkgEqual_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_PkgEqual_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PkgEqual", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3578,9 +3224,9 @@ func (ec *executionContext) _Mutation_ingestSource(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Source)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNSource2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐSource(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestSource(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3590,15 +3236,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestSource(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Source_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Source_type(ctx, field)
-			case "namespaces":
-				return ec.fieldContext_Source_namespaces(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Source", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3641,9 +3279,9 @@ func (ec *executionContext) _Mutation_ingestSources(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Source)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNSource2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐSourceᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestSources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3653,15 +3291,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestSources(ctx context.Cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Source_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Source_type(ctx, field)
-			case "namespaces":
-				return ec.fieldContext_Source_namespaces(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Source", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3704,9 +3334,9 @@ func (ec *executionContext) _Mutation_ingestVulnEqual(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.VulnEqual)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNVulnEqual2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐVulnEqual(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestVulnEqual(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3716,19 +3346,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestVulnEqual(ctx context.Co
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_VulnEqual_id(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_VulnEqual_vulnerabilities(ctx, field)
-			case "justification":
-				return ec.fieldContext_VulnEqual_justification(ctx, field)
-			case "origin":
-				return ec.fieldContext_VulnEqual_origin(ctx, field)
-			case "collector":
-				return ec.fieldContext_VulnEqual_collector(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnEqual", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3771,9 +3389,9 @@ func (ec *executionContext) _Mutation_ingestVulnerability(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Vulnerability)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNVulnerability2ᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐVulnerability(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestVulnerability(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3783,15 +3401,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestVulnerability(ctx contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Vulnerability_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Vulnerability_type(ctx, field)
-			case "vulnerabilityIDs":
-				return ec.fieldContext_Vulnerability_vulnerabilityIDs(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -3834,9 +3444,9 @@ func (ec *executionContext) _Mutation_ingestVulnerabilities(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Vulnerability)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNVulnerability2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐVulnerabilityᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_ingestVulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3846,15 +3456,7 @@ func (ec *executionContext) fieldContext_Mutation_ingestVulnerabilities(ctx cont
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Vulnerability_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Vulnerability_type(ctx, field)
-			case "vulnerabilityIDs":
-				return ec.fieldContext_Vulnerability_vulnerabilityIDs(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -6652,10 +6254,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
-
-func (ec *executionContext) marshalNArtifact2githubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐArtifact(ctx context.Context, sel ast.SelectionSet, v model.Artifact) graphql.Marshaler {
-	return ec._Artifact(ctx, sel, &v)
-}
 
 func (ec *executionContext) marshalNArtifact2ᚕᚖgithubᚗcomᚋguacsecᚋguacᚋpkgᚋassemblerᚋgraphqlᚋmodelᚐArtifactᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Artifact) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
