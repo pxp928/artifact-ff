@@ -81,8 +81,12 @@ input IsOccurrenceSpec {
   collector: String
 }
 
-"IsOccurrenceInputSpec represents the input to record an artifact's origin."
+"""
+IsOccurrenceInputSpec represents the input to record an artifact's origin.
+Optional ID field that, if provided, can be used to enable quick retrieval of the node.
+"""
 input IsOccurrenceInputSpec {
+  id: ID
   justification: String!
   origin: String!
   collector: String!

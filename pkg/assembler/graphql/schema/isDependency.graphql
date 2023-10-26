@@ -65,9 +65,13 @@ input IsDependencySpec {
   collector: String
 }
 
-"IsDependencyInputSpec is the input to record a new dependency."
+"""
+IsDependencyInputSpec is the input to record a new dependency.
+Optional ID field that, if provided, can be used to enable quick retrieval of the node.
+"""
 input IsDependencyInputSpec {
-  "versionRange should be specified for depedentPackages that point to PackageName"
+  id: ID
+  "versionRange should be specified for dependencyPackages that point to PackageName"
   versionRange: String!
   dependencyType: DependencyType!
   justification: String!

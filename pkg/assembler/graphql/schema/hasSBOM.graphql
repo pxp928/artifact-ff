@@ -72,8 +72,12 @@ input HasSBOMIncludesInputSpec {
   occurrences: [ID!]!
 }
 
-"HasSBOMInputSpec is similar to HasSBOM but for mutation input."
+"""
+HasSBOMInputSpec is similar to HasSBOM but for mutation input.
+Optional ID field that if provided, can use it to enable quick retrieval of the node.
+"""
 input HasSBOMInputSpec {
+  id: ID
   uri: String!
   algorithm: String!
   digest: String!

@@ -45,8 +45,12 @@ input HasSourceAtSpec {
   collector: String
 }
 
-"HasSourceAtInputSpec is the same as HasSourceAt but for mutation input."
+"""
+HasSourceAtInputSpec is the same as HasSourceAt but for mutation input.
+Optional ID field that if provided, can use it to enable quick retrieval of the node.
+"""
 input HasSourceAtInputSpec {
+  id: ID
   knownSince: Time!
   justification: String!
   origin: String!

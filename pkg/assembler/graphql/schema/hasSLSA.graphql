@@ -110,8 +110,12 @@ input SLSAPredicateSpec {
   value: String!
 }
 
-"SLSAInputSpec is the same as SLSA but for mutation input."
+"""
+SLSAInputSpec is the same as SLSA but for mutation input.
+Optional ID field that if provided, can use it to enable quick retrieval of the node.
+"""
 input SLSAInputSpec {
+  id: ID
   buildType: String!
   slsaPredicate: [SLSAPredicateInputSpec!]!
   slsaVersion: String!

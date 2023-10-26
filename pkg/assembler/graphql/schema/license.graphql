@@ -64,8 +64,10 @@ input LicenseSpec {
 """
 LicenseInputSpec specifies an license for mutations. One of inline or
 listVersion should be empty or missing.
+Optional ID field that, if provided, can be used to enable quick retrieval of the node.
 """
 input LicenseInputSpec {
+  id: ID
   name: String!
   inline: String
   listVersion: String

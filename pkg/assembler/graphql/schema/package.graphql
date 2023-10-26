@@ -169,11 +169,18 @@ PkgInputSpec specifies a package for mutations.
 
 This is different than PkgSpec because we want to encode mandatory fields:
 type and name. All optional fields are given empty default values.
+
+Optional typeId, namespaceId, nameId and versionId field that, if provided, can be used to enable quick retrieval 
+of that specific node in the trie.
 """
 input PkgInputSpec {
+  typeId: ID
   type: String!
+  namespaceId: ID
   namespace: String = ""
+  nameId: ID
   name: String!
+  versionId: ID
   version: String = ""
   qualifiers: [PackageQualifierInputSpec!] = []
   subpath: String = ""

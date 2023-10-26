@@ -101,10 +101,16 @@ default values.
 
 It is an error to set both tag and commit fields to values different than the
 default.
+
+Optional typeId, namespaceId and nameId field that, if provided, can be used to enable quick retrieval 
+of that specific node in the trie.
 """
 input SourceInputSpec {
+  typeId: ID
   type: String!
+  namespaceId: ID
   namespace: String!
+  nameId: ID
   name: String!
   tag: String = ""
   commit: String = ""

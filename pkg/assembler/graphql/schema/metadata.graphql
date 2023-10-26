@@ -70,8 +70,10 @@ input HasMetadataSpec {
 
 """
 HasMetadataInputSpec represents the mutation input to ingest a CertifyGood evidence.
+Optional ID field that, if provided, can be used to enable quick retrieval of the node.
 """
 input HasMetadataInputSpec {
+  id: ID
   key: String!
   value: String!
   timestamp: Time!
