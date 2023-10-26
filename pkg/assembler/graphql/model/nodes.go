@@ -55,9 +55,12 @@ func (Artifact) IsNode() {}
 // ArtifactInputSpec specifies an artifact for mutations.
 //
 // The checksum fields are canonicalized to be lowercase.
+//
+// Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
 type ArtifactInputSpec struct {
-	Algorithm string `json:"algorithm"`
-	Digest    string `json:"digest"`
+	ID        *string `json:"id,omitempty"`
+	Algorithm string  `json:"algorithm"`
+	Digest    string  `json:"digest"`
 }
 
 // ArtifactSpec allows filtering the list of artifacts to return in a query.
@@ -79,9 +82,11 @@ type Builder struct {
 
 func (Builder) IsNode() {}
 
-// BuilderInputSpec specifies a builder for mutations.
+// BuilderInputSpec specifies a builder for mutations."
+// Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
 type BuilderInputSpec struct {
-	URI string `json:"uri"`
+	ID  *string `json:"id,omitempty"`
+	URI string  `json:"uri"`
 }
 
 // BuilderSpec allows filtering the list of builders to return in a query.

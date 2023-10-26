@@ -689,8 +689,6 @@ func getBackend(ctx context.Context, args backends.BackendArgs) (backends.Backen
 			return nil, fmt.Errorf("failed to create graph: %w", err)
 		}
 
-		// TODO (pxp928): Add missing indexes for verbs as needed
-
 		// add indexes to artifact and edge collections
 		if err := createIndexPerCollection(ctx, db, artifactsStr, []string{"digest"}, true, "byDigest"); err != nil {
 			return nil, fmt.Errorf("failed to generate index for artifacts: %w", err)

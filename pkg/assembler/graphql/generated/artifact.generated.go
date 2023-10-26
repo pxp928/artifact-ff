@@ -6606,13 +6606,22 @@ func (ec *executionContext) unmarshalInputArtifactInputSpec(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"algorithm", "digest"}
+	fieldsInOrder := [...]string{"id", "algorithm", "digest"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		case "algorithm":
 			var err error
 

@@ -64,8 +64,10 @@ input CertifyGoodSpec {
 
 """
 CertifyGoodInputSpec represents the mutation input to ingest a CertifyGood evidence.
+Optional ID field that if provided, can use it to enable quick retrieval of the node.
 """
 input CertifyGoodInputSpec {
+  id: ID
   justification: String!
   origin: String!
   collector: String!

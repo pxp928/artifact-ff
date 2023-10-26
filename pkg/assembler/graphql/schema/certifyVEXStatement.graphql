@@ -116,8 +116,12 @@ input CertifyVEXStatementSpec {
   collector: String
 }
 
-"VexStatementInputSpec represents the input to ingest VEX statements."
+"""
+VexStatementInputSpec represents the input to ingest VEX statements.
+Optional ID field that if provided, can use it to enable quick retrieval of the node.
+"""
 input VexStatementInputSpec {
+  id: ID
   status: VexStatus!
   vexJustification: VexJustification!
   statement: String!

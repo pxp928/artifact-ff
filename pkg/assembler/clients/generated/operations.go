@@ -6476,10 +6476,16 @@ func (v *AllVulnerabilityTreeVulnerabilityIDsVulnerabilityID) GetVulnerabilityID
 // ArtifactInputSpec specifies an artifact for mutations.
 //
 // The checksum fields are canonicalized to be lowercase.
+//
+// Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
 type ArtifactInputSpec struct {
-	Algorithm string `json:"algorithm"`
-	Digest    string `json:"digest"`
+	Id        *string `json:"id"`
+	Algorithm string  `json:"algorithm"`
+	Digest    string  `json:"digest"`
 }
+
+// GetId returns ArtifactInputSpec.Id, and is useful for accessing the field via an interface.
+func (v *ArtifactInputSpec) GetId() *string { return v.Id }
 
 // GetAlgorithm returns ArtifactInputSpec.Algorithm, and is useful for accessing the field via an interface.
 func (v *ArtifactInputSpec) GetAlgorithm() string { return v.Algorithm }
@@ -6587,10 +6593,15 @@ type ArtifactsResponse struct {
 // GetArtifacts returns ArtifactsResponse.Artifacts, and is useful for accessing the field via an interface.
 func (v *ArtifactsResponse) GetArtifacts() []ArtifactsArtifactsArtifact { return v.Artifacts }
 
-// BuilderInputSpec specifies a builder for mutations.
+// BuilderInputSpec specifies a builder for mutations."
+// Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
 type BuilderInputSpec struct {
-	Uri string `json:"uri"`
+	Id  *string `json:"id"`
+	Uri string  `json:"uri"`
 }
+
+// GetId returns BuilderInputSpec.Id, and is useful for accessing the field via an interface.
+func (v *BuilderInputSpec) GetId() *string { return v.Id }
 
 // GetUri returns BuilderInputSpec.Uri, and is useful for accessing the field via an interface.
 func (v *BuilderInputSpec) GetUri() string { return v.Uri }

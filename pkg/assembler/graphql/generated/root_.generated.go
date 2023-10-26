@@ -2853,8 +2853,11 @@ input ArtifactSpec {
 ArtifactInputSpec specifies an artifact for mutations.
 
 The checksum fields are canonicalized to be lowercase.
+
+Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
 """
 input ArtifactInputSpec {
+  id: ID
   algorithm: String!
   digest: String!
 }
@@ -2906,8 +2909,12 @@ input BuilderSpec {
   uri: String
 }
 
-"BuilderInputSpec specifies a builder for mutations."
+"""
+BuilderInputSpec specifies a builder for mutations."
+Optional ID field that if provided, can use it to enable quick retrieval of the nodes that it needs to form edges around.
+"""
 input BuilderInputSpec {
+  id: ID
   uri: String!
 }
 
