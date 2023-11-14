@@ -29,14 +29,14 @@ func (r *mutationResolver) IngestPackage(ctx context.Context, pkg model.PkgInput
 
 // IngestPackages is the resolver for the ingestPackages field.
 func (r *mutationResolver) IngestPackages(ctx context.Context, pkgs []*model.PkgInputSpec) ([]*model.PackageIDs, error) {
-	ingestedPackages, err := r.Backend.IngestPackages(ctx, pkgs)
-	if err == nil {
-		results := helpers.GetPackageAsIds(ingestedPackages)
-		if len(results) != len(pkgs) {
-			return nil, fmt.Errorf("could no derive correct package ID information for ingested packages, expected to return %d but have %d", len(pkgs), len(results))
-		}
-		return results, nil
-	}
+	_, err := r.Backend.IngestPackages(ctx, pkgs)
+	// if err == nil {
+	// 	results := helpers.GetPackageAsIds(ingestedPackages)
+	// 	if len(results) != len(pkgs) {
+	// 		return nil, fmt.Errorf("could no derive correct package ID information for ingested packages, expected to return %d but have %d", len(pkgs), len(results))
+	// 	}
+	// 	return results, nil
+	// }
 	return nil, err
 }
 

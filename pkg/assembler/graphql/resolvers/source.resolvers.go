@@ -28,14 +28,14 @@ func (r *mutationResolver) IngestSource(ctx context.Context, source model.Source
 
 // IngestSources is the resolver for the ingestSources field.
 func (r *mutationResolver) IngestSources(ctx context.Context, sources []*model.SourceInputSpec) ([]*model.SourceIDs, error) {
-	ingestedSources, err := r.Backend.IngestSources(ctx, sources)
-	if err == nil {
-		results := helpers.GetSourceAsIds(ingestedSources)
-		if len(results) != len(sources) {
-			return nil, fmt.Errorf("could no derive correct source ID information for ingested sources, expected to return %d but have %d", len(sources), len(results))
-		}
-		return results, nil
-	}
+	_, err := r.Backend.IngestSources(ctx, sources)
+	// if err == nil {
+	// 	results := helpers.GetSourceAsIds(ingestedSources)
+	// 	if len(results) != len(sources) {
+	// 		return nil, fmt.Errorf("could no derive correct source ID information for ingested sources, expected to return %d but have %d", len(sources), len(results))
+	// 	}
+	// 	return results, nil
+	// }
 	return nil, err
 }
 

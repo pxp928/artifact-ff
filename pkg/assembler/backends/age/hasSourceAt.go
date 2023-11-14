@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package inmem
+package neo4j
 
 import (
 	"context"
@@ -21,6 +21,18 @@ import (
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 )
 
-func (c *demoClient) FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error) {
-	return []model.PackageSourceOrArtifact{}, nil
+const (
+	knownSince string = "knownSince"
+)
+
+func (c *ageClient) HasSourceAt(ctx context.Context, hasSourceAtSpec *model.HasSourceAtSpec) ([]*model.HasSourceAt, error) {
+	return nil, nil
+}
+
+func (c *ageClient) IngestHasSourceAt(ctx context.Context, pkg model.PkgInputSpec, pkgMatchType model.MatchFlags, source model.SourceInputSpec, hasSourceAt model.HasSourceAtInputSpec) (*model.HasSourceAt, error) {
+	return nil, nil
+}
+
+func (c *ageClient) IngestHasSourceAts(ctx context.Context, pkgs []*model.PkgInputSpec, pkgMatchType *model.MatchFlags, sources []*model.SourceInputSpec, hasSourceAts []*model.HasSourceAtInputSpec) ([]string, error) {
+	return nil, nil
 }

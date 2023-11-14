@@ -17,6 +17,11 @@ neptune-port: 8182
 neptune-region: us-east-1
 neptune-realm: neptune
 
+# Ent config
+db-driver: postgres
+db-address: postgres://localhost/postgres?sslmode=disable
+db-migrate: true
+
 # Nats setup
 nats-addr: nats://localhost:4222
 

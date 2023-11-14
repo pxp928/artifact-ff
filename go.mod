@@ -2,6 +2,8 @@ module github.com/guacsec/guac
 
 go 1.21
 
+replace github.com/apache/age/drivers/golang => /Users/parth/Documents/pxp928/age/drivers/golang
+
 require (
 	cloud.google.com/go/storage v1.34.1
 	github.com/fsouza/fake-gcs-server v1.47.6
@@ -60,6 +62,7 @@ require (
 	github.com/alexflint/go-arg v1.4.2 // indirect
 	github.com/alexflint/go-scalar v1.0.0 // indirect
 	github.com/anchore/go-struct-converter v0.0.0-20230627203149-c72ef8859ca9 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230321174746-8dcc6526cfb1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/arangodb/go-velocypack v0.0.0-20200318135517-5af53c29c67e // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.14 // indirect
@@ -203,6 +206,7 @@ require (
 	github.com/DATA-DOG/go-txdb v0.1.7
 	github.com/Khan/genqlient v0.6.0
 	github.com/Masterminds/semver v1.5.0
+	github.com/apache/age/drivers/golang v0.0.0-20231109171037-16374c37f975
 	github.com/arangodb/go-driver v1.6.0
 	github.com/aws/aws-sdk-go v1.46.2
 	github.com/aws/aws-sdk-go-v2 v1.22.1
