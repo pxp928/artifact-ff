@@ -17,6 +17,7 @@ package keyvalue
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
@@ -224,6 +225,66 @@ func (c *demoClient) artifactExact(ctx context.Context, artifactSpec *model.Arti
 }
 
 // Query Artifacts
+
+func (c *demoClient) ArtifactsList(ctx context.Context, artifactSpec model.ArtifactSpec, after *string, first *int, before *string, last *int) (*model.ArtifactConnection, error) {
+	// The cursor is base64 encoded by convention, so we need to decode it first
+	var decodedCursor string
+	if after != nil {
+		b, err := base64.StdEncoding.DecodeString(*after)
+		if err != nil {
+			return nil, err
+		}
+		decodedCursor = string(b)
+	}
+
+	// Here we could query the DB to get data, e.g.
+	// SELECT * FROM messages WHERE chat_room_id = obj.ID AND timestamp < decodedCursor
+	edges := make([]*model.MessagesEdge, *first)
+	count := 0
+	currentPage := false
+
+	// If no cursor present start from the top
+	if decodedCursor == "" {
+		currentPage = true
+	}
+	hasNextPage := false
+
+	// Iterating over the mocked messages to find the current page
+	// In real world use-case you should fetch only the required
+	// part of data from the database
+	for i, v := range r.Messages[obj.ID] {
+		if v.ID == decodedCursor {
+			currentPage = true
+		}
+
+		if currentPage && count < *first {
+			edges[count] = &model.MessagesEdge{
+				Cursor: base64.StdEncoding.EncodeToString([]byte(v.ID)),
+				Node:   &v,
+			}
+			count++
+		}
+
+		// If there are any elements left after the current page
+		// we indicate that in the response
+		if count == *first && i < len(r.Messages[obj.ID]) {
+			hasNextPage = true
+		}
+	}
+
+	pageInfo := model.PageInfo{
+		StartCursor: base64.StdEncoding.EncodeToString([]byte(edges[0].Node.ID)),
+		EndCursor:   base64.StdEncoding.EncodeToString([]byte(edges[count-1].Node.ID)),
+		HasNextPage: &hasNextPage,
+	}
+
+	mc := model.MessagesConnection{
+		Edges:    edges[:count],
+		PageInfo: &pageInfo,
+	}
+
+	return &mc, nil
+}
 
 func (c *demoClient) Artifacts(ctx context.Context, artifactSpec *model.ArtifactSpec) ([]*model.Artifact, error) {
 	c.m.RLock()

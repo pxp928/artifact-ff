@@ -49,6 +49,17 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 	}
 
+	ArtifactConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	ArtifactsEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	Builder struct {
 		ID  func(childComplexity int) int
 		URI func(childComplexity int) int
@@ -286,6 +297,13 @@ type ComplexityRoot struct {
 		Version    func(childComplexity int) int
 	}
 
+	PageInfo struct {
+		EndCursor       func(childComplexity int) int
+		HasNextPage     func(childComplexity int) int
+		HasPreviousPage func(childComplexity int) int
+		StartCursor     func(childComplexity int) int
+	}
+
 	PkgEqual struct {
 		Collector     func(childComplexity int) int
 		DocumentRef   func(childComplexity int) int
@@ -309,6 +327,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Artifacts             func(childComplexity int, artifactSpec model.ArtifactSpec) int
+		ArtifactsList         func(childComplexity int, artifactSpec model.ArtifactSpec, after *string, first *int, before *string, last *int) int
 		Builders              func(childComplexity int, builderSpec model.BuilderSpec) int
 		CertifyBad            func(childComplexity int, certifyBadSpec model.CertifyBadSpec) int
 		CertifyGood           func(childComplexity int, certifyGoodSpec model.CertifyGoodSpec) int
@@ -484,6 +503,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Artifact.ID(childComplexity), true
+
+	case "ArtifactConnection.edges":
+		if e.complexity.ArtifactConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ArtifactConnection.Edges(childComplexity), true
+
+	case "ArtifactConnection.pageInfo":
+		if e.complexity.ArtifactConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ArtifactConnection.PageInfo(childComplexity), true
+
+	case "ArtifactConnection.totalCount":
+		if e.complexity.ArtifactConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.ArtifactConnection.TotalCount(childComplexity), true
+
+	case "ArtifactsEdge.cursor":
+		if e.complexity.ArtifactsEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ArtifactsEdge.Cursor(childComplexity), true
+
+	case "ArtifactsEdge.node":
+		if e.complexity.ArtifactsEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ArtifactsEdge.Node(childComplexity), true
 
 	case "Builder.id":
 		if e.complexity.Builder.ID == nil {
@@ -1912,6 +1966,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PackageVersion.Version(childComplexity), true
 
+	case "PageInfo.endCursor":
+		if e.complexity.PageInfo.EndCursor == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.EndCursor(childComplexity), true
+
+	case "PageInfo.hasNextPage":
+		if e.complexity.PageInfo.HasNextPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasNextPage(childComplexity), true
+
+	case "PageInfo.hasPreviousPage":
+		if e.complexity.PageInfo.HasPreviousPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasPreviousPage(childComplexity), true
+
+	case "PageInfo.startCursor":
+		if e.complexity.PageInfo.StartCursor == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.StartCursor(childComplexity), true
+
 	case "PkgEqual.collector":
 		if e.complexity.PkgEqual.Collector == nil {
 			break
@@ -2028,6 +2110,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Artifacts(childComplexity, args["artifactSpec"].(model.ArtifactSpec)), true
+
+	case "Query.artifactsList":
+		if e.complexity.Query.ArtifactsList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_artifactsList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ArtifactsList(childComplexity, args["artifactSpec"].(model.ArtifactSpec), args["after"].(*string), args["first"].(*int), args["before"].(*string), args["last"].(*int)), true
 
 	case "Query.builders":
 		if e.complexity.Query.Builders == nil {
@@ -3009,6 +3103,17 @@ type Artifact {
   digest: String!
 }
 
+type ArtifactConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [ArtifactsEdge!]!
+}
+
+type ArtifactsEdge {
+  cursor: ID!
+  node: Artifact
+}
+
 """
 ArtifactSpec allows filtering the list of artifacts to return in a query.
 
@@ -3045,6 +3150,7 @@ input IDorArtifactInput {
 extend type Query {
   "Returns all artifacts matching a filter."
   artifacts(artifactSpec: ArtifactSpec!): [Artifact!]!
+  artifactsList(artifactSpec: ArtifactSpec!, after: ID, first: Int, before: ID, last: Int): ArtifactConnection
 }
 
 extend type Mutation {
@@ -5368,6 +5474,31 @@ extend type Mutation {
   ): [ID!]!
 }
 `, BuiltIn: false},
+	{Name: "../schema/schema.graphql", Input: `#
+# Copyright 2023 The GUAC Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NOTE: This is experimental and might change in the future!
+
+# Defines a GraphQL schema for the pagination
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: ID
+    endCursor: ID
+}`, BuiltIn: false},
 	{Name: "../schema/search.graphql", Input: `#
 # Copyright 2023 The GUAC Authors.
 #

@@ -50,6 +50,21 @@ func (mr *MockBackendMockRecorder) Artifacts(ctx, artifactSpec interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Artifacts", reflect.TypeOf((*MockBackend)(nil).Artifacts), ctx, artifactSpec)
 }
 
+// ArtifactsList mocks base method.
+func (m *MockBackend) ArtifactsList(ctx context.Context, artifactSpec model.ArtifactSpec, after *string, first *int, before *string, last *int) (*model.ArtifactConnection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ArtifactsList", ctx, artifactSpec, after, first, before, last)
+	ret0, _ := ret[0].(*model.ArtifactConnection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ArtifactsList indicates an expected call of ArtifactsList.
+func (mr *MockBackendMockRecorder) ArtifactsList(ctx, artifactSpec, after, first, before, last interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArtifactsList", reflect.TypeOf((*MockBackend)(nil).ArtifactsList), ctx, artifactSpec, after, first, before, last)
+}
+
 // Builders mocks base method.
 func (m *MockBackend) Builders(ctx context.Context, builderSpec *model.BuilderSpec) ([]*model.Builder, error) {
 	m.ctrl.T.Helper()

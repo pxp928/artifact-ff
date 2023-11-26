@@ -32,6 +32,17 @@ type Artifact {
   digest: String!
 }
 
+type ArtifactConnection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [ArtifactsEdge!]!
+}
+
+type ArtifactsEdge {
+  cursor: ID!
+  node: Artifact
+}
+
 """
 ArtifactSpec allows filtering the list of artifacts to return in a query.
 
@@ -68,6 +79,7 @@ input IDorArtifactInput {
 extend type Query {
   "Returns all artifacts matching a filter."
   artifacts(artifactSpec: ArtifactSpec!): [Artifact!]!
+  artifactsList(artifactSpec: ArtifactSpec!, after: ID, first: Int, before: ID, last: Int): ArtifactConnection
 }
 
 extend type Mutation {

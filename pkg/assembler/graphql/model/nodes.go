@@ -52,6 +52,12 @@ func (Artifact) IsPackageOrArtifact() {}
 
 func (Artifact) IsNode() {}
 
+type ArtifactConnection struct {
+	TotalCount int              `json:"totalCount"`
+	PageInfo   *PageInfo        `json:"pageInfo"`
+	Edges      []*ArtifactsEdge `json:"edges"`
+}
+
 // ArtifactInputSpec specifies an artifact for mutations.
 //
 // The checksum fields are canonicalized to be lowercase.
@@ -67,6 +73,11 @@ type ArtifactSpec struct {
 	ID        *string `json:"id,omitempty"`
 	Algorithm *string `json:"algorithm,omitempty"`
 	Digest    *string `json:"digest,omitempty"`
+}
+
+type ArtifactsEdge struct {
+	Cursor string    `json:"cursor"`
+	Node   *Artifact `json:"node,omitempty"`
 }
 
 // Builder represents the builder (e.g., FRSCA or GitHub Actions).
@@ -1064,6 +1075,13 @@ type PackageVersion struct {
 	Version    string              `json:"version"`
 	Qualifiers []*PackageQualifier `json:"qualifiers"`
 	Subpath    string              `json:"subpath"`
+}
+
+type PageInfo struct {
+	HasNextPage     bool    `json:"hasNextPage"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	StartCursor     *string `json:"startCursor,omitempty"`
+	EndCursor       *string `json:"endCursor,omitempty"`
 }
 
 // PkgEqual is an attestation that a set of packages are similar.
