@@ -20,10 +20,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
+	"github.com/guacsec/guac/internal/testing/ptrfrom"
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 	"github.com/guacsec/guac/pkg/assembler/kv"
 )
@@ -227,63 +229,107 @@ func (c *demoClient) artifactExact(ctx context.Context, artifactSpec *model.Arti
 // Query Artifacts
 
 func (c *demoClient) ArtifactsList(ctx context.Context, artifactSpec model.ArtifactSpec, after *string, first *int, before *string, last *int) (*model.ArtifactConnection, error) {
-	// The cursor is base64 encoded by convention, so we need to decode it first
-	var decodedCursor string
-	if after != nil {
-		b, err := base64.StdEncoding.DecodeString(*after)
+	c.m.RLock()
+	defer c.m.RUnlock()
+	aExact, err := c.artifactExact(ctx, &artifactSpec)
+	if err != nil {
+		return nil, gqlerror.Errorf("Artifacts :: invalid spec %s", err)
+	}
+	if aExact != nil {
+		return &model.ArtifactConnection{
+			TotalCount: 1,
+			PageInfo: &model.PageInfo{
+				HasNextPage:     false,
+				HasPreviousPage: false,
+				StartCursor:     ptrfrom.String(base64.StdEncoding.EncodeToString([]byte(aExact.ID()))),
+				EndCursor:       ptrfrom.String(base64.StdEncoding.EncodeToString([]byte(aExact.ID()))),
+			},
+			Edges: []*model.ArtifactsEdge{{
+				Cursor: base64.StdEncoding.EncodeToString([]byte(aExact.ID())),
+				Node:   c.convArtifact(aExact),
+			}}}, nil
+	} else {
+		// The cursor is base64 encoded by convention, so we need to decode it first
+		var decodedCursor string
+		if after != nil {
+			b, err := base64.StdEncoding.DecodeString(*after)
+			if err != nil {
+				return nil, err
+			}
+			decodedCursor = string(b)
+		}
+
+		// Here we could query the DB to get data, e.g.
+		// SELECT * FROM messages WHERE chat_room_id = obj.ID AND timestamp < decodedCursor
+		edges := make([]*model.ArtifactsEdge, *first)
+		count := 0
+		currentPage := false
+
+		// If no cursor present start from the top
+		if decodedCursor == "" {
+			currentPage = true
+		}
+		hasNextPage := false
+
+		// Iterating over the mocked messages to find the current page
+		// In real world use-case you should fetch only the required
+		// part of data from the database
+
+		algorithm := strings.ToLower(nilToEmpty(artifactSpec.Algorithm))
+		digest := strings.ToLower(nilToEmpty(artifactSpec.Digest))
+		artKeys, err := c.kv.Keys(ctx, artCol)
 		if err != nil {
 			return nil, err
 		}
-		decodedCursor = string(b)
-	}
-
-	// Here we could query the DB to get data, e.g.
-	// SELECT * FROM messages WHERE chat_room_id = obj.ID AND timestamp < decodedCursor
-	edges := make([]*model.MessagesEdge, *first)
-	count := 0
-	currentPage := false
-
-	// If no cursor present start from the top
-	if decodedCursor == "" {
-		currentPage = true
-	}
-	hasNextPage := false
-
-	// Iterating over the mocked messages to find the current page
-	// In real world use-case you should fetch only the required
-	// part of data from the database
-	for i, v := range r.Messages[obj.ID] {
-		if v.ID == decodedCursor {
-			currentPage = true
-		}
-
-		if currentPage && count < *first {
-			edges[count] = &model.MessagesEdge{
-				Cursor: base64.StdEncoding.EncodeToString([]byte(v.ID)),
-				Node:   &v,
+		sort.Strings(artKeys)
+		for i, ak := range artKeys {
+			a, err := byKeykv[*artStruct](ctx, artCol, ak, c)
+			if err != nil {
+				return nil, err
 			}
-			count++
+			convArt := c.convArtifact(a)
+			if decodedCursor != "" && !currentPage {
+				if convArt.ID == decodedCursor {
+					currentPage = true
+				} else {
+					continue
+				}
+			}
+			if currentPage && count < *first {
+				matchAlgorithm := false
+				if algorithm == "" || algorithm == a.Algorithm {
+					matchAlgorithm = true
+				}
+
+				matchDigest := false
+				if digest == "" || digest == a.Digest {
+					matchDigest = true
+				}
+
+				if matchDigest && matchAlgorithm {
+					edges[count] = &model.ArtifactsEdge{
+						Cursor: base64.StdEncoding.EncodeToString([]byte(convArt.ID)),
+						Node:   convArt,
+					}
+					count++
+				}
+			}
+			// If there are any elements left after the current page we indicate that in the response
+			if count == *first && i < len(artKeys) {
+				hasNextPage = true
+			}
 		}
 
-		// If there are any elements left after the current page
-		// we indicate that in the response
-		if count == *first && i < len(r.Messages[obj.ID]) {
-			hasNextPage = true
-		}
+		return &model.ArtifactConnection{
+			TotalCount: len(artKeys),
+			PageInfo: &model.PageInfo{
+				HasNextPage:     hasNextPage,
+				HasPreviousPage: false,
+				StartCursor:     ptrfrom.String(base64.StdEncoding.EncodeToString([]byte(edges[0].Node.ID))),
+				EndCursor:       ptrfrom.String(base64.StdEncoding.EncodeToString([]byte(edges[count-1].Node.ID))),
+			},
+			Edges: edges}, nil
 	}
-
-	pageInfo := model.PageInfo{
-		StartCursor: base64.StdEncoding.EncodeToString([]byte(edges[0].Node.ID)),
-		EndCursor:   base64.StdEncoding.EncodeToString([]byte(edges[count-1].Node.ID)),
-		HasNextPage: &hasNextPage,
-	}
-
-	mc := model.MessagesConnection{
-		Edges:    edges[:count],
-		PageInfo: &pageInfo,
-	}
-
-	return &mc, nil
 }
 
 func (c *demoClient) Artifacts(ctx context.Context, artifactSpec *model.ArtifactSpec) ([]*model.Artifact, error) {
