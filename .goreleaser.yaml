@@ -67,7 +67,7 @@ builds:
       - -X {{.Env.PKG}}.Commit={{.FullCommit}}
       - -X {{.Env.PKG}}.Date={{.Date}}
       - -X {{.Env.PKG}}.Version={{.Summary}}
-    # goos: [ 'darwin', 'linux', 'windows' ] - default
+    goos: [ 'darwin', 'linux', 'windows' ] # - default
     goarch:
       - amd64
       - arm64
@@ -84,6 +84,7 @@ builds:
       - -X {{.Env.PKG}}.Commit={{.FullCommit}}
       - -X {{.Env.PKG}}.Date={{.Date}}
       - -X {{.Env.PKG}}.Version={{.Summary}}
+    goos: [ 'darwin', 'linux', 'windows' ] # - default
     goarch:
       - amd64
       - arm64
@@ -132,6 +133,7 @@ builds:
       - -X {{.Env.PKG}}.Commit={{.FullCommit}}
       - -X {{.Env.PKG}}.Date={{.Date}}
       - -X {{.Env.PKG}}.Version={{.Summary}}
+    goos: [ 'darwin', 'linux', 'windows' ] # - default
     goarch:
       - amd64
       - arm64
@@ -148,6 +150,7 @@ builds:
       - -X {{.Env.PKG}}.Commit={{.FullCommit}}
       - -X {{.Env.PKG}}.Date={{.Date}}
       - -X {{.Env.PKG}}.Version={{.Summary}}
+    goos: [ 'darwin', 'linux', 'windows' ] # - default
     goarch:
       - amd64
       - arm64
