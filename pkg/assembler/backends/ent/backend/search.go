@@ -17,6 +17,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guacsec/guac/pkg/assembler/backends/ent"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/artifact"
@@ -106,4 +107,8 @@ func (b *EntBackend) FindSoftware(ctx context.Context, searchText string) ([]mod
 	})...)
 
 	return results, nil
+}
+
+func (c *EntBackend) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	panic(fmt.Errorf("not implemented: FindVulnerability - findVulnerability"))
 }

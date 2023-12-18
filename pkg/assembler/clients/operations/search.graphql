@@ -27,3 +27,19 @@ query FindSoftware($searchText: String!) {
     }
   }
 }
+
+
+query FindAllPkgVulnBasedOnSbom($pkgID: ID!) {
+  findAllPkgVulnBasedOnSBOM(pkgID: $pkgID) {
+    __typename
+    ... on IsDependency {
+      ...AllIsDependencyTree
+    }
+    ... on CertifyVuln {
+      ...AllCertifyVuln
+    }
+    ... on CertifyVEXStatement {
+      ...AllCertifyVEXStatement
+    }
+  }
+}

@@ -7379,6 +7379,1271 @@ const (
 	EdgeVulnMetadataVulnerability        Edge = "VULN_METADATA_VULNERABILITY"
 )
 
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact includes the requested fields of the GraphQL type Artifact.
+// The GraphQL type's documentation follows.
+//
+// Artifact represents an artifact identified by a checksum hash.
+//
+// The checksum is split into the digest value and the algorithm used to generate
+// it. Both fields are mandatory and canonicalized to be lowercase.
+//
+// If having a checksum Go object, algorithm can be
+// strings.ToLower(string(checksum.Algorithm)) and digest can be checksum.Value.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder includes the requested fields of the GraphQL type Builder.
+// The GraphQL type's documentation follows.
+//
+// Builder represents the builder (e.g., FRSCA or GitHub Actions).
+//
+// Currently builders are identified by the uri field.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad includes the requested fields of the GraphQL type CertifyBad.
+// The GraphQL type's documentation follows.
+//
+// CertifyBad is an attestation that a package, source, or artifact is considered
+// bad.
+//
+// All evidence trees record a justification for the property they represent as
+// well as the document that contains the attestation (origin) and the collector
+// that collected the document (collector).
+//
+// The certification applies to a subject which is a package, source, or artifact.
+// If the attestation targets a package, it must target a PackageName or a
+// PackageVersion. If the attestation targets a source, it must target a
+// SourceName.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood includes the requested fields of the GraphQL type CertifyGood.
+// The GraphQL type's documentation follows.
+//
+// CertifyGood is an attestation that a package, source, or artifact is considered
+// good.
+//
+// All evidence trees record a justification for the property they represent as
+// well as the document that contains the attestation (origin) and the collector
+// that collected the document (collector).
+//
+// The certification applies to a subject which is a package, source, or artifact.
+// If the attestation targets a package, it must target a PackageName or a
+// PackageVersion. If the attestation targets a source, it must target a
+// SourceName.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal includes the requested fields of the GraphQL type CertifyLegal.
+// The GraphQL type's documentation follows.
+//
+// CertifyLegal is an attestation to attach legal information to a package or source.
+//
+// The certification information is either copied from an attestation found in an
+// SBOM or created by a collector/scanner.
+//
+// Discovered license is also known as Concluded. More information:
+// https://docs.clearlydefined.io/curation-guidelines#the-difference-between-declared-and-discovered-licenses
+//
+// Attribution is also known as Copyright Text. It is what could be displayed to
+// comply with notice
+// requirements. https://www.nexb.com/oss-attribution-best-practices/
+//
+// License expressions follow this format:
+// https://spdx.github.io/spdx-spec/v2.3/SPDX-license-expressions/
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard includes the requested fields of the GraphQL type CertifyScorecard.
+// The GraphQL type's documentation follows.
+//
+// CertifyScorecard is an attestation to attach a Scorecard analysis to a
+// particular source repository.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement includes the requested fields of the GraphQL type CertifyVEXStatement.
+// The GraphQL type's documentation follows.
+//
+// CertifyVEXStatement is an attestation to attach VEX statements to a package or
+// artifact to clarify the impact of a specific vulnerability.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement struct {
+	Typename               *string `json:"__typename"`
+	AllCertifyVEXStatement `json:"-"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetTypename() *string {
+	return v.Typename
+}
+
+// GetId returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Id, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetId() string {
+	return v.AllCertifyVEXStatement.Id
+}
+
+// GetSubject returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Subject, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetSubject() AllCertifyVEXStatementSubjectPackageOrArtifact {
+	return v.AllCertifyVEXStatement.Subject
+}
+
+// GetVulnerability returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Vulnerability, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetVulnerability() AllCertifyVEXStatementVulnerability {
+	return v.AllCertifyVEXStatement.Vulnerability
+}
+
+// GetStatus returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Status, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetStatus() VexStatus {
+	return v.AllCertifyVEXStatement.Status
+}
+
+// GetVexJustification returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.VexJustification, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetVexJustification() VexJustification {
+	return v.AllCertifyVEXStatement.VexJustification
+}
+
+// GetStatement returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Statement, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetStatement() string {
+	return v.AllCertifyVEXStatement.Statement
+}
+
+// GetStatusNotes returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.StatusNotes, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetStatusNotes() string {
+	return v.AllCertifyVEXStatement.StatusNotes
+}
+
+// GetKnownSince returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.KnownSince, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetKnownSince() time.Time {
+	return v.AllCertifyVEXStatement.KnownSince
+}
+
+// GetOrigin returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Origin, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetOrigin() string {
+	return v.AllCertifyVEXStatement.Origin
+}
+
+// GetCollector returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.Collector, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) GetCollector() string {
+	return v.AllCertifyVEXStatement.Collector
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AllCertifyVEXStatement)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement struct {
+	Typename *string `json:"__typename"`
+
+	Id string `json:"id"`
+
+	Subject json.RawMessage `json:"subject"`
+
+	Vulnerability AllCertifyVEXStatementVulnerability `json:"vulnerability"`
+
+	Status VexStatus `json:"status"`
+
+	VexJustification VexJustification `json:"vexJustification"`
+
+	Statement string `json:"statement"`
+
+	StatusNotes string `json:"statusNotes"`
+
+	KnownSince time.Time `json:"knownSince"`
+
+	Origin string `json:"origin"`
+
+	Collector string `json:"collector"`
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) __premarshalJSON() (*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement, error) {
+	var retval __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement
+
+	retval.Typename = v.Typename
+	retval.Id = v.AllCertifyVEXStatement.Id
+	{
+
+		dst := &retval.Subject
+		src := v.AllCertifyVEXStatement.Subject
+		var err error
+		*dst, err = __marshalAllCertifyVEXStatementSubjectPackageOrArtifact(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement.AllCertifyVEXStatement.Subject: %w", err)
+		}
+	}
+	retval.Vulnerability = v.AllCertifyVEXStatement.Vulnerability
+	retval.Status = v.AllCertifyVEXStatement.Status
+	retval.VexJustification = v.AllCertifyVEXStatement.VexJustification
+	retval.Statement = v.AllCertifyVEXStatement.Statement
+	retval.StatusNotes = v.AllCertifyVEXStatement.StatusNotes
+	retval.KnownSince = v.AllCertifyVEXStatement.KnownSince
+	retval.Origin = v.AllCertifyVEXStatement.Origin
+	retval.Collector = v.AllCertifyVEXStatement.Collector
+	return &retval, nil
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln includes the requested fields of the GraphQL type CertifyVuln.
+// The GraphQL type's documentation follows.
+//
+// CertifyVuln is an attestation to attach vulnerability information to a package.
+//
+// This information is obtained via a scanner. If there is no vulnerability
+// detected, we attach the a vulnerability with "NoVuln" type and an empty string
+// for the vulnerability ID.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln struct {
+	Typename       *string `json:"__typename"`
+	AllCertifyVuln `json:"-"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) GetTypename() *string {
+	return v.Typename
+}
+
+// GetId returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln.Id, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) GetId() string {
+	return v.AllCertifyVuln.Id
+}
+
+// GetPackage returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln.Package, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) GetPackage() AllCertifyVulnPackage {
+	return v.AllCertifyVuln.Package
+}
+
+// GetVulnerability returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln.Vulnerability, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) GetVulnerability() AllCertifyVulnVulnerability {
+	return v.AllCertifyVuln.Vulnerability
+}
+
+// GetMetadata returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln.Metadata, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) GetMetadata() AllCertifyVulnMetadataScanMetadata {
+	return v.AllCertifyVuln.Metadata
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AllCertifyVuln)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln struct {
+	Typename *string `json:"__typename"`
+
+	Id string `json:"id"`
+
+	Package AllCertifyVulnPackage `json:"package"`
+
+	Vulnerability AllCertifyVulnVulnerability `json:"vulnerability"`
+
+	Metadata AllCertifyVulnMetadataScanMetadata `json:"metadata"`
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) __premarshalJSON() (*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln, error) {
+	var retval __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln
+
+	retval.Typename = v.Typename
+	retval.Id = v.AllCertifyVuln.Id
+	retval.Package = v.AllCertifyVuln.Package
+	retval.Vulnerability = v.AllCertifyVuln.Vulnerability
+	retval.Metadata = v.AllCertifyVuln.Metadata
+	return &retval, nil
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata includes the requested fields of the GraphQL type HasMetadata.
+// The GraphQL type's documentation follows.
+//
+// HasMetadata is an attestation that a package, source, or artifact has a certain
+// attested property (key) with value (value). For example, a source may have
+// metadata "SourceRepo2FAEnabled=true".
+//
+// The intent of this evidence tree predicate is to allow extensibility of metadata
+// expressible within the GUAC ontology. Metadata that is commonly used will then
+// be promoted to a predicate on its own.
+//
+// Justification indicates how the metadata was determined.
+//
+// The metadata applies to a subject which is a package, source, or artifact.
+// If the attestation targets a package, it must target a PackageName or a
+// PackageVersion. If the attestation targets a source, it must target a
+// SourceName.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM includes the requested fields of the GraphQL type HasSBOM.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA includes the requested fields of the GraphQL type HasSLSA.
+// The GraphQL type's documentation follows.
+//
+// HasSLSA records that a subject node has a SLSA attestation.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt includes the requested fields of the GraphQL type HasSourceAt.
+// The GraphQL type's documentation follows.
+//
+// HasSourceAt records that a package's repository is a given source.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual includes the requested fields of the GraphQL type HashEqual.
+// The GraphQL type's documentation follows.
+//
+// HashEqual is an attestation that a set of artifacts are identical.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency includes the requested fields of the GraphQL type IsDependency.
+// The GraphQL type's documentation follows.
+//
+// IsDependency is an attestation to record that a package depends on another.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency struct {
+	Typename            *string `json:"__typename"`
+	AllIsDependencyTree `json:"-"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetTypename() *string {
+	return v.Typename
+}
+
+// GetId returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Id, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetId() string {
+	return v.AllIsDependencyTree.Id
+}
+
+// GetJustification returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Justification, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetJustification() string {
+	return v.AllIsDependencyTree.Justification
+}
+
+// GetPackage returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Package, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetPackage() AllIsDependencyTreePackage {
+	return v.AllIsDependencyTree.Package
+}
+
+// GetDependencyPackage returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.DependencyPackage, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetDependencyPackage() AllIsDependencyTreeDependencyPackage {
+	return v.AllIsDependencyTree.DependencyPackage
+}
+
+// GetDependencyType returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.DependencyType, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetDependencyType() DependencyType {
+	return v.AllIsDependencyTree.DependencyType
+}
+
+// GetVersionRange returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.VersionRange, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetVersionRange() string {
+	return v.AllIsDependencyTree.VersionRange
+}
+
+// GetOrigin returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Origin, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetOrigin() string {
+	return v.AllIsDependencyTree.Origin
+}
+
+// GetCollector returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency.Collector, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) GetCollector() string {
+	return v.AllIsDependencyTree.Collector
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AllIsDependencyTree)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency struct {
+	Typename *string `json:"__typename"`
+
+	Id string `json:"id"`
+
+	Justification string `json:"justification"`
+
+	Package AllIsDependencyTreePackage `json:"package"`
+
+	DependencyPackage AllIsDependencyTreeDependencyPackage `json:"dependencyPackage"`
+
+	DependencyType DependencyType `json:"dependencyType"`
+
+	VersionRange string `json:"versionRange"`
+
+	Origin string `json:"origin"`
+
+	Collector string `json:"collector"`
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) __premarshalJSON() (*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency, error) {
+	var retval __premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency
+
+	retval.Typename = v.Typename
+	retval.Id = v.AllIsDependencyTree.Id
+	retval.Justification = v.AllIsDependencyTree.Justification
+	retval.Package = v.AllIsDependencyTree.Package
+	retval.DependencyPackage = v.AllIsDependencyTree.DependencyPackage
+	retval.DependencyType = v.AllIsDependencyTree.DependencyType
+	retval.VersionRange = v.AllIsDependencyTree.VersionRange
+	retval.Origin = v.AllIsDependencyTree.Origin
+	retval.Collector = v.AllIsDependencyTree.Collector
+	return &retval, nil
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence includes the requested fields of the GraphQL type IsOccurrence.
+// The GraphQL type's documentation follows.
+//
+// IsOccurrence is an attestation to link an artifact to a package or source.
+//
+// Attestation must occur at the PackageVersion or at the SourceName.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense includes the requested fields of the GraphQL type License.
+// The GraphQL type's documentation follows.
+//
+// License represents a particular license. If the license is found on the SPDX
+// license list (https://spdx.org/licenses/) then the fields should be:
+//
+// Name: SPDX license identifier
+// Inline: empty
+// ListVersion: SPDX license list version
+//
+// example:
+//
+// Name: AGPL-3.0-or-later
+// Inline: ""
+// ListVersion: 3.21 2023-06-18
+//
+// If the license is not on the SPDX license list, then a new guid should be
+// created and the license text placed inline:
+//
+// Name: LicenseRef-<guid>
+// Inline: Full license text
+// ListVersion: empty
+//
+// example:
+//
+// Name: LicenseRef-1a2b3c
+// Inline: Permission to use, copy, modify, and/or distribute ...
+// ListVersion: ""
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode includes the requested fields of the GraphQL interface Node.
+//
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode is implemented by the following types:
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata
+// The GraphQL type's documentation follows.
+//
+// Node is a union type of all the possible nodes.
+//
+// It encapsulates the software tree nodes along with the evidence nodes. In a
+// path query, all connecting evidence nodes along with their intermediate subject
+// nodes need to be returned in order to create a complete graph.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode interface {
+	implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() *string
+}
+
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata) implementsGraphQLInterfaceFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode() {
+}
+
+func __unmarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode(b []byte, v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "Artifact":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact)
+		return json.Unmarshal(b, *v)
+	case "Builder":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder)
+		return json.Unmarshal(b, *v)
+	case "CertifyBad":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad)
+		return json.Unmarshal(b, *v)
+	case "CertifyGood":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood)
+		return json.Unmarshal(b, *v)
+	case "CertifyLegal":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal)
+		return json.Unmarshal(b, *v)
+	case "CertifyScorecard":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard)
+		return json.Unmarshal(b, *v)
+	case "CertifyVEXStatement":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement)
+		return json.Unmarshal(b, *v)
+	case "CertifyVuln":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln)
+		return json.Unmarshal(b, *v)
+	case "HasMetadata":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata)
+		return json.Unmarshal(b, *v)
+	case "HasSBOM":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM)
+		return json.Unmarshal(b, *v)
+	case "HasSLSA":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA)
+		return json.Unmarshal(b, *v)
+	case "HasSourceAt":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt)
+		return json.Unmarshal(b, *v)
+	case "HashEqual":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual)
+		return json.Unmarshal(b, *v)
+	case "IsDependency":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency)
+		return json.Unmarshal(b, *v)
+	case "IsOccurrence":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence)
+		return json.Unmarshal(b, *v)
+	case "License":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense)
+		return json.Unmarshal(b, *v)
+	case "Package":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage)
+		return json.Unmarshal(b, *v)
+	case "PkgEqual":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual)
+		return json.Unmarshal(b, *v)
+	case "PointOfContact":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact)
+		return json.Unmarshal(b, *v)
+	case "Source":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource)
+		return json.Unmarshal(b, *v)
+	case "VulnEqual":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual)
+		return json.Unmarshal(b, *v)
+	case "Vulnerability":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability)
+		return json.Unmarshal(b, *v)
+	case "VulnerabilityMetadata":
+		*v = new(FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing Node.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode(v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact:
+		typename = "Artifact"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMArtifact
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder:
+		typename = "Builder"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMBuilder
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad:
+		typename = "CertifyBad"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyBad
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood:
+		typename = "CertifyGood"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyGood
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal:
+		typename = "CertifyLegal"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyLegal
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard:
+		typename = "CertifyScorecard"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyScorecard
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement:
+		typename = "CertifyVEXStatement"
+
+		premarshaled, err := v.__premarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		result := struct {
+			TypeName string `json:"__typename"`
+			*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVEXStatement
+		}{typename, premarshaled}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln:
+		typename = "CertifyVuln"
+
+		premarshaled, err := v.__premarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		result := struct {
+			TypeName string `json:"__typename"`
+			*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMCertifyVuln
+		}{typename, premarshaled}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata:
+		typename = "HasMetadata"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasMetadata
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM:
+		typename = "HasSBOM"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSBOM
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA:
+		typename = "HasSLSA"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSLSA
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt:
+		typename = "HasSourceAt"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHasSourceAt
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual:
+		typename = "HashEqual"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMHashEqual
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency:
+		typename = "IsDependency"
+
+		premarshaled, err := v.__premarshalJSON()
+		if err != nil {
+			return nil, err
+		}
+		result := struct {
+			TypeName string `json:"__typename"`
+			*__premarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsDependency
+		}{typename, premarshaled}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence:
+		typename = "IsOccurrence"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMIsOccurrence
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense:
+		typename = "License"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMLicense
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage:
+		typename = "Package"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual:
+		typename = "PkgEqual"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact:
+		typename = "PointOfContact"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource:
+		typename = "Source"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual:
+		typename = "VulnEqual"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability:
+		typename = "Vulnerability"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability
+		}{typename, v}
+		return json.Marshal(result)
+	case *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata:
+		typename = "VulnerabilityMetadata"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode: "%T"`, v)
+	}
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage includes the requested fields of the GraphQL type Package.
+// The GraphQL type's documentation follows.
+//
+// Package represents the root of the package trie/tree.
+//
+// We map package information to a trie, closely matching the pURL specification
+// (https://github.com/package-url/purl-spec/blob/0dd92f26f8bb11956ffdf5e8acfcee71e8560407/README.rst),
+// but deviating from it where GUAC heuristics allow for better representation of
+// package information. Each path in the trie fully represents a package; we split
+// the trie based on the pURL components.
+//
+// This node matches a pkg:<type> partial pURL. The type field matches the
+// pURL types but we might also use "guac" for the cases where the pURL
+// representation is not complete or when we have custom rules.
+//
+// Since this node is at the root of the package trie, it is named Package, not
+// PackageType.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPackage) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual includes the requested fields of the GraphQL type PkgEqual.
+// The GraphQL type's documentation follows.
+//
+// PkgEqual is an attestation that a set of packages are similar.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPkgEqual) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact includes the requested fields of the GraphQL type PointOfContact.
+// The GraphQL type's documentation follows.
+//
+// PointOfContact is an attestation of how to get in touch with the person(s) responsible
+// for a package, source, or artifact.
+//
+// All evidence trees record a justification for the property they represent as
+// well as the document that contains the attestation (origin) and the collector
+// that collected the document (collector).
+//
+// The attestation applies to a subject which is a package, source, or artifact.
+// If the attestation targets a package, it must target a PackageName or a
+// PackageVersion. If the attestation targets a source, it must target a
+// SourceName.
+//
+// email is the email address (singular) of the point of contact.
+//
+// info is additional contact information other than email address. This is free
+// form.
+//
+// NOTE: the identifiers for point of contact should be part of software trees.
+// This will benefit from identifier look up and traversal as well as organization
+// hierarchy. However, until the use case arises, PointOfContact will be a flat
+// reference to the contact details.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMPointOfContact) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource includes the requested fields of the GraphQL type Source.
+// The GraphQL type's documentation follows.
+//
+// Source represents the root of the source trie/tree.
+//
+// We map source information to a trie, as a derivative of the pURL specification:
+// each path in the trie represents a type, namespace, name and an optional
+// qualifier that stands for tag/commit information.
+//
+// This node represents the type part of the trie path. It is used to represent
+// the version control system that is being used.
+//
+// Since this node is at the root of the source trie, it is named Source, not
+// SourceType.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMSource) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual includes the requested fields of the GraphQL type VulnEqual.
+// The GraphQL type's documentation follows.
+//
+// VulnEqual is an attestation to link two vulnerabilities together as being equal"
+//
+// Note that setting noVuln vulnerability type is invalid for VulnEqual!
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnEqual) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability includes the requested fields of the GraphQL type Vulnerability.
+// The GraphQL type's documentation follows.
+//
+// Vulnerability represents the root of the vulnerability trie/tree.
+//
+// We map vulnerability information to a trie, as a derivative of the pURL specification:
+// each path in the trie represents a type and a vulnerability ID. This allows for generic
+// representation of the various vulnerabilities and does not limit to just cve, ghsa or osv.
+// This would be in the general format: vuln://<general-type>/<vuln-id>
+//
+// Examples:
+//
+// CVE, using path separator: vuln://cve/cve-2023-20753
+// OSV, representing its knowledge of a GHSA: vuln://osv/ghsa-205hk
+// Random vendor: vuln://snyk/sn-whatever
+// NoVuln: vuln://novuln/
+//
+// This node represents the type part of the trie path. It is used to represent
+// the specific type of the vulnerability: cve, ghsa, osv or some other vendor specific
+//
+// Since this node is at the root of the vulnerability trie, it is named Vulnerability, not
+// VulnerabilityType.
+//
+// NoVuln is a special vulnerability node to attest that no vulnerability has been
+// found during a vulnerability scan. It will have the type "novuln" and contain an empty string
+// for vulnerabilityID
+//
+// The resolvers will enforce that both the type and vulnerability IDs are lower case.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerability) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata includes the requested fields of the GraphQL type VulnerabilityMetadata.
+// The GraphQL type's documentation follows.
+//
+// VulnerabilityMetadata is an attestation that a vulnerability has a related score
+// associated with it.
+//
+// The intent of this evidence tree predicate is to allow extensibility of vulnerability
+// score (one-to-one mapping) with a specific vulnerability ID.
+//
+// A vulnerability ID can have a one-to-many relationship with the VulnerabilityMetadata
+// node as a vulnerability ID can have multiple scores (in various frameworks).
+//
+// Examples:
+//
+// scoreType: EPSSv1
+// scoreValue: 0.960760000
+//
+// scoreType: CVSSv2
+// scoreValue: 5.0
+//
+// scoreType: CVSSv3
+// scoreValue: 7.5
+//
+// The timestamp is used to determine when the score was evaluated for the specific vulnerability.
+type FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata struct {
+	Typename *string `json:"__typename"`
+}
+
+// GetTypename returns FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata.Typename, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMVulnerabilityMetadata) GetTypename() *string {
+	return v.Typename
+}
+
+// FindAllPkgVulnBasedOnSbomResponse is returned by FindAllPkgVulnBasedOnSbom on success.
+type FindAllPkgVulnBasedOnSbomResponse struct {
+	// Returns all certifyVulns (that contain vulnerabilities and not noVuln), certifyVex and IsDependencies related to a package based on an SBOM.
+	FindAllPkgVulnBasedOnSBOM []FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode `json:"-"`
+}
+
+// GetFindAllPkgVulnBasedOnSBOM returns FindAllPkgVulnBasedOnSbomResponse.FindAllPkgVulnBasedOnSBOM, and is useful for accessing the field via an interface.
+func (v *FindAllPkgVulnBasedOnSbomResponse) GetFindAllPkgVulnBasedOnSBOM() []FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode {
+	return v.FindAllPkgVulnBasedOnSBOM
+}
+
+func (v *FindAllPkgVulnBasedOnSbomResponse) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*FindAllPkgVulnBasedOnSbomResponse
+		FindAllPkgVulnBasedOnSBOM []json.RawMessage `json:"findAllPkgVulnBasedOnSBOM"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.FindAllPkgVulnBasedOnSbomResponse = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.FindAllPkgVulnBasedOnSBOM
+		src := firstPass.FindAllPkgVulnBasedOnSBOM
+		*dst = make(
+			[]FindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode,
+			len(src))
+		for i, src := range src {
+			dst := &(*dst)[i]
+			if len(src) != 0 && string(src) != "null" {
+				err = __unmarshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode(
+					src, dst)
+				if err != nil {
+					return fmt.Errorf(
+						"unable to unmarshal FindAllPkgVulnBasedOnSbomResponse.FindAllPkgVulnBasedOnSBOM: %w", err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalFindAllPkgVulnBasedOnSbomResponse struct {
+	FindAllPkgVulnBasedOnSBOM []json.RawMessage `json:"findAllPkgVulnBasedOnSBOM"`
+}
+
+func (v *FindAllPkgVulnBasedOnSbomResponse) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *FindAllPkgVulnBasedOnSbomResponse) __premarshalJSON() (*__premarshalFindAllPkgVulnBasedOnSbomResponse, error) {
+	var retval __premarshalFindAllPkgVulnBasedOnSbomResponse
+
+	{
+
+		dst := &retval.FindAllPkgVulnBasedOnSBOM
+		src := v.FindAllPkgVulnBasedOnSBOM
+		*dst = make(
+			[]json.RawMessage,
+			len(src))
+		for i, src := range src {
+			dst := &(*dst)[i]
+			var err error
+			*dst, err = __marshalFindAllPkgVulnBasedOnSbomFindAllPkgVulnBasedOnSBOMNode(
+				&src)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"unable to marshal FindAllPkgVulnBasedOnSbomResponse.FindAllPkgVulnBasedOnSBOM: %w", err)
+			}
+		}
+	}
+	return &retval, nil
+}
+
 // FindSoftwareFindSoftwareArtifact includes the requested fields of the GraphQL type Artifact.
 // The GraphQL type's documentation follows.
 //
@@ -8005,6 +9270,226 @@ type HasSBOMPkgsResponse struct {
 // GetIngestHasSBOMs returns HasSBOMPkgsResponse.IngestHasSBOMs, and is useful for accessing the field via an interface.
 func (v *HasSBOMPkgsResponse) GetIngestHasSBOMs() []string { return v.IngestHasSBOMs }
 
+// HasSBOMSpec allows filtering the list of HasSBOM to return.
+//
+// Only the package or artifact can be added, not both.
+//
+// If KnownSince is specified, the returned value will be after or equal to the specified time.
+// Any nodes time that is before KnownSince is excluded.
+type HasSBOMSpec struct {
+	Id                   *string                  `json:"id"`
+	Subject              *PackageOrArtifactSpec   `json:"subject"`
+	Uri                  *string                  `json:"uri"`
+	Algorithm            *string                  `json:"algorithm"`
+	Digest               *string                  `json:"digest"`
+	DownloadLocation     *string                  `json:"downloadLocation"`
+	Origin               *string                  `json:"origin"`
+	Collector            *string                  `json:"collector"`
+	KnownSince           *time.Time               `json:"knownSince"`
+	IncludedSoftware     []*PackageOrArtifactSpec `json:"includedSoftware"`
+	IncludedDependencies []*IsDependencySpec      `json:"includedDependencies"`
+	IncludedOccurrences  []*IsOccurrenceSpec      `json:"includedOccurrences"`
+}
+
+// GetId returns HasSBOMSpec.Id, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetId() *string { return v.Id }
+
+// GetSubject returns HasSBOMSpec.Subject, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetSubject() *PackageOrArtifactSpec { return v.Subject }
+
+// GetUri returns HasSBOMSpec.Uri, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetUri() *string { return v.Uri }
+
+// GetAlgorithm returns HasSBOMSpec.Algorithm, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetAlgorithm() *string { return v.Algorithm }
+
+// GetDigest returns HasSBOMSpec.Digest, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetDigest() *string { return v.Digest }
+
+// GetDownloadLocation returns HasSBOMSpec.DownloadLocation, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetDownloadLocation() *string { return v.DownloadLocation }
+
+// GetOrigin returns HasSBOMSpec.Origin, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetOrigin() *string { return v.Origin }
+
+// GetCollector returns HasSBOMSpec.Collector, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetCollector() *string { return v.Collector }
+
+// GetKnownSince returns HasSBOMSpec.KnownSince, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetKnownSince() *time.Time { return v.KnownSince }
+
+// GetIncludedSoftware returns HasSBOMSpec.IncludedSoftware, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetIncludedSoftware() []*PackageOrArtifactSpec { return v.IncludedSoftware }
+
+// GetIncludedDependencies returns HasSBOMSpec.IncludedDependencies, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetIncludedDependencies() []*IsDependencySpec { return v.IncludedDependencies }
+
+// GetIncludedOccurrences returns HasSBOMSpec.IncludedOccurrences, and is useful for accessing the field via an interface.
+func (v *HasSBOMSpec) GetIncludedOccurrences() []*IsOccurrenceSpec { return v.IncludedOccurrences }
+
+// HasSBOMsHasSBOM includes the requested fields of the GraphQL type HasSBOM.
+type HasSBOMsHasSBOM struct {
+	AllHasSBOMTree `json:"-"`
+}
+
+// GetId returns HasSBOMsHasSBOM.Id, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetId() string { return v.AllHasSBOMTree.Id }
+
+// GetSubject returns HasSBOMsHasSBOM.Subject, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetSubject() AllHasSBOMTreeSubjectPackageOrArtifact {
+	return v.AllHasSBOMTree.Subject
+}
+
+// GetUri returns HasSBOMsHasSBOM.Uri, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetUri() string { return v.AllHasSBOMTree.Uri }
+
+// GetAlgorithm returns HasSBOMsHasSBOM.Algorithm, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetAlgorithm() string { return v.AllHasSBOMTree.Algorithm }
+
+// GetDigest returns HasSBOMsHasSBOM.Digest, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetDigest() string { return v.AllHasSBOMTree.Digest }
+
+// GetDownloadLocation returns HasSBOMsHasSBOM.DownloadLocation, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetDownloadLocation() string { return v.AllHasSBOMTree.DownloadLocation }
+
+// GetOrigin returns HasSBOMsHasSBOM.Origin, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetOrigin() string { return v.AllHasSBOMTree.Origin }
+
+// GetCollector returns HasSBOMsHasSBOM.Collector, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetCollector() string { return v.AllHasSBOMTree.Collector }
+
+// GetKnownSince returns HasSBOMsHasSBOM.KnownSince, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetKnownSince() time.Time { return v.AllHasSBOMTree.KnownSince }
+
+// GetIncludedSoftware returns HasSBOMsHasSBOM.IncludedSoftware, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetIncludedSoftware() []AllHasSBOMTreeIncludedSoftwarePackageOrArtifact {
+	return v.AllHasSBOMTree.IncludedSoftware
+}
+
+// GetIncludedDependencies returns HasSBOMsHasSBOM.IncludedDependencies, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetIncludedDependencies() []AllHasSBOMTreeIncludedDependenciesIsDependency {
+	return v.AllHasSBOMTree.IncludedDependencies
+}
+
+// GetIncludedOccurrences returns HasSBOMsHasSBOM.IncludedOccurrences, and is useful for accessing the field via an interface.
+func (v *HasSBOMsHasSBOM) GetIncludedOccurrences() []AllHasSBOMTreeIncludedOccurrencesIsOccurrence {
+	return v.AllHasSBOMTree.IncludedOccurrences
+}
+
+func (v *HasSBOMsHasSBOM) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*HasSBOMsHasSBOM
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.HasSBOMsHasSBOM = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AllHasSBOMTree)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalHasSBOMsHasSBOM struct {
+	Id string `json:"id"`
+
+	Subject json.RawMessage `json:"subject"`
+
+	Uri string `json:"uri"`
+
+	Algorithm string `json:"algorithm"`
+
+	Digest string `json:"digest"`
+
+	DownloadLocation string `json:"downloadLocation"`
+
+	Origin string `json:"origin"`
+
+	Collector string `json:"collector"`
+
+	KnownSince time.Time `json:"knownSince"`
+
+	IncludedSoftware []json.RawMessage `json:"includedSoftware"`
+
+	IncludedDependencies []AllHasSBOMTreeIncludedDependenciesIsDependency `json:"includedDependencies"`
+
+	IncludedOccurrences []AllHasSBOMTreeIncludedOccurrencesIsOccurrence `json:"includedOccurrences"`
+}
+
+func (v *HasSBOMsHasSBOM) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *HasSBOMsHasSBOM) __premarshalJSON() (*__premarshalHasSBOMsHasSBOM, error) {
+	var retval __premarshalHasSBOMsHasSBOM
+
+	retval.Id = v.AllHasSBOMTree.Id
+	{
+
+		dst := &retval.Subject
+		src := v.AllHasSBOMTree.Subject
+		var err error
+		*dst, err = __marshalAllHasSBOMTreeSubjectPackageOrArtifact(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal HasSBOMsHasSBOM.AllHasSBOMTree.Subject: %w", err)
+		}
+	}
+	retval.Uri = v.AllHasSBOMTree.Uri
+	retval.Algorithm = v.AllHasSBOMTree.Algorithm
+	retval.Digest = v.AllHasSBOMTree.Digest
+	retval.DownloadLocation = v.AllHasSBOMTree.DownloadLocation
+	retval.Origin = v.AllHasSBOMTree.Origin
+	retval.Collector = v.AllHasSBOMTree.Collector
+	retval.KnownSince = v.AllHasSBOMTree.KnownSince
+	{
+
+		dst := &retval.IncludedSoftware
+		src := v.AllHasSBOMTree.IncludedSoftware
+		*dst = make(
+			[]json.RawMessage,
+			len(src))
+		for i, src := range src {
+			dst := &(*dst)[i]
+			var err error
+			*dst, err = __marshalAllHasSBOMTreeIncludedSoftwarePackageOrArtifact(
+				&src)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"unable to marshal HasSBOMsHasSBOM.AllHasSBOMTree.IncludedSoftware: %w", err)
+			}
+		}
+	}
+	retval.IncludedDependencies = v.AllHasSBOMTree.IncludedDependencies
+	retval.IncludedOccurrences = v.AllHasSBOMTree.IncludedOccurrences
+	return &retval, nil
+}
+
+// HasSBOMsResponse is returned by HasSBOMs on success.
+type HasSBOMsResponse struct {
+	// Returns all SBOM certifications.
+	HasSBOM []HasSBOMsHasSBOM `json:"HasSBOM"`
+}
+
+// GetHasSBOM returns HasSBOMsResponse.HasSBOM, and is useful for accessing the field via an interface.
+func (v *HasSBOMsResponse) GetHasSBOM() []HasSBOMsHasSBOM { return v.HasSBOM }
+
 // HasSourceAtInputSpec is the same as HasSourceAt but for mutation input.
 type HasSourceAtInputSpec struct {
 	KnownSince    time.Time `json:"knownSince"`
@@ -8408,6 +9893,47 @@ type IsDependencyResponse struct {
 // GetIngestDependency returns IsDependencyResponse.IngestDependency, and is useful for accessing the field via an interface.
 func (v *IsDependencyResponse) GetIngestDependency() string { return v.IngestDependency }
 
+// IsDependencySpec allows filtering the list of dependencies to return.
+//
+// To obtain the list of dependency packages, caller must fill in the package
+// field.
+//
+// Dependency packages must be defined at PackageName, not PackageVersion.
+type IsDependencySpec struct {
+	Id                *string         `json:"id"`
+	Package           *PkgSpec        `json:"package"`
+	DependencyPackage *PkgSpec        `json:"dependencyPackage"`
+	VersionRange      *string         `json:"versionRange"`
+	DependencyType    *DependencyType `json:"dependencyType"`
+	Justification     *string         `json:"justification"`
+	Origin            *string         `json:"origin"`
+	Collector         *string         `json:"collector"`
+}
+
+// GetId returns IsDependencySpec.Id, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetId() *string { return v.Id }
+
+// GetPackage returns IsDependencySpec.Package, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetPackage() *PkgSpec { return v.Package }
+
+// GetDependencyPackage returns IsDependencySpec.DependencyPackage, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetDependencyPackage() *PkgSpec { return v.DependencyPackage }
+
+// GetVersionRange returns IsDependencySpec.VersionRange, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetVersionRange() *string { return v.VersionRange }
+
+// GetDependencyType returns IsDependencySpec.DependencyType, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetDependencyType() *DependencyType { return v.DependencyType }
+
+// GetJustification returns IsDependencySpec.Justification, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetJustification() *string { return v.Justification }
+
+// GetOrigin returns IsDependencySpec.Origin, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetOrigin() *string { return v.Origin }
+
+// GetCollector returns IsDependencySpec.Collector, and is useful for accessing the field via an interface.
+func (v *IsDependencySpec) GetCollector() *string { return v.Collector }
+
 // IsOccurrenceInputSpec represents the input to record an artifact's origin.
 type IsOccurrenceInputSpec struct {
 	Justification string `json:"justification"`
@@ -8432,6 +9958,35 @@ type IsOccurrencePkgResponse struct {
 
 // GetIngestOccurrence returns IsOccurrencePkgResponse.IngestOccurrence, and is useful for accessing the field via an interface.
 func (v *IsOccurrencePkgResponse) GetIngestOccurrence() string { return v.IngestOccurrence }
+
+// IsOccurrenceSpec allows filtering the list of artifact occurences to return in
+// a query.
+type IsOccurrenceSpec struct {
+	Id            *string              `json:"id"`
+	Subject       *PackageOrSourceSpec `json:"subject"`
+	Artifact      *ArtifactSpec        `json:"artifact"`
+	Justification *string              `json:"justification"`
+	Origin        *string              `json:"origin"`
+	Collector     *string              `json:"collector"`
+}
+
+// GetId returns IsOccurrenceSpec.Id, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetId() *string { return v.Id }
+
+// GetSubject returns IsOccurrenceSpec.Subject, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetSubject() *PackageOrSourceSpec { return v.Subject }
+
+// GetArtifact returns IsOccurrenceSpec.Artifact, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetArtifact() *ArtifactSpec { return v.Artifact }
+
+// GetJustification returns IsOccurrenceSpec.Justification, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetJustification() *string { return v.Justification }
+
+// GetOrigin returns IsOccurrenceSpec.Origin, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetOrigin() *string { return v.Origin }
+
+// GetCollector returns IsOccurrenceSpec.Collector, and is useful for accessing the field via an interface.
+func (v *IsOccurrenceSpec) GetCollector() *string { return v.Collector }
 
 // IsOccurrenceSrcResponse is returned by IsOccurrenceSrc on success.
 type IsOccurrenceSrcResponse struct {
@@ -17720,6 +19275,21 @@ func (v *PackageNamespacesResponse) GetPackages() []PackageNamespacesPackagesPac
 	return v.Packages
 }
 
+// PackageOrArtifactSpec allows using PackageOrArtifact union as
+// input type to be used in read queries.
+//
+// Exactly one of the value must be set to non-nil.
+type PackageOrArtifactSpec struct {
+	Package  *PkgSpec      `json:"package"`
+	Artifact *ArtifactSpec `json:"artifact"`
+}
+
+// GetPackage returns PackageOrArtifactSpec.Package, and is useful for accessing the field via an interface.
+func (v *PackageOrArtifactSpec) GetPackage() *PkgSpec { return v.Package }
+
+// GetArtifact returns PackageOrArtifactSpec.Artifact, and is useful for accessing the field via an interface.
+func (v *PackageOrArtifactSpec) GetArtifact() *ArtifactSpec { return v.Artifact }
+
 // PackageOrSourceSpec allows using PackageOrSource union as input for queries.
 //
 // Exactly one field must be specified.
@@ -22236,6 +23806,14 @@ func (v *__CertifyVulnPkgsInput) GetVulnerabilities() []VulnerabilityInputSpec {
 // GetCertifyVulns returns __CertifyVulnPkgsInput.CertifyVulns, and is useful for accessing the field via an interface.
 func (v *__CertifyVulnPkgsInput) GetCertifyVulns() []ScanMetadataInput { return v.CertifyVulns }
 
+// __FindAllPkgVulnBasedOnSbomInput is used internally by genqlient
+type __FindAllPkgVulnBasedOnSbomInput struct {
+	PkgID string `json:"pkgID"`
+}
+
+// GetPkgID returns __FindAllPkgVulnBasedOnSbomInput.PkgID, and is useful for accessing the field via an interface.
+func (v *__FindAllPkgVulnBasedOnSbomInput) GetPkgID() string { return v.PkgID }
+
 // __FindSoftwareInput is used internally by genqlient
 type __FindSoftwareInput struct {
 	SearchText string `json:"searchText"`
@@ -22393,6 +23971,14 @@ func (v *__HasSBOMPkgsInput) GetHasSBOMs() []HasSBOMInputSpec { return v.HasSBOM
 
 // GetIncludes returns __HasSBOMPkgsInput.Includes, and is useful for accessing the field via an interface.
 func (v *__HasSBOMPkgsInput) GetIncludes() []HasSBOMIncludesInputSpec { return v.Includes }
+
+// __HasSBOMsInput is used internally by genqlient
+type __HasSBOMsInput struct {
+	Filter HasSBOMSpec `json:"filter"`
+}
+
+// GetFilter returns __HasSBOMsInput.Filter, and is useful for accessing the field via an interface.
+func (v *__HasSBOMsInput) GetFilter() HasSBOMSpec { return v.Filter }
 
 // __IngestArtifactInput is used internally by genqlient
 type __IngestArtifactInput struct {
@@ -24140,6 +25726,138 @@ func CertifyVulnPkgs(
 	return &data, err
 }
 
+// The query or mutation executed by FindAllPkgVulnBasedOnSbom.
+const FindAllPkgVulnBasedOnSbom_Operation = `
+query FindAllPkgVulnBasedOnSbom ($pkgID: ID!) {
+	findAllPkgVulnBasedOnSBOM(pkgID: $pkgID) {
+		__typename
+		... on IsDependency {
+			... AllIsDependencyTree
+		}
+		... on CertifyVuln {
+			... AllCertifyVuln
+		}
+		... on CertifyVEXStatement {
+			... AllCertifyVEXStatement
+		}
+	}
+}
+fragment AllIsDependencyTree on IsDependency {
+	id
+	justification
+	package {
+		... AllPkgTree
+	}
+	dependencyPackage {
+		... AllPkgTree
+	}
+	dependencyType
+	versionRange
+	origin
+	collector
+}
+fragment AllCertifyVuln on CertifyVuln {
+	id
+	package {
+		... AllPkgTree
+	}
+	vulnerability {
+		... AllVulnerabilityTree
+	}
+	metadata {
+		dbUri
+		dbVersion
+		scannerUri
+		scannerVersion
+		timeScanned
+		origin
+		collector
+	}
+}
+fragment AllCertifyVEXStatement on CertifyVEXStatement {
+	id
+	subject {
+		__typename
+		... on Package {
+			... AllPkgTree
+		}
+		... on Artifact {
+			... AllArtifactTree
+		}
+	}
+	vulnerability {
+		... AllVulnerabilityTree
+	}
+	status
+	vexJustification
+	statement
+	statusNotes
+	knownSince
+	origin
+	collector
+}
+fragment AllPkgTree on Package {
+	id
+	type
+	namespaces {
+		id
+		namespace
+		names {
+			id
+			name
+			versions {
+				id
+				version
+				qualifiers {
+					key
+					value
+				}
+				subpath
+			}
+		}
+	}
+}
+fragment AllVulnerabilityTree on Vulnerability {
+	id
+	type
+	vulnerabilityIDs {
+		id
+		vulnerabilityID
+	}
+}
+fragment AllArtifactTree on Artifact {
+	id
+	algorithm
+	digest
+}
+`
+
+func FindAllPkgVulnBasedOnSbom(
+	ctx context.Context,
+	client graphql.Client,
+	pkgID string,
+) (*FindAllPkgVulnBasedOnSbomResponse, error) {
+	req := &graphql.Request{
+		OpName: "FindAllPkgVulnBasedOnSbom",
+		Query:  FindAllPkgVulnBasedOnSbom_Operation,
+		Variables: &__FindAllPkgVulnBasedOnSbomInput{
+			PkgID: pkgID,
+		},
+	}
+	var err error
+
+	var data FindAllPkgVulnBasedOnSbomResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 // The query or mutation executed by FindSoftware.
 const FindSoftware_Operation = `
 query FindSoftware ($searchText: String!) {
@@ -24575,6 +26293,147 @@ func HasSBOMPkgs(
 	var err error
 
 	var data HasSBOMPkgsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+// The query or mutation executed by HasSBOMs.
+const HasSBOMs_Operation = `
+query HasSBOMs ($filter: HasSBOMSpec!) {
+	HasSBOM(hasSBOMSpec: $filter) {
+		... AllHasSBOMTree
+	}
+}
+fragment AllHasSBOMTree on HasSBOM {
+	id
+	subject {
+		__typename
+		... on Artifact {
+			... AllArtifactTree
+		}
+		... on Package {
+			... AllPkgTree
+		}
+	}
+	uri
+	algorithm
+	digest
+	downloadLocation
+	origin
+	collector
+	knownSince
+	includedSoftware {
+		__typename
+		... on Artifact {
+			... AllArtifactTree
+		}
+		... on Package {
+			... AllPkgTree
+		}
+	}
+	includedDependencies {
+		... AllIsDependencyTree
+	}
+	includedOccurrences {
+		... AllIsOccurrencesTree
+	}
+}
+fragment AllArtifactTree on Artifact {
+	id
+	algorithm
+	digest
+}
+fragment AllPkgTree on Package {
+	id
+	type
+	namespaces {
+		id
+		namespace
+		names {
+			id
+			name
+			versions {
+				id
+				version
+				qualifiers {
+					key
+					value
+				}
+				subpath
+			}
+		}
+	}
+}
+fragment AllIsDependencyTree on IsDependency {
+	id
+	justification
+	package {
+		... AllPkgTree
+	}
+	dependencyPackage {
+		... AllPkgTree
+	}
+	dependencyType
+	versionRange
+	origin
+	collector
+}
+fragment AllIsOccurrencesTree on IsOccurrence {
+	id
+	subject {
+		__typename
+		... on Package {
+			... AllPkgTree
+		}
+		... on Source {
+			... AllSourceTree
+		}
+	}
+	artifact {
+		... AllArtifactTree
+	}
+	justification
+	origin
+	collector
+}
+fragment AllSourceTree on Source {
+	id
+	type
+	namespaces {
+		id
+		namespace
+		names {
+			id
+			name
+			tag
+			commit
+		}
+	}
+}
+`
+
+func HasSBOMs(
+	ctx context.Context,
+	client graphql.Client,
+	filter HasSBOMSpec,
+) (*HasSBOMsResponse, error) {
+	req := &graphql.Request{
+		OpName: "HasSBOMs",
+		Query:  HasSBOMs_Operation,
+		Variables: &__HasSBOMsInput{
+			Filter: filter,
+		},
+	}
+	var err error
+
+	var data HasSBOMsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

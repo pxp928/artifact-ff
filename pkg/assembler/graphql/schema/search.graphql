@@ -34,4 +34,8 @@ extend type Query {
   implement this API.
   """
   findSoftware(searchText: String!): [PackageSourceOrArtifact!]!
+
+
+  "Returns all certifyVulns (that contain vulnerabilities and not noVuln), certifyVex and IsDependencies related to a package based on an SBOM."
+  findAllPkgVulnBasedOnSBOM(pkgID: ID!): [Node!]!
 }

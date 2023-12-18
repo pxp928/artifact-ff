@@ -140,6 +140,21 @@ func (mr *MockBackendMockRecorder) CertifyVuln(ctx, certifyVulnSpec interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CertifyVuln", reflect.TypeOf((*MockBackend)(nil).CertifyVuln), ctx, certifyVulnSpec)
 }
 
+// FindAllPkgVulnBasedOnSbom mocks base method.
+func (m *MockBackend) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAllPkgVulnBasedOnSbom", ctx, pkgID)
+	ret0, _ := ret[0].([]model.Node)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAllPkgVulnBasedOnSbom indicates an expected call of FindAllPkgVulnBasedOnSbom.
+func (mr *MockBackendMockRecorder) FindAllPkgVulnBasedOnSbom(ctx, pkgID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllPkgVulnBasedOnSbom", reflect.TypeOf((*MockBackend)(nil).FindAllPkgVulnBasedOnSbom), ctx, pkgID)
+}
+
 // FindSoftware mocks base method.
 func (m *MockBackend) FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error) {
 	m.ctrl.T.Helper()

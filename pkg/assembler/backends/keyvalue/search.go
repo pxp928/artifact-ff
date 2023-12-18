@@ -25,3 +25,7 @@ import (
 func (c *demoClient) FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error) {
 	return []model.PackageSourceOrArtifact{}, fmt.Errorf("not implemented: FindSoftware")
 }
+
+func (c *demoClient) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	panic(fmt.Errorf("not implemented: FindVulnerability - findVulnerability"))
+}

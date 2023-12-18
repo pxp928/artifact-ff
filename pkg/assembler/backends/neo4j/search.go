@@ -25,3 +25,7 @@ import (
 func (c *neo4jClient) FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error) {
 	return []model.PackageSourceOrArtifact{}, fmt.Errorf("not implemented: FindSoftware")
 }
+
+func (c *neo4jClient) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	panic(fmt.Errorf("not implemented: FindVulnerability - findVulnerability"))
+}
