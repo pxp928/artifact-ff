@@ -23,6 +23,15 @@ type PaginationInfo struct {
 // Purl defines model for Purl.
 type Purl = string
 
+// Sbom defines model for Sbom.
+type Sbom = string
+
+// Slsa defines model for Slsa.
+type Slsa = string
+
+// Vulnerability defines model for Vulnerability.
+type Vulnerability = string
+
 // PaginationSpec defines model for PaginationSpec.
 type PaginationSpec struct {
 	Cursor   *string `json:"Cursor,omitempty"`
@@ -38,11 +47,41 @@ type BadRequest = Error
 // InternalServerError defines model for InternalServerError.
 type InternalServerError = Error
 
+// PurlInfo defines model for PurlInfo.
+type PurlInfo struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	SbomList        []Sbom          `json:"SbomList"`
+	SlsaList        []Slsa          `json:"SlsaList"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
+}
+
 // PurlList defines model for PurlList.
 type PurlList struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo PaginationInfo `json:"PaginationInfo"`
 	PurlList       []Purl         `json:"PurlList"`
+}
+
+// SbomInfo defines model for SbomInfo.
+type SbomInfo struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo PaginationInfo `json:"PaginationInfo"`
+	SbomList       []Sbom         `json:"SbomList"`
+}
+
+// SlsaInfo defines model for SlsaInfo.
+type SlsaInfo struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo PaginationInfo `json:"PaginationInfo"`
+	SlsaList       []Slsa         `json:"SlsaList"`
+}
+
+// VulnInfo defines model for VulnInfo.
+type VulnInfo struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 
 // AnalyzeDependenciesParams defines parameters for AnalyzeDependencies.
@@ -70,4 +109,36 @@ type RetrieveDependenciesParams struct {
 
 	// Purl the purl of the dependent package
 	Purl string `form:"purl" json:"purl"`
+}
+
+// GetPackageInformationParams defines parameters for GetPackageInformation.
+type GetPackageInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetPackageSbomInformationParams defines parameters for GetPackageSbomInformation.
+type GetPackageSbomInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetPackageSlsaInformationParams defines parameters for GetPackageSlsaInformation.
+type GetPackageSlsaInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetPackageVulnInformationParams defines parameters for GetPackageVulnInformation.
+type GetPackageVulnInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
 }

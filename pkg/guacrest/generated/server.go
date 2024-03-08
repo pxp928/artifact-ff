@@ -25,6 +25,18 @@ type ServerInterface interface {
 	// Retrieve the dependencies of a package
 	// (GET /query/dependencies)
 	RetrieveDependencies(w http.ResponseWriter, r *http.Request, params RetrieveDependenciesParams)
+	// Get all information related to the package based on the purl
+	// (GET /query/pkgInfo/{purl})
+	GetPackageInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageInformationParams)
+	// Get sbom location related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/sbom)
+	GetPackageSbomInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSbomInformationParams)
+	// Get slsa location related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/slsa)
+	GetPackageSlsaInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSlsaInformationParams)
+	// Get vulnerability information related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/vulns)
+	GetPackageVulnInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageVulnInformationParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -46,6 +58,30 @@ func (_ Unimplemented) HealthCheck(w http.ResponseWriter, r *http.Request) {
 // Retrieve the dependencies of a package
 // (GET /query/dependencies)
 func (_ Unimplemented) RetrieveDependencies(w http.ResponseWriter, r *http.Request, params RetrieveDependenciesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get all information related to the package based on the purl
+// (GET /query/pkgInfo/{purl})
+func (_ Unimplemented) GetPackageInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get sbom location related to the package based on the purl
+// (GET /query/pkgInfo/{purl}/sbom)
+func (_ Unimplemented) GetPackageSbomInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSbomInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get slsa location related to the package based on the purl
+// (GET /query/pkgInfo/{purl}/slsa)
+func (_ Unimplemented) GetPackageSlsaInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSlsaInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get vulnerability information related to the package based on the purl
+// (GET /query/pkgInfo/{purl}/vulns)
+func (_ Unimplemented) GetPackageVulnInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageVulnInformationParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -150,6 +186,154 @@ func (siw *ServerInterfaceWrapper) RetrieveDependencies(w http.ResponseWriter, r
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.RetrieveDependencies(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetPackageInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetPackageInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "purl" -------------
+	var purl string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "purl", chi.URLParam(r, "purl"), &purl, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purl", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPackageInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPackageInformation(w, r, purl, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetPackageSbomInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetPackageSbomInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "purl" -------------
+	var purl string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "purl", chi.URLParam(r, "purl"), &purl, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purl", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPackageSbomInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPackageSbomInformation(w, r, purl, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetPackageSlsaInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetPackageSlsaInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "purl" -------------
+	var purl string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "purl", chi.URLParam(r, "purl"), &purl, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purl", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPackageSlsaInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPackageSlsaInformation(w, r, purl, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetPackageVulnInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetPackageVulnInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "purl" -------------
+	var purl string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "purl", chi.URLParam(r, "purl"), &purl, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purl", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPackageVulnInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPackageVulnInformation(w, r, purl, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -281,6 +465,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/query/dependencies", wrapper.RetrieveDependencies)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/pkgInfo/{purl}", wrapper.GetPackageInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/pkgInfo/{purl}/sbom", wrapper.GetPackageSbomInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/pkgInfo/{purl}/slsa", wrapper.GetPackageSlsaInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/pkgInfo/{purl}/vulns", wrapper.GetPackageVulnInformation)
+	})
 
 	return r
 }
@@ -291,10 +487,36 @@ type BadRequestJSONResponse Error
 
 type InternalServerErrorJSONResponse Error
 
+type PurlInfoJSONResponse struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	SbomList        []Sbom          `json:"SbomList"`
+	SlsaList        []Slsa          `json:"SlsaList"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
+}
+
 type PurlListJSONResponse struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo PaginationInfo `json:"PaginationInfo"`
 	PurlList       []Purl         `json:"PurlList"`
+}
+
+type SbomInfoJSONResponse struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo PaginationInfo `json:"PaginationInfo"`
+	SbomList       []Sbom         `json:"SbomList"`
+}
+
+type SlsaInfoJSONResponse struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo PaginationInfo `json:"PaginationInfo"`
+	SlsaList       []Slsa         `json:"SlsaList"`
+}
+
+type VulnInfoJSONResponse struct {
+	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
+	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 
 type AnalyzeDependenciesRequestObject struct {
@@ -405,6 +627,194 @@ func (response RetrieveDependencies502JSONResponse) VisitRetrieveDependenciesRes
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetPackageInformationRequestObject struct {
+	Purl   string `json:"purl"`
+	Params GetPackageInformationParams
+}
+
+type GetPackageInformationResponseObject interface {
+	VisitGetPackageInformationResponse(w http.ResponseWriter) error
+}
+
+type GetPackageInformation200JSONResponse struct{ PurlInfoJSONResponse }
+
+func (response GetPackageInformation200JSONResponse) VisitGetPackageInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetPackageInformation400JSONResponse) VisitGetPackageInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetPackageInformation500JSONResponse) VisitGetPackageInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetPackageInformation502JSONResponse) VisitGetPackageInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSbomInformationRequestObject struct {
+	Purl   string `json:"purl"`
+	Params GetPackageSbomInformationParams
+}
+
+type GetPackageSbomInformationResponseObject interface {
+	VisitGetPackageSbomInformationResponse(w http.ResponseWriter) error
+}
+
+type GetPackageSbomInformation200JSONResponse struct{ SbomInfoJSONResponse }
+
+func (response GetPackageSbomInformation200JSONResponse) VisitGetPackageSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSbomInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetPackageSbomInformation400JSONResponse) VisitGetPackageSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSbomInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetPackageSbomInformation500JSONResponse) VisitGetPackageSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSbomInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetPackageSbomInformation502JSONResponse) VisitGetPackageSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSlsaInformationRequestObject struct {
+	Purl   string `json:"purl"`
+	Params GetPackageSlsaInformationParams
+}
+
+type GetPackageSlsaInformationResponseObject interface {
+	VisitGetPackageSlsaInformationResponse(w http.ResponseWriter) error
+}
+
+type GetPackageSlsaInformation200JSONResponse struct{ SlsaInfoJSONResponse }
+
+func (response GetPackageSlsaInformation200JSONResponse) VisitGetPackageSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSlsaInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetPackageSlsaInformation400JSONResponse) VisitGetPackageSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSlsaInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetPackageSlsaInformation500JSONResponse) VisitGetPackageSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageSlsaInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetPackageSlsaInformation502JSONResponse) VisitGetPackageSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageVulnInformationRequestObject struct {
+	Purl   string `json:"purl"`
+	Params GetPackageVulnInformationParams
+}
+
+type GetPackageVulnInformationResponseObject interface {
+	VisitGetPackageVulnInformationResponse(w http.ResponseWriter) error
+}
+
+type GetPackageVulnInformation200JSONResponse struct{ VulnInfoJSONResponse }
+
+func (response GetPackageVulnInformation200JSONResponse) VisitGetPackageVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageVulnInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetPackageVulnInformation400JSONResponse) VisitGetPackageVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageVulnInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetPackageVulnInformation500JSONResponse) VisitGetPackageVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPackageVulnInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetPackageVulnInformation502JSONResponse) VisitGetPackageVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Identify the most important dependencies
@@ -416,6 +826,18 @@ type StrictServerInterface interface {
 	// Retrieve the dependencies of a package
 	// (GET /query/dependencies)
 	RetrieveDependencies(ctx context.Context, request RetrieveDependenciesRequestObject) (RetrieveDependenciesResponseObject, error)
+	// Get all information related to the package based on the purl
+	// (GET /query/pkgInfo/{purl})
+	GetPackageInformation(ctx context.Context, request GetPackageInformationRequestObject) (GetPackageInformationResponseObject, error)
+	// Get sbom location related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/sbom)
+	GetPackageSbomInformation(ctx context.Context, request GetPackageSbomInformationRequestObject) (GetPackageSbomInformationResponseObject, error)
+	// Get slsa location related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/slsa)
+	GetPackageSlsaInformation(ctx context.Context, request GetPackageSlsaInformationRequestObject) (GetPackageSlsaInformationResponseObject, error)
+	// Get vulnerability information related to the package based on the purl
+	// (GET /query/pkgInfo/{purl}/vulns)
+	GetPackageVulnInformation(ctx context.Context, request GetPackageVulnInformationRequestObject) (GetPackageVulnInformationResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -516,6 +938,114 @@ func (sh *strictHandler) RetrieveDependencies(w http.ResponseWriter, r *http.Req
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(RetrieveDependenciesResponseObject); ok {
 		if err := validResponse.VisitRetrieveDependenciesResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPackageInformation operation middleware
+func (sh *strictHandler) GetPackageInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageInformationParams) {
+	var request GetPackageInformationRequestObject
+
+	request.Purl = purl
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPackageInformation(ctx, request.(GetPackageInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPackageInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPackageInformationResponseObject); ok {
+		if err := validResponse.VisitGetPackageInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPackageSbomInformation operation middleware
+func (sh *strictHandler) GetPackageSbomInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSbomInformationParams) {
+	var request GetPackageSbomInformationRequestObject
+
+	request.Purl = purl
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPackageSbomInformation(ctx, request.(GetPackageSbomInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPackageSbomInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPackageSbomInformationResponseObject); ok {
+		if err := validResponse.VisitGetPackageSbomInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPackageSlsaInformation operation middleware
+func (sh *strictHandler) GetPackageSlsaInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageSlsaInformationParams) {
+	var request GetPackageSlsaInformationRequestObject
+
+	request.Purl = purl
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPackageSlsaInformation(ctx, request.(GetPackageSlsaInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPackageSlsaInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPackageSlsaInformationResponseObject); ok {
+		if err := validResponse.VisitGetPackageSlsaInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetPackageVulnInformation operation middleware
+func (sh *strictHandler) GetPackageVulnInformation(w http.ResponseWriter, r *http.Request, purl string, params GetPackageVulnInformationParams) {
+	var request GetPackageVulnInformationRequestObject
+
+	request.Purl = purl
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPackageVulnInformation(ctx, request.(GetPackageVulnInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPackageVulnInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetPackageVulnInformationResponseObject); ok {
+		if err := validResponse.VisitGetPackageVulnInformationResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
