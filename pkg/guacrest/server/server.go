@@ -18,9 +18,11 @@ package server
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/Khan/genqlient/graphql"
+	"github.com/guacsec/guac/internal/testing/ptrfrom"
 	model "github.com/guacsec/guac/pkg/assembler/clients/generated"
 	"github.com/guacsec/guac/pkg/assembler/helpers"
 	gen "github.com/guacsec/guac/pkg/guacrest/generated"
@@ -68,38 +70,224 @@ func (s *DefaultServer) RetrieveDependencies(ctx context.Context, request gen.Re
 	return nil, fmt.Errorf("Unimplemented")
 }
 
-func (s *DefaultServer) GetPackageSbomInformation(ctx context.Context, request gen.GetPackageSbomInformationRequestObject) (gen.GetPackageSbomInformationResponseObject, error) {
-	pkgInput, err := helpers.PurlToPkg(request.Purl)
+func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.GetArtifactInformationRequestObject) (gen.GetArtifactInformationResponseObject, error) {
+	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse PURL: %w", err)
+		return nil, fmt.Errorf("failed to parse hash: %w", err)
 	}
 
-	pkgQualifierFilter := []model.PackageQualifierSpec{}
-	for _, qualifier := range pkgInput.Qualifiers {
-		// to prevent https://github.com/golang/go/discussions/56010
-		qualifier := qualifier
-		pkgQualifierFilter = append(pkgQualifierFilter, model.PackageQualifierSpec{
-			Key:   qualifier.Key,
-			Value: &qualifier.Value,
-		})
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{})
+	if err != nil {
+		return nil, fmt.Errorf("error querying neighbors: %v", err)
 	}
 
-	pkgFilter := &model.PkgSpec{
-		Type:       &pkgInput.Type,
-		Namespace:  pkgInput.Namespace,
-		Name:       &pkgInput.Name,
-		Version:    pkgInput.Version,
-		Subpath:    pkgInput.Subpath,
-		Qualifiers: pkgQualifierFilter,
+	var foundSbomList []gen.Sbom
+	var foundSlsaList []gen.Slsa
+	var foundVulnerabilities []gen.Vulnerability
+
+	for _, neighbor := range neighborResponse.Neighbors {
+		switch v := neighbor.(type) {
+		case *model.NeighborsNeighborsHasSBOM:
+			foundSbomList = append(foundSbomList, v.DownloadLocation)
+		case *model.NeighborsNeighborsHasSLSA:
+			foundSlsaList = append(foundSlsaList, v.Slsa.Origin)
+		case *model.NeighborsNeighborsIsOccurrence:
+			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
+
+			switch sub := v.Subject.(type) {
+			case *model.AllIsOccurrencesTreeSubjectPackage:
+				neighborResponseCertifyVuln, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageCertifyVuln})
+				if err != nil {
+					continue
+				} else {
+					for _, neighborCertifyVuln := range neighborResponseCertifyVuln.Neighbors {
+						if certVuln, ok := neighborCertifyVuln.(*model.NeighborsNeighborsCertifyVuln); ok {
+							foundVulnerabilities = append(foundVulnerabilities, certVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
+						}
+					}
+				}
+
+				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
+				if err != nil {
+					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
+				}
+
+				foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
+
+				neighborResponseSBOM, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageHasSbom})
+				if err != nil {
+					continue
+				} else {
+					for _, neighborHasSBOM := range neighborResponseSBOM.Neighbors {
+						if hasSBOM, ok := neighborHasSBOM.(*model.NeighborsNeighborsHasSBOM); ok {
+							foundSbomList = append(foundSbomList, hasSBOM.DownloadLocation)
+						}
+					}
+				}
+
+			case *model.AllIsOccurrencesTreeSubjectSource:
+				continue
+			}
+
+		default:
+			continue
+		}
 	}
-	pkgResponse, err := model.Packages(ctx, s.gqlClient, *pkgFilter)
+
+	val := gen.GetArtifactInformation200JSONResponse{
+		InfoJSONResponse: gen.InfoJSONResponse{
+			SbomList:        foundSbomList,
+			SlsaList:        foundSlsaList,
+			Vulnerabilities: foundVulnerabilities,
+		},
+	}
+
+	return val, nil
+}
+
+func (s *DefaultServer) GetArtifactSbomInformation(ctx context.Context, request gen.GetArtifactSbomInformationRequestObject) (gen.GetArtifactSbomInformationResponseObject, error) {
+	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse hash: %w", err)
+	}
+
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactHasSbom, model.EdgeArtifactIsOccurrence})
+	if err != nil {
+		return nil, fmt.Errorf("error querying neighbors: %v", err)
+	}
+
+	var foundSbomList []gen.Sbom
+
+	for _, neighbor := range neighborResponse.Neighbors {
+		switch v := neighbor.(type) {
+		case *model.NeighborsNeighborsHasSBOM:
+			foundSbomList = append(foundSbomList, v.DownloadLocation)
+		case *model.NeighborsNeighborsIsOccurrence:
+			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
+			switch sub := v.Subject.(type) {
+			case *model.AllIsOccurrencesTreeSubjectPackage:
+				neighborResponseSBOM, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageHasSbom})
+				if err != nil {
+					continue
+				} else {
+					for _, neighborHasSBOM := range neighborResponseSBOM.Neighbors {
+						if hasSBOM, ok := neighborHasSBOM.(*model.NeighborsNeighborsHasSBOM); ok {
+							foundSbomList = append(foundSbomList, hasSBOM.DownloadLocation)
+						}
+					}
+				}
+			case *model.AllIsOccurrencesTreeSubjectSource:
+				continue
+			}
+
+		default:
+			continue
+		}
+	}
+
+	val := gen.GetArtifactSbomInformation200JSONResponse{
+		SbomInfoJSONResponse: gen.SbomInfoJSONResponse{
+			SbomList: foundSbomList,
+		},
+	}
+
+	return val, nil
+
+}
+func (s *DefaultServer) GetArtifactSlsaInformation(ctx context.Context, request gen.GetArtifactSlsaInformationRequestObject) (gen.GetArtifactSlsaInformationResponseObject, error) {
+	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse hash: %w", err)
+	}
+
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactHasSlsa})
+	if err != nil {
+		return nil, fmt.Errorf("error querying neighbors: %v", err)
+	}
+
+	var foundSlsaList []gen.Slsa
+
+	for _, neighbor := range neighborResponse.Neighbors {
+		switch v := neighbor.(type) {
+		case *model.NeighborsNeighborsHasSLSA:
+			foundSlsaList = append(foundSlsaList, v.Slsa.Origin)
+		default:
+			continue
+		}
+	}
+
+	val := gen.GetArtifactSlsaInformation200JSONResponse{
+		SlsaInfoJSONResponse: gen.SlsaInfoJSONResponse{
+			SlsaList: foundSlsaList,
+		},
+	}
+	return val, nil
+}
+
+func (s *DefaultServer) GetArtifactVulnInformation(ctx context.Context, request gen.GetArtifactVulnInformationRequestObject) (gen.GetArtifactVulnInformationResponseObject, error) {
+	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse hash: %w", err)
+	}
+
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactIsOccurrence})
+	if err != nil {
+		return nil, fmt.Errorf("error querying neighbors: %v", err)
+	}
+
+	var foundVulnerabilities []gen.Vulnerability
+
+	for _, neighbor := range neighborResponse.Neighbors {
+		switch v := neighbor.(type) {
+		case *model.NeighborsNeighborsIsOccurrence:
+			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
+			switch sub := v.Subject.(type) {
+			case *model.AllIsOccurrencesTreeSubjectPackage:
+				neighborResponseCertifyVuln, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageCertifyVuln})
+				if err != nil {
+					continue
+				} else {
+					for _, neighborCertifyVuln := range neighborResponseCertifyVuln.Neighbors {
+						if certVuln, ok := neighborCertifyVuln.(*model.NeighborsNeighborsCertifyVuln); ok {
+							foundVulnerabilities = append(foundVulnerabilities, certVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
+						}
+					}
+				}
+
+				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
+				if err != nil {
+					fmt.Print("fail")
+				}
+
+				foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
+
+			case *model.AllIsOccurrencesTreeSubjectSource:
+				continue
+			}
+
+		default:
+			continue
+		}
+	}
+
+	val := gen.GetArtifactVulnInformation200JSONResponse{
+		VulnInfoJSONResponse: gen.VulnInfoJSONResponse{
+			Vulnerabilities: foundVulnerabilities,
+		},
+	}
+
+	return val, nil
+}
+
+func (s *DefaultServer) GetPackageSbomInformation(ctx context.Context, request gen.GetPackageSbomInformationRequestObject) (gen.GetPackageSbomInformationResponseObject, error) {
+	pkgResponse, err := getPkgResponseFromPurl(ctx, s.gqlClient, request.Purl)
 	if err != nil {
 		return nil, fmt.Errorf("error querying for package: %v", err)
 	}
 	if len(pkgResponse.Packages) != 1 {
 		return nil, fmt.Errorf("failed to located package based on purl")
 	}
-	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{})
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageHasSbom})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
 	}
@@ -125,37 +313,14 @@ func (s *DefaultServer) GetPackageSbomInformation(ctx context.Context, request g
 }
 
 func (s *DefaultServer) GetPackageSlsaInformation(ctx context.Context, request gen.GetPackageSlsaInformationRequestObject) (gen.GetPackageSlsaInformationResponseObject, error) {
-	pkgInput, err := helpers.PurlToPkg(request.Purl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse PURL: %w", err)
-	}
-
-	pkgQualifierFilter := []model.PackageQualifierSpec{}
-	for _, qualifier := range pkgInput.Qualifiers {
-		// to prevent https://github.com/golang/go/discussions/56010
-		qualifier := qualifier
-		pkgQualifierFilter = append(pkgQualifierFilter, model.PackageQualifierSpec{
-			Key:   qualifier.Key,
-			Value: &qualifier.Value,
-		})
-	}
-
-	pkgFilter := &model.PkgSpec{
-		Type:       &pkgInput.Type,
-		Namespace:  pkgInput.Namespace,
-		Name:       &pkgInput.Name,
-		Version:    pkgInput.Version,
-		Subpath:    pkgInput.Subpath,
-		Qualifiers: pkgQualifierFilter,
-	}
-	pkgResponse, err := model.Packages(ctx, s.gqlClient, *pkgFilter)
+	pkgResponse, err := getPkgResponseFromPurl(ctx, s.gqlClient, request.Purl)
 	if err != nil {
 		return nil, fmt.Errorf("error querying for package: %v", err)
 	}
 	if len(pkgResponse.Packages) != 1 {
 		return nil, fmt.Errorf("failed to located package based on purl")
 	}
-	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{})
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageIsOccurrence})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
 	}
@@ -164,8 +329,6 @@ func (s *DefaultServer) GetPackageSlsaInformation(ctx context.Context, request g
 
 	for _, neighbor := range neighborResponse.Neighbors {
 		switch v := neighbor.(type) {
-		case *model.NeighborsNeighborsHasSLSA:
-			foundSlsaList = append(foundSlsaList, v.Slsa.Origin)
 		case *model.NeighborsNeighborsIsOccurrence:
 			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
 			artifactFilter := &model.ArtifactSpec{
@@ -205,37 +368,15 @@ func (s *DefaultServer) GetPackageSlsaInformation(ctx context.Context, request g
 }
 
 func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request gen.GetPackageVulnInformationRequestObject) (gen.GetPackageVulnInformationResponseObject, error) {
-	pkgInput, err := helpers.PurlToPkg(request.Purl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse PURL: %w", err)
-	}
 
-	pkgQualifierFilter := []model.PackageQualifierSpec{}
-	for _, qualifier := range pkgInput.Qualifiers {
-		// to prevent https://github.com/golang/go/discussions/56010
-		qualifier := qualifier
-		pkgQualifierFilter = append(pkgQualifierFilter, model.PackageQualifierSpec{
-			Key:   qualifier.Key,
-			Value: &qualifier.Value,
-		})
-	}
-
-	pkgFilter := &model.PkgSpec{
-		Type:       &pkgInput.Type,
-		Namespace:  pkgInput.Namespace,
-		Name:       &pkgInput.Name,
-		Version:    pkgInput.Version,
-		Subpath:    pkgInput.Subpath,
-		Qualifiers: pkgQualifierFilter,
-	}
-	pkgResponse, err := model.Packages(ctx, s.gqlClient, *pkgFilter)
+	pkgResponse, err := getPkgResponseFromPurl(ctx, s.gqlClient, request.Purl)
 	if err != nil {
 		return nil, fmt.Errorf("error querying for package: %v", err)
 	}
 	if len(pkgResponse.Packages) != 1 {
 		return nil, fmt.Errorf("failed to located package based on purl")
 	}
-	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{})
+	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageCertifyVuln})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
 	}
@@ -246,24 +387,12 @@ func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request g
 		switch v := neighbor.(type) {
 		case *model.NeighborsNeighborsCertifyVuln:
 			foundVulnerabilities = append(foundVulnerabilities, v.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
-		// case *model.NeighborsNeighborsCertifyBad:
-		// 	collectedNeighbors.badLinks = append(collectedNeighbors.badLinks, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyGood:
-		// 	collectedNeighbors.goodLinks = append(collectedNeighbors.goodLinks, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyScorecard:
-		// 	collectedNeighbors.scorecards = append(collectedNeighbors.scorecards, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyVEXStatement:
-		// 	collectedNeighbors.vexLinks = append(collectedNeighbors.vexLinks, v)
-		// 	path = append(path, v.Id)
 		default:
 			continue
 		}
 	}
 
-	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, request.Purl, 0, true)
+	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
 		fmt.Print("fail")
 	}
@@ -280,30 +409,8 @@ func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request g
 }
 
 func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.GetPackageInformationRequestObject) (gen.GetPackageInformationResponseObject, error) {
-	pkgInput, err := helpers.PurlToPkg(request.Purl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse PURL: %w", err)
-	}
 
-	pkgQualifierFilter := []model.PackageQualifierSpec{}
-	for _, qualifier := range pkgInput.Qualifiers {
-		// to prevent https://github.com/golang/go/discussions/56010
-		qualifier := qualifier
-		pkgQualifierFilter = append(pkgQualifierFilter, model.PackageQualifierSpec{
-			Key:   qualifier.Key,
-			Value: &qualifier.Value,
-		})
-	}
-
-	pkgFilter := &model.PkgSpec{
-		Type:       &pkgInput.Type,
-		Namespace:  pkgInput.Namespace,
-		Name:       &pkgInput.Name,
-		Version:    pkgInput.Version,
-		Subpath:    pkgInput.Subpath,
-		Qualifiers: pkgQualifierFilter,
-	}
-	pkgResponse, err := model.Packages(ctx, s.gqlClient, *pkgFilter)
+	pkgResponse, err := getPkgResponseFromPurl(ctx, s.gqlClient, request.Purl)
 	if err != nil {
 		return nil, fmt.Errorf("error querying for package: %v", err)
 	}
@@ -323,36 +430,11 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 		switch v := neighbor.(type) {
 		case *model.NeighborsNeighborsCertifyVuln:
 			foundVulnerabilities = append(foundVulnerabilities, v.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
-		// case *model.NeighborsNeighborsCertifyBad:
-		// 	collectedNeighbors.badLinks = append(collectedNeighbors.badLinks, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyGood:
-		// 	collectedNeighbors.goodLinks = append(collectedNeighbors.goodLinks, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyScorecard:
-		// 	collectedNeighbors.scorecards = append(collectedNeighbors.scorecards, v)
-		// 	path = append(path, v.Id)
-		// case *model.NeighborsNeighborsCertifyVEXStatement:
-		// 	collectedNeighbors.vexLinks = append(collectedNeighbors.vexLinks, v)
-		// 	path = append(path, v.Id)
 		case *model.NeighborsNeighborsHasSBOM:
 			foundSbomList = append(foundSbomList, v.DownloadLocation)
-		case *model.NeighborsNeighborsHasSLSA:
-			foundSlsaList = append(foundSlsaList, v.Slsa.Origin)
 		case *model.NeighborsNeighborsIsOccurrence:
 			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
-			artifactFilter := &model.ArtifactSpec{
-				Algorithm: &v.Artifact.Algorithm,
-				Digest:    &v.Artifact.Digest,
-			}
-			artifactResponse, err := model.Artifacts(ctx, s.gqlClient, *artifactFilter)
-			if err != nil {
-				continue
-			}
-			if len(artifactResponse.Artifacts) != 1 {
-				continue
-			}
-			neighborResponseHasSLSA, err := model.Neighbors(ctx, s.gqlClient, artifactResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactHasSlsa})
+			neighborResponseHasSLSA, err := model.Neighbors(ctx, s.gqlClient, v.Artifact.Id, []model.Edge{model.EdgeArtifactHasSlsa})
 			if err != nil {
 				continue
 			} else {
@@ -367,7 +449,7 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 		}
 	}
 
-	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, request.Purl, 0, true)
+	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
 		fmt.Print("fail")
 	}
@@ -375,7 +457,7 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 	foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
 
 	val := gen.GetPackageInformation200JSONResponse{
-		PurlInfoJSONResponse: gen.PurlInfoJSONResponse{
+		InfoJSONResponse: gen.InfoJSONResponse{
 			SbomList:        foundSbomList,
 			SlsaList:        foundSlsaList,
 			Vulnerabilities: foundVulnerabilities,
@@ -383,6 +465,26 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 	}
 
 	return val, nil
+}
+
+func getArtifactResponse(ctx context.Context, gqlclient graphql.Client, subject string) (*model.ArtifactsResponse, error) {
+	split := strings.Split(subject, ":")
+	if len(split) != 2 {
+		return nil, fmt.Errorf("failed to parse artifact. Needs to be in algorithm:digest form")
+	}
+	artifactFilter := &model.ArtifactSpec{
+		Algorithm: ptrfrom.String(strings.ToLower(string(split[0]))),
+		Digest:    ptrfrom.String(strings.ToLower(string(split[1]))),
+	}
+
+	artifactResponse, err := model.Artifacts(ctx, gqlclient, *artifactFilter)
+	if err != nil {
+		return nil, err
+	}
+	if len(artifactResponse.Artifacts) != 1 {
+		return nil, err
+	}
+	return artifactResponse, nil
 }
 
 func concurrentVulnAndVexNeighbors(ctx context.Context, gqlclient graphql.Client, pkgID string, isDep model.AllHasSBOMTreeIncludedDependenciesIsDependency, resultChan chan<- struct {
@@ -408,7 +510,7 @@ func concurrentVulnAndVexNeighbors(ctx context.Context, gqlclient graphql.Client
 // searchPkgViaHasSBOM takes in either a purl or URI for the initial value to find the hasSBOM node.
 // From there is recursively searches through all the dependencies to determine if it contains hasSBOM nodes.
 // It concurrent checks the package version node if it contains vulnerabilities and VEX data.
-func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, searchString string, maxLength int, isPurl bool) ([]string, error) {
+func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersionID string, maxLength int, isPurl bool) ([]string, error) {
 	checkedPkgIDs := make(map[string]bool)
 	var foundVulns []string
 
@@ -423,8 +525,8 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, searchSt
 	}
 	nodeMap := map[string]dfsNode{}
 
-	nodeMap[searchString] = dfsNode{}
-	queue = append(queue, searchString)
+	nodeMap[pkgVersionID] = dfsNode{}
+	queue = append(queue, pkgVersionID)
 
 	resultChan := make(chan struct {
 		pkgVersionNeighborResponse *model.NeighborsResponse
@@ -446,11 +548,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, searchSt
 		// if the initial depth, check if its a purl or an SBOM URI. Otherwise always search by pkgID
 		if nowNode.depth == 0 {
 			if isPurl {
-				pkgResponse, err := getPkgResponseFromPurl(ctx, gqlclient, now)
-				if err != nil {
-					return nil, fmt.Errorf("getPkgResponseFromPurl - error: %v", err)
-				}
-				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id}}})
+				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: ptrfrom.String(pkgVersionID)}}})
 				if err != nil {
 					return nil, fmt.Errorf("failed getting hasSBOM via purl: %s with error :%w", now, err)
 				}
@@ -461,9 +559,9 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, searchSt
 				}
 			}
 		} else {
-			foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &now}}})
+			foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: ptrfrom.String(now)}}})
 			if err != nil {
-				return nil, fmt.Errorf("failed getting hasSBOM via purl: %s with error :%w", now, err)
+				return nil, fmt.Errorf("failed getting hasSBOM via ID: %s with error :%w", now, err)
 			}
 		}
 

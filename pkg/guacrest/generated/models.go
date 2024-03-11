@@ -44,17 +44,17 @@ type BadGateway = Error
 // BadRequest defines model for BadRequest.
 type BadRequest = Error
 
-// InternalServerError defines model for InternalServerError.
-type InternalServerError = Error
-
-// PurlInfo defines model for PurlInfo.
-type PurlInfo struct {
+// Info defines model for Info.
+type Info struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
 	SbomList        []Sbom          `json:"SbomList"`
 	SlsaList        []Slsa          `json:"SlsaList"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
+
+// InternalServerError defines model for InternalServerError.
+type InternalServerError = Error
 
 // PurlList defines model for PurlList.
 type PurlList struct {
@@ -99,6 +99,38 @@ type AnalyzeDependenciesParams struct {
 
 // AnalyzeDependenciesParamsSort defines parameters for AnalyzeDependencies.
 type AnalyzeDependenciesParamsSort string
+
+// GetArtifactInformationParams defines parameters for GetArtifactInformation.
+type GetArtifactInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetArtifactSbomInformationParams defines parameters for GetArtifactSbomInformation.
+type GetArtifactSbomInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetArtifactSlsaInformationParams defines parameters for GetArtifactSlsaInformation.
+type GetArtifactSlsaInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
+
+// GetArtifactVulnInformationParams defines parameters for GetArtifactVulnInformation.
+type GetArtifactVulnInformationParams struct {
+	// PaginationSpec The pagination configuration for the query.
+	//   * 'PageSize' specifies the number of results returned
+	//   * 'Cursor' is returned by previous calls and specifies what page to return
+	PaginationSpec *PaginationSpec `form:"PaginationSpec,omitempty" json:"PaginationSpec,omitempty"`
+}
 
 // RetrieveDependenciesParams defines parameters for RetrieveDependencies.
 type RetrieveDependenciesParams struct {

@@ -22,6 +22,18 @@ type ServerInterface interface {
 	// Health check the server
 	// (GET /healthz)
 	HealthCheck(w http.ResponseWriter, r *http.Request)
+	// Get all information related to the artifact based on the hash
+	// (GET /query/artInfo/{hash})
+	GetArtifactInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactInformationParams)
+	// Get sbom location related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/sbom)
+	GetArtifactSbomInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSbomInformationParams)
+	// Get slsa location related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/slsa)
+	GetArtifactSlsaInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSlsaInformationParams)
+	// Get vulnerability information related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/vulns)
+	GetArtifactVulnInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactVulnInformationParams)
 	// Retrieve the dependencies of a package
 	// (GET /query/dependencies)
 	RetrieveDependencies(w http.ResponseWriter, r *http.Request, params RetrieveDependenciesParams)
@@ -52,6 +64,30 @@ func (_ Unimplemented) AnalyzeDependencies(w http.ResponseWriter, r *http.Reques
 // Health check the server
 // (GET /healthz)
 func (_ Unimplemented) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get all information related to the artifact based on the hash
+// (GET /query/artInfo/{hash})
+func (_ Unimplemented) GetArtifactInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get sbom location related to the artifact based on the hash
+// (GET /query/artInfo/{hash}/sbom)
+func (_ Unimplemented) GetArtifactSbomInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSbomInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get slsa location related to the artifact based on the hash
+// (GET /query/artInfo/{hash}/slsa)
+func (_ Unimplemented) GetArtifactSlsaInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSlsaInformationParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get vulnerability information related to the artifact based on the hash
+// (GET /query/artInfo/{hash}/vulns)
+func (_ Unimplemented) GetArtifactVulnInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactVulnInformationParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -143,6 +179,154 @@ func (siw *ServerInterfaceWrapper) HealthCheck(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HealthCheck(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetArtifactInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetArtifactInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "hash" -------------
+	var hash string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "hash", chi.URLParam(r, "hash"), &hash, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "hash", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetArtifactInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetArtifactInformation(w, r, hash, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetArtifactSbomInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetArtifactSbomInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "hash" -------------
+	var hash string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "hash", chi.URLParam(r, "hash"), &hash, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "hash", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetArtifactSbomInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetArtifactSbomInformation(w, r, hash, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetArtifactSlsaInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetArtifactSlsaInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "hash" -------------
+	var hash string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "hash", chi.URLParam(r, "hash"), &hash, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "hash", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetArtifactSlsaInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetArtifactSlsaInformation(w, r, hash, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetArtifactVulnInformation operation middleware
+func (siw *ServerInterfaceWrapper) GetArtifactVulnInformation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "hash" -------------
+	var hash string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "hash", chi.URLParam(r, "hash"), &hash, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "hash", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetArtifactVulnInformationParams
+
+	// ------------- Optional query parameter "PaginationSpec" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "PaginationSpec", r.URL.Query(), &params.PaginationSpec)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "PaginationSpec", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetArtifactVulnInformation(w, r, hash, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -463,6 +647,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/healthz", wrapper.HealthCheck)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/artInfo/{hash}", wrapper.GetArtifactInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/artInfo/{hash}/sbom", wrapper.GetArtifactSbomInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/artInfo/{hash}/slsa", wrapper.GetArtifactSlsaInformation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/query/artInfo/{hash}/vulns", wrapper.GetArtifactVulnInformation)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/query/dependencies", wrapper.RetrieveDependencies)
 	})
 	r.Group(func(r chi.Router) {
@@ -485,15 +681,15 @@ type BadGatewayJSONResponse Error
 
 type BadRequestJSONResponse Error
 
-type InternalServerErrorJSONResponse Error
-
-type PurlInfoJSONResponse struct {
+type InfoJSONResponse struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
 	SbomList        []Sbom          `json:"SbomList"`
 	SlsaList        []Slsa          `json:"SlsaList"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
+
+type InternalServerErrorJSONResponse Error
 
 type PurlListJSONResponse struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
@@ -581,6 +777,194 @@ func (response HealthCheck200JSONResponse) VisitHealthCheckResponse(w http.Respo
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetArtifactInformationRequestObject struct {
+	Hash   string `json:"hash"`
+	Params GetArtifactInformationParams
+}
+
+type GetArtifactInformationResponseObject interface {
+	VisitGetArtifactInformationResponse(w http.ResponseWriter) error
+}
+
+type GetArtifactInformation200JSONResponse struct{ InfoJSONResponse }
+
+func (response GetArtifactInformation200JSONResponse) VisitGetArtifactInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetArtifactInformation400JSONResponse) VisitGetArtifactInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetArtifactInformation500JSONResponse) VisitGetArtifactInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetArtifactInformation502JSONResponse) VisitGetArtifactInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSbomInformationRequestObject struct {
+	Hash   string `json:"hash"`
+	Params GetArtifactSbomInformationParams
+}
+
+type GetArtifactSbomInformationResponseObject interface {
+	VisitGetArtifactSbomInformationResponse(w http.ResponseWriter) error
+}
+
+type GetArtifactSbomInformation200JSONResponse struct{ SbomInfoJSONResponse }
+
+func (response GetArtifactSbomInformation200JSONResponse) VisitGetArtifactSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSbomInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetArtifactSbomInformation400JSONResponse) VisitGetArtifactSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSbomInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetArtifactSbomInformation500JSONResponse) VisitGetArtifactSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSbomInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetArtifactSbomInformation502JSONResponse) VisitGetArtifactSbomInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSlsaInformationRequestObject struct {
+	Hash   string `json:"hash"`
+	Params GetArtifactSlsaInformationParams
+}
+
+type GetArtifactSlsaInformationResponseObject interface {
+	VisitGetArtifactSlsaInformationResponse(w http.ResponseWriter) error
+}
+
+type GetArtifactSlsaInformation200JSONResponse struct{ SlsaInfoJSONResponse }
+
+func (response GetArtifactSlsaInformation200JSONResponse) VisitGetArtifactSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSlsaInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetArtifactSlsaInformation400JSONResponse) VisitGetArtifactSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSlsaInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetArtifactSlsaInformation500JSONResponse) VisitGetArtifactSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactSlsaInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetArtifactSlsaInformation502JSONResponse) VisitGetArtifactSlsaInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactVulnInformationRequestObject struct {
+	Hash   string `json:"hash"`
+	Params GetArtifactVulnInformationParams
+}
+
+type GetArtifactVulnInformationResponseObject interface {
+	VisitGetArtifactVulnInformationResponse(w http.ResponseWriter) error
+}
+
+type GetArtifactVulnInformation200JSONResponse struct{ VulnInfoJSONResponse }
+
+func (response GetArtifactVulnInformation200JSONResponse) VisitGetArtifactVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactVulnInformation400JSONResponse struct{ BadRequestJSONResponse }
+
+func (response GetArtifactVulnInformation400JSONResponse) VisitGetArtifactVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactVulnInformation500JSONResponse struct {
+	InternalServerErrorJSONResponse
+}
+
+func (response GetArtifactVulnInformation500JSONResponse) VisitGetArtifactVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetArtifactVulnInformation502JSONResponse struct{ BadGatewayJSONResponse }
+
+func (response GetArtifactVulnInformation502JSONResponse) VisitGetArtifactVulnInformationResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type RetrieveDependenciesRequestObject struct {
 	Params RetrieveDependenciesParams
 }
@@ -636,7 +1020,7 @@ type GetPackageInformationResponseObject interface {
 	VisitGetPackageInformationResponse(w http.ResponseWriter) error
 }
 
-type GetPackageInformation200JSONResponse struct{ PurlInfoJSONResponse }
+type GetPackageInformation200JSONResponse struct{ InfoJSONResponse }
 
 func (response GetPackageInformation200JSONResponse) VisitGetPackageInformationResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -823,6 +1207,18 @@ type StrictServerInterface interface {
 	// Health check the server
 	// (GET /healthz)
 	HealthCheck(ctx context.Context, request HealthCheckRequestObject) (HealthCheckResponseObject, error)
+	// Get all information related to the artifact based on the hash
+	// (GET /query/artInfo/{hash})
+	GetArtifactInformation(ctx context.Context, request GetArtifactInformationRequestObject) (GetArtifactInformationResponseObject, error)
+	// Get sbom location related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/sbom)
+	GetArtifactSbomInformation(ctx context.Context, request GetArtifactSbomInformationRequestObject) (GetArtifactSbomInformationResponseObject, error)
+	// Get slsa location related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/slsa)
+	GetArtifactSlsaInformation(ctx context.Context, request GetArtifactSlsaInformationRequestObject) (GetArtifactSlsaInformationResponseObject, error)
+	// Get vulnerability information related to the artifact based on the hash
+	// (GET /query/artInfo/{hash}/vulns)
+	GetArtifactVulnInformation(ctx context.Context, request GetArtifactVulnInformationRequestObject) (GetArtifactVulnInformationResponseObject, error)
 	// Retrieve the dependencies of a package
 	// (GET /query/dependencies)
 	RetrieveDependencies(ctx context.Context, request RetrieveDependenciesRequestObject) (RetrieveDependenciesResponseObject, error)
@@ -912,6 +1308,114 @@ func (sh *strictHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(HealthCheckResponseObject); ok {
 		if err := validResponse.VisitHealthCheckResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetArtifactInformation operation middleware
+func (sh *strictHandler) GetArtifactInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactInformationParams) {
+	var request GetArtifactInformationRequestObject
+
+	request.Hash = hash
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetArtifactInformation(ctx, request.(GetArtifactInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetArtifactInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetArtifactInformationResponseObject); ok {
+		if err := validResponse.VisitGetArtifactInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetArtifactSbomInformation operation middleware
+func (sh *strictHandler) GetArtifactSbomInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSbomInformationParams) {
+	var request GetArtifactSbomInformationRequestObject
+
+	request.Hash = hash
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetArtifactSbomInformation(ctx, request.(GetArtifactSbomInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetArtifactSbomInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetArtifactSbomInformationResponseObject); ok {
+		if err := validResponse.VisitGetArtifactSbomInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetArtifactSlsaInformation operation middleware
+func (sh *strictHandler) GetArtifactSlsaInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactSlsaInformationParams) {
+	var request GetArtifactSlsaInformationRequestObject
+
+	request.Hash = hash
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetArtifactSlsaInformation(ctx, request.(GetArtifactSlsaInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetArtifactSlsaInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetArtifactSlsaInformationResponseObject); ok {
+		if err := validResponse.VisitGetArtifactSlsaInformationResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetArtifactVulnInformation operation middleware
+func (sh *strictHandler) GetArtifactVulnInformation(w http.ResponseWriter, r *http.Request, hash string, params GetArtifactVulnInformationParams) {
+	var request GetArtifactVulnInformationRequestObject
+
+	request.Hash = hash
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetArtifactVulnInformation(ctx, request.(GetArtifactVulnInformationRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetArtifactVulnInformation")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetArtifactVulnInformationResponseObject); ok {
+		if err := validResponse.VisitGetArtifactVulnInformationResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

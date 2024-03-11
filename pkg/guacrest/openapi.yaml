@@ -90,7 +90,7 @@ paths:
            type: string
      responses:
        "200":
-         $ref: "#/components/responses/PurlInfo"
+         $ref: "#/components/responses/Info"
        "400":
          $ref: "#/components/responses/BadRequest"
        "500":
@@ -160,6 +160,90 @@ paths:
          $ref: "#/components/responses/InternalServerError"
        "502":
          $ref: "#/components/responses/BadGateway"
+  "/query/artInfo/{hash}":
+   get:
+     summary: Get all information related to the artifact based on the hash
+     operationId: getArtifactInformation
+     parameters:
+       - $ref: "#/components/parameters/PaginationSpec"
+       - name: hash
+         description: the hash of the artifact
+         in: path
+         required: true
+         schema:
+           type: string
+     responses:
+       "200":
+         $ref: "#/components/responses/Info"
+       "400":
+         $ref: "#/components/responses/BadRequest"
+       "500":
+         $ref: "#/components/responses/InternalServerError"
+       "502":
+         $ref: "#/components/responses/BadGateway"
+  "/query/artInfo/{hash}/vulns":
+   get:
+     summary: Get vulnerability information related to the artifact based on the hash
+     operationId: getArtifactVulnInformation
+     parameters:
+       - $ref: "#/components/parameters/PaginationSpec"
+       - name: hash
+         description: the hash of the artifact
+         in: path
+         required: true
+         schema:
+           type: string
+     responses:
+       "200":
+         $ref: "#/components/responses/VulnInfo"
+       "400":
+         $ref: "#/components/responses/BadRequest"
+       "500":
+         $ref: "#/components/responses/InternalServerError"
+       "502":
+         $ref: "#/components/responses/BadGateway"
+  "/query/artInfo/{hash}/sbom":
+   get:
+     summary: Get sbom location related to the artifact based on the hash
+     operationId: getArtifactSbomInformation
+     parameters:
+       - $ref: "#/components/parameters/PaginationSpec"
+       - name: hash
+         description: the hash of the artifact
+         in: path
+         required: true
+         schema:
+           type: string
+     responses:
+       "200":
+         $ref: "#/components/responses/SbomInfo"
+       "400":
+         $ref: "#/components/responses/BadRequest"
+       "500":
+         $ref: "#/components/responses/InternalServerError"
+       "502":
+         $ref: "#/components/responses/BadGateway"
+  "/query/artInfo/{hash}/slsa":
+   get:
+     summary: Get slsa location related to the artifact based on the hash
+     operationId: getArtifactSlsaInformation
+     parameters:
+       - $ref: "#/components/parameters/PaginationSpec"
+       - name: hash
+         description: the hash of the artifact
+         in: path
+         required: true
+         schema:
+           type: string
+     responses:
+       "200":
+         $ref: "#/components/responses/SlsaInfo"
+       "400":
+         $ref: "#/components/responses/BadRequest"
+       "500":
+         $ref: "#/components/responses/InternalServerError"
+       "502":
+         $ref: "#/components/responses/BadGateway"
 components:
   parameters:
     PaginationSpec:
@@ -205,8 +289,8 @@ components:
           type: string
   responses:
     # for code 200
-    PurlInfo:
-      description: purl information
+    Info:
+      description: bulk information
       content:
         application/json:
           schema:

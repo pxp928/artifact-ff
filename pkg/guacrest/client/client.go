@@ -94,6 +94,18 @@ type ClientInterface interface {
 	// HealthCheck request
 	HealthCheck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetArtifactInformation request
+	GetArtifactInformation(ctx context.Context, hash string, params *GetArtifactInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetArtifactSbomInformation request
+	GetArtifactSbomInformation(ctx context.Context, hash string, params *GetArtifactSbomInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetArtifactSlsaInformation request
+	GetArtifactSlsaInformation(ctx context.Context, hash string, params *GetArtifactSlsaInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetArtifactVulnInformation request
+	GetArtifactVulnInformation(ctx context.Context, hash string, params *GetArtifactVulnInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RetrieveDependencies request
 	RetrieveDependencies(ctx context.Context, params *RetrieveDependenciesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -124,6 +136,54 @@ func (c *Client) AnalyzeDependencies(ctx context.Context, params *AnalyzeDepende
 
 func (c *Client) HealthCheck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewHealthCheckRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetArtifactInformation(ctx context.Context, hash string, params *GetArtifactInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetArtifactInformationRequest(c.Server, hash, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetArtifactSbomInformation(ctx context.Context, hash string, params *GetArtifactSbomInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetArtifactSbomInformationRequest(c.Server, hash, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetArtifactSlsaInformation(ctx context.Context, hash string, params *GetArtifactSlsaInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetArtifactSlsaInformationRequest(c.Server, hash, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetArtifactVulnInformation(ctx context.Context, hash string, params *GetArtifactVulnInformationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetArtifactVulnInformationRequest(c.Server, hash, params)
 	if err != nil {
 		return nil, err
 	}
@@ -272,6 +332,230 @@ func NewHealthCheckRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetArtifactInformationRequest generates requests for GetArtifactInformation
+func NewGetArtifactInformationRequest(server string, hash string, params *GetArtifactInformationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hash", runtime.ParamLocationPath, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/query/artInfo/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PaginationSpec != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "PaginationSpec", runtime.ParamLocationQuery, *params.PaginationSpec); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetArtifactSbomInformationRequest generates requests for GetArtifactSbomInformation
+func NewGetArtifactSbomInformationRequest(server string, hash string, params *GetArtifactSbomInformationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hash", runtime.ParamLocationPath, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/query/artInfo/%s/sbom", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PaginationSpec != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "PaginationSpec", runtime.ParamLocationQuery, *params.PaginationSpec); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetArtifactSlsaInformationRequest generates requests for GetArtifactSlsaInformation
+func NewGetArtifactSlsaInformationRequest(server string, hash string, params *GetArtifactSlsaInformationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hash", runtime.ParamLocationPath, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/query/artInfo/%s/slsa", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PaginationSpec != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "PaginationSpec", runtime.ParamLocationQuery, *params.PaginationSpec); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetArtifactVulnInformationRequest generates requests for GetArtifactVulnInformation
+func NewGetArtifactVulnInformationRequest(server string, hash string, params *GetArtifactVulnInformationParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hash", runtime.ParamLocationPath, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/query/artInfo/%s/vulns", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PaginationSpec != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "PaginationSpec", runtime.ParamLocationQuery, *params.PaginationSpec); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -616,6 +900,18 @@ type ClientWithResponsesInterface interface {
 	// HealthCheckWithResponse request
 	HealthCheckWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HealthCheckResponse, error)
 
+	// GetArtifactInformationWithResponse request
+	GetArtifactInformationWithResponse(ctx context.Context, hash string, params *GetArtifactInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactInformationResponse, error)
+
+	// GetArtifactSbomInformationWithResponse request
+	GetArtifactSbomInformationWithResponse(ctx context.Context, hash string, params *GetArtifactSbomInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactSbomInformationResponse, error)
+
+	// GetArtifactSlsaInformationWithResponse request
+	GetArtifactSlsaInformationWithResponse(ctx context.Context, hash string, params *GetArtifactSlsaInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactSlsaInformationResponse, error)
+
+	// GetArtifactVulnInformationWithResponse request
+	GetArtifactVulnInformationWithResponse(ctx context.Context, hash string, params *GetArtifactVulnInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactVulnInformationResponse, error)
+
 	// RetrieveDependenciesWithResponse request
 	RetrieveDependenciesWithResponse(ctx context.Context, params *RetrieveDependenciesParams, reqEditors ...RequestEditorFn) (*RetrieveDependenciesResponse, error)
 
@@ -679,6 +975,106 @@ func (r HealthCheckResponse) StatusCode() int {
 	return 0
 }
 
+type GetArtifactInformationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Info
+	JSON400      *BadRequest
+	JSON500      *InternalServerError
+	JSON502      *BadGateway
+}
+
+// Status returns HTTPResponse.Status
+func (r GetArtifactInformationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetArtifactInformationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetArtifactSbomInformationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SbomInfo
+	JSON400      *BadRequest
+	JSON500      *InternalServerError
+	JSON502      *BadGateway
+}
+
+// Status returns HTTPResponse.Status
+func (r GetArtifactSbomInformationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetArtifactSbomInformationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetArtifactSlsaInformationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SlsaInfo
+	JSON400      *BadRequest
+	JSON500      *InternalServerError
+	JSON502      *BadGateway
+}
+
+// Status returns HTTPResponse.Status
+func (r GetArtifactSlsaInformationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetArtifactSlsaInformationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetArtifactVulnInformationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *VulnInfo
+	JSON400      *BadRequest
+	JSON500      *InternalServerError
+	JSON502      *BadGateway
+}
+
+// Status returns HTTPResponse.Status
+func (r GetArtifactVulnInformationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetArtifactVulnInformationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RetrieveDependenciesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -707,7 +1103,7 @@ func (r RetrieveDependenciesResponse) StatusCode() int {
 type GetPackageInformationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *PurlInfo
+	JSON200      *Info
 	JSON400      *BadRequest
 	JSON500      *InternalServerError
 	JSON502      *BadGateway
@@ -820,6 +1216,42 @@ func (c *ClientWithResponses) HealthCheckWithResponse(ctx context.Context, reqEd
 		return nil, err
 	}
 	return ParseHealthCheckResponse(rsp)
+}
+
+// GetArtifactInformationWithResponse request returning *GetArtifactInformationResponse
+func (c *ClientWithResponses) GetArtifactInformationWithResponse(ctx context.Context, hash string, params *GetArtifactInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactInformationResponse, error) {
+	rsp, err := c.GetArtifactInformation(ctx, hash, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetArtifactInformationResponse(rsp)
+}
+
+// GetArtifactSbomInformationWithResponse request returning *GetArtifactSbomInformationResponse
+func (c *ClientWithResponses) GetArtifactSbomInformationWithResponse(ctx context.Context, hash string, params *GetArtifactSbomInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactSbomInformationResponse, error) {
+	rsp, err := c.GetArtifactSbomInformation(ctx, hash, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetArtifactSbomInformationResponse(rsp)
+}
+
+// GetArtifactSlsaInformationWithResponse request returning *GetArtifactSlsaInformationResponse
+func (c *ClientWithResponses) GetArtifactSlsaInformationWithResponse(ctx context.Context, hash string, params *GetArtifactSlsaInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactSlsaInformationResponse, error) {
+	rsp, err := c.GetArtifactSlsaInformation(ctx, hash, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetArtifactSlsaInformationResponse(rsp)
+}
+
+// GetArtifactVulnInformationWithResponse request returning *GetArtifactVulnInformationResponse
+func (c *ClientWithResponses) GetArtifactVulnInformationWithResponse(ctx context.Context, hash string, params *GetArtifactVulnInformationParams, reqEditors ...RequestEditorFn) (*GetArtifactVulnInformationResponse, error) {
+	rsp, err := c.GetArtifactVulnInformation(ctx, hash, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetArtifactVulnInformationResponse(rsp)
 }
 
 // RetrieveDependenciesWithResponse request returning *RetrieveDependenciesResponse
@@ -940,6 +1372,194 @@ func ParseHealthCheckResponse(rsp *http.Response) (*HealthCheckResponse, error) 
 	return response, nil
 }
 
+// ParseGetArtifactInformationResponse parses an HTTP response from a GetArtifactInformationWithResponse call
+func ParseGetArtifactInformationResponse(rsp *http.Response) (*GetArtifactInformationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetArtifactInformationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Info
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGateway
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetArtifactSbomInformationResponse parses an HTTP response from a GetArtifactSbomInformationWithResponse call
+func ParseGetArtifactSbomInformationResponse(rsp *http.Response) (*GetArtifactSbomInformationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetArtifactSbomInformationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SbomInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGateway
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetArtifactSlsaInformationResponse parses an HTTP response from a GetArtifactSlsaInformationWithResponse call
+func ParseGetArtifactSlsaInformationResponse(rsp *http.Response) (*GetArtifactSlsaInformationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetArtifactSlsaInformationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SlsaInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGateway
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetArtifactVulnInformationResponse parses an HTTP response from a GetArtifactVulnInformationWithResponse call
+func ParseGetArtifactVulnInformationResponse(rsp *http.Response) (*GetArtifactVulnInformationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetArtifactVulnInformationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VulnInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGateway
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRetrieveDependenciesResponse parses an HTTP response from a RetrieveDependenciesWithResponse call
 func ParseRetrieveDependenciesResponse(rsp *http.Response) (*RetrieveDependenciesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1002,7 +1622,7 @@ func ParseGetPackageInformationResponse(rsp *http.Response) (*GetPackageInformat
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest PurlInfo
+		var dest Info
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
