@@ -96,17 +96,6 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 
 			switch sub := v.Subject.(type) {
 			case *model.AllIsOccurrencesTreeSubjectPackage:
-				neighborResponseCertifyVuln, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageCertifyVuln})
-				if err != nil {
-					continue
-				} else {
-					for _, neighborCertifyVuln := range neighborResponseCertifyVuln.Neighbors {
-						if certVuln, ok := neighborCertifyVuln.(*model.NeighborsNeighborsCertifyVuln); ok {
-							foundVulnerabilities = append(foundVulnerabilities, certVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
-						}
-					}
-				}
-
 				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
 				if err != nil {
 					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
@@ -243,20 +232,9 @@ func (s *DefaultServer) GetArtifactVulnInformation(ctx context.Context, request 
 			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
 			switch sub := v.Subject.(type) {
 			case *model.AllIsOccurrencesTreeSubjectPackage:
-				neighborResponseCertifyVuln, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageCertifyVuln})
-				if err != nil {
-					continue
-				} else {
-					for _, neighborCertifyVuln := range neighborResponseCertifyVuln.Neighbors {
-						if certVuln, ok := neighborCertifyVuln.(*model.NeighborsNeighborsCertifyVuln); ok {
-							foundVulnerabilities = append(foundVulnerabilities, certVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
-						}
-					}
-				}
-
 				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
 				if err != nil {
-					fmt.Print("fail")
+					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 				}
 
 				foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
@@ -394,7 +372,7 @@ func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request g
 
 	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
-		fmt.Print("fail")
+		return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 	}
 
 	foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
@@ -451,7 +429,7 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 
 	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
-		fmt.Print("fail")
+		return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 	}
 
 	foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
@@ -626,10 +604,11 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 	checkedCertifyVulnIDs := make(map[string]bool)
 
 	// Collect results from the channel
-	for result := range resultChan {
-		neighborVulns := make(map[string]*model.NeighborsNeighborsCertifyVuln)
-		neighborVex := make(map[string]*model.NeighborsNeighborsCertifyVEXStatement)
 
+	neighborVulns := make(map[string]*model.NeighborsNeighborsCertifyVuln)
+	neighborVex := make(map[string]*model.NeighborsNeighborsCertifyVEXStatement)
+
+	for result := range resultChan {
 		for _, neighbor := range result.pkgVersionNeighborResponse.Neighbors {
 			if certifyVuln, ok := neighbor.(*model.NeighborsNeighborsCertifyVuln); ok {
 				if !checkedCertifyVulnIDs[certifyVuln.Id] {
@@ -648,10 +627,10 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 				}
 			}
 		}
-
-		foundVulns = append(foundVulns, removeVulnsWithValidVex(neighborVex, neighborVulns)...)
-
 	}
+
+	foundVulns = append(foundVulns, removeVulnsWithValidVex(neighborVex, neighborVulns)...)
+
 	return foundVulns, nil
 }
 
@@ -761,14 +740,18 @@ func queryVulnsViaPackageNeighbors(ctx context.Context, gqlclient graphql.Client
 
 func removeVulnsWithValidVex(neighborVex map[string]*model.NeighborsNeighborsCertifyVEXStatement, neighborVulns map[string]*model.NeighborsNeighborsCertifyVuln) []string {
 	var vulns []string
+
+	for _, foundVuln := range neighborVulns {
+		foundVuln := foundVuln
+		vulns = append(vulns, foundVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
+	}
+
 	for vulnID, foundVex := range neighborVex {
+		foundVex := foundVex
 		if foundVex.Status == model.VexStatusFixed || foundVex.Status == model.VexStatusNotAffected {
 			delete(neighborVulns, vulnID)
 		}
 	}
 
-	for _, foundVuln := range neighborVulns {
-		vulns = append(vulns, foundVuln.Vulnerability.VulnerabilityIDs[0].VulnerabilityID)
-	}
 	return vulns
 }
