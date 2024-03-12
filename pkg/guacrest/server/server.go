@@ -26,7 +26,6 @@ import (
 	model "github.com/guacsec/guac/pkg/assembler/clients/generated"
 	"github.com/guacsec/guac/pkg/assembler/helpers"
 	gen "github.com/guacsec/guac/pkg/guacrest/generated"
-	"github.com/guacsec/guac/pkg/logging"
 	"github.com/guacsec/guac/pkg/misc/depversion"
 )
 
@@ -468,13 +467,13 @@ func getArtifactResponse(ctx context.Context, gqlclient graphql.Client, subject 
 func concurrentVulnAndVexNeighbors(ctx context.Context, gqlclient graphql.Client, pkgID string, isDep model.AllHasSBOMTreeIncludedDependenciesIsDependency, resultChan chan<- struct {
 	pkgVersionNeighborResponse *model.NeighborsResponse
 	isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
-}, wg *sync.WaitGroup) {
+}, wg *sync.WaitGroup, errChan chan<- error) {
+
 	defer wg.Done()
 
-	logger := logging.FromContext(ctx)
 	pkgVersionNeighborResponse, err := model.Neighbors(ctx, gqlclient, pkgID, []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement})
 	if err != nil {
-		logger.Errorf("error querying neighbor for vulnerability: %w", err)
+		errChan <- fmt.Errorf("error querying neighbor via pkgID: %s for vulnerability: %w", pkgID, err)
 		return
 	}
 
@@ -511,6 +510,8 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 		isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
 	})
 
+	errChan := make(chan error)
+
 	for len(queue) > 0 {
 		now := queue[0]
 		queue = queue[1:]
@@ -526,7 +527,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 		// if the initial depth, check if its a purl or an SBOM URI. Otherwise always search by pkgID
 		if nowNode.depth == 0 {
 			if isPurl {
-				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: ptrfrom.String(pkgVersionID)}}})
+				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &pkgVersionID}}})
 				if err != nil {
 					return nil, fmt.Errorf("failed getting hasSBOM via purl: %s with error :%w", now, err)
 				}
@@ -537,7 +538,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 				}
 			}
 		} else {
-			foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: ptrfrom.String(now)}}})
+			foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &now}}})
 			if err != nil {
 				return nil, fmt.Errorf("failed getting hasSBOM via ID: %s with error :%w", now, err)
 			}
@@ -586,7 +587,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 						queue = append(queue, pkgID)
 					}
 					wg.Add(1)
-					go concurrentVulnAndVexNeighbors(ctx, gqlclient, pkgID, isDep, resultChan, &wg)
+					go concurrentVulnAndVexNeighbors(ctx, gqlclient, pkgID, isDep, resultChan, &wg, errChan)
 					checkedPkgIDs[pkgID] = true
 				}
 			}
@@ -599,6 +600,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 	go func() {
 		wg.Wait()
 		close(resultChan)
+		close(errChan)
 	}()
 
 	checkedCertifyVulnIDs := make(map[string]bool)
@@ -626,6 +628,12 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 					neighborVex[vuln.Id] = certifyVex
 				}
 			}
+		}
+	}
+
+	for err := range errChan {
+		if err != nil {
+			return nil, err
 		}
 	}
 
