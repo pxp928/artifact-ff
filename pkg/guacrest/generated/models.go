@@ -9,6 +9,9 @@ const (
 	Scorecard AnalyzeDependenciesParamsSort = "scorecard"
 )
 
+// CertifyBad defines model for CertifyBad.
+type CertifyBad = string
+
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"Message"`
@@ -50,6 +53,7 @@ type Info struct {
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
 	SbomList        []Sbom          `json:"SbomList"`
 	SlsaList        []Slsa          `json:"SlsaList"`
+	CertifyBads     []CertifyBad    `json:"certifyBads"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 
@@ -81,6 +85,7 @@ type SlsaInfo struct {
 type VulnInfo struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	CertifyBads     []CertifyBad    `json:"certifyBads"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 

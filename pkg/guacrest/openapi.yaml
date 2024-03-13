@@ -266,6 +266,8 @@ components:
       type: string
     Vulnerability:
       type: string
+    CertifyBad:
+      type: string
     Slsa:
       type: string
     Sbom:
@@ -297,6 +299,7 @@ components:
             type: object
             required: 
               - PaginationInfo
+              - certifyBads
               - vulnerabilities
               - SbomList
               - SlsaList
@@ -307,6 +310,10 @@ components:
                 type: array
                 items: 
                   $ref: "#/components/schemas/Vulnerability"
+              certifyBads:
+                type: array
+                items: 
+                  $ref: "#/components/schemas/CertifyBad"
               SbomList:
                 type: array
                 items: 
@@ -324,6 +331,8 @@ components:
             required: 
               - PaginationInfo
               - vulnerabilities
+              - certifyBads
+
             properties:
               PaginationInfo:
                 $ref: "#/components/schemas/PaginationInfo"
@@ -331,6 +340,10 @@ components:
                 type: array
                 items: 
                   $ref: "#/components/schemas/Vulnerability"
+              certifyBads:
+                type: array
+                items: 
+                  $ref: "#/components/schemas/CertifyBad"
     SbomInfo:
       description: sbom location
       content:

@@ -686,6 +686,7 @@ type InfoJSONResponse struct {
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
 	SbomList        []Sbom          `json:"SbomList"`
 	SlsaList        []Slsa          `json:"SlsaList"`
+	CertifyBads     []CertifyBad    `json:"certifyBads"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 
@@ -712,6 +713,7 @@ type SlsaInfoJSONResponse struct {
 type VulnInfoJSONResponse struct {
 	// PaginationInfo Contains the cursor to retrieve more pages. If there are no more,  NextCursor will be nil.
 	PaginationInfo  PaginationInfo  `json:"PaginationInfo"`
+	CertifyBads     []CertifyBad    `json:"certifyBads"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 

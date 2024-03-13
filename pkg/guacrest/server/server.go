@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/guacsec/guac/internal/testing/ptrfrom"
@@ -83,6 +82,7 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 	var foundSbomList []gen.Sbom
 	var foundSlsaList []gen.Slsa
 	var foundVulnerabilities []gen.Vulnerability
+	var foundBads []string
 
 	for _, neighbor := range neighborResponse.Neighbors {
 		switch v := neighbor.(type) {
@@ -95,11 +95,12 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 
 			switch sub := v.Subject.(type) {
 			case *model.AllIsOccurrencesTreeSubjectPackage:
-				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
+				vulnsList, badlist, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
 				if err != nil {
 					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 				}
 
+				foundBads = append(foundBads, badlist...)
 				foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
 
 				neighborResponseSBOM, err := model.Neighbors(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, []model.Edge{model.EdgePackageHasSbom})
@@ -127,6 +128,7 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 			SbomList:        foundSbomList,
 			SlsaList:        foundSlsaList,
 			Vulnerabilities: foundVulnerabilities,
+			CertifyBads:     foundBads,
 		},
 	}
 
@@ -224,19 +226,20 @@ func (s *DefaultServer) GetArtifactVulnInformation(ctx context.Context, request 
 	}
 
 	var foundVulnerabilities []gen.Vulnerability
-
+	var foundBads []string
 	for _, neighbor := range neighborResponse.Neighbors {
 		switch v := neighbor.(type) {
 		case *model.NeighborsNeighborsIsOccurrence:
 			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
 			switch sub := v.Subject.(type) {
 			case *model.AllIsOccurrencesTreeSubjectPackage:
-				vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
+				vulnsList, badList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
 				if err != nil {
 					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 				}
 
 				foundVulnerabilities = append(foundVulnerabilities, vulnsList...)
+				foundBads = append(foundBads, badList...)
 
 			case *model.AllIsOccurrencesTreeSubjectSource:
 				continue
@@ -250,6 +253,7 @@ func (s *DefaultServer) GetArtifactVulnInformation(ctx context.Context, request 
 	val := gen.GetArtifactVulnInformation200JSONResponse{
 		VulnInfoJSONResponse: gen.VulnInfoJSONResponse{
 			Vulnerabilities: foundVulnerabilities,
+			CertifyBads:     foundBads,
 		},
 	}
 
@@ -369,7 +373,7 @@ func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request g
 		}
 	}
 
-	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
+	vulnsList, badList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
 		return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 	}
@@ -379,6 +383,7 @@ func (s *DefaultServer) GetPackageVulnInformation(ctx context.Context, request g
 	val := gen.GetPackageVulnInformation200JSONResponse{
 		VulnInfoJSONResponse: gen.VulnInfoJSONResponse{
 			Vulnerabilities: foundVulnerabilities,
+			CertifyBads:     badList,
 		},
 	}
 
@@ -426,7 +431,7 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 		}
 	}
 
-	vulnsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
+	vulnsList, badsList, err := searchPkgViaHasSBOM(ctx, s.gqlClient, pkgResponse.Packages[0].Namespaces[0].Names[0].Versions[0].Id, 0, true)
 	if err != nil {
 		return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
 	}
@@ -438,6 +443,7 @@ func (s *DefaultServer) GetPackageInformation(ctx context.Context, request gen.G
 			SbomList:        foundSbomList,
 			SlsaList:        foundSlsaList,
 			Vulnerabilities: foundVulnerabilities,
+			CertifyBads:     badsList,
 		},
 	}
 
@@ -464,34 +470,34 @@ func getArtifactResponse(ctx context.Context, gqlclient graphql.Client, subject 
 	return artifactResponse, nil
 }
 
-func concurrentVulnAndVexNeighbors(ctx context.Context, gqlclient graphql.Client, pkgID string, isDep model.AllHasSBOMTreeIncludedDependenciesIsDependency, resultChan chan<- struct {
-	pkgVersionNeighborResponse *model.NeighborsResponse
-	isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
-}, wg *sync.WaitGroup, errChan chan<- error) {
+// func concurrentVulnAndVexNeighbors(ctx context.Context, gqlclient graphql.Client, pkgID string, isDep model.AllHasSBOMTreeIncludedDependenciesIsDependency, resultChan chan<- struct {
+// 	pkgVersionNeighborResponse *model.NeighborsResponse
+// 	isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
+// }, wg *sync.WaitGroup, errChan chan<- error) {
 
-	defer wg.Done()
+// 	defer wg.Done()
 
-	pkgVersionNeighborResponse, err := model.Neighbors(ctx, gqlclient, pkgID, []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement})
-	if err != nil {
-		errChan <- fmt.Errorf("error querying neighbor via pkgID: %s for vulnerability: %w", pkgID, err)
-		return
-	}
+// 	pkgVersionNeighborResponse, err := model.Neighbors(ctx, gqlclient, pkgID, []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement})
+// 	if err != nil {
+// 		errChan <- fmt.Errorf("error querying neighbor via pkgID: %s for vulnerability: %w", pkgID, err)
+// 		return
+// 	}
 
-	// Send the results to the resultChan
-	resultChan <- struct {
-		pkgVersionNeighborResponse *model.NeighborsResponse
-		isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
-	}{pkgVersionNeighborResponse, isDep}
-}
+// 	// Send the results to the resultChan
+// 	resultChan <- struct {
+// 		pkgVersionNeighborResponse *model.NeighborsResponse
+// 		isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
+// 	}{pkgVersionNeighborResponse, isDep}
+// }
 
 // searchPkgViaHasSBOM takes in either a purl or URI for the initial value to find the hasSBOM node.
 // From there is recursively searches through all the dependencies to determine if it contains hasSBOM nodes.
 // It concurrent checks the package version node if it contains vulnerabilities and VEX data.
-func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersionID string, maxLength int, isPurl bool) ([]string, error) {
+func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersionID string, maxLength int, isPurl bool) ([]string, []string, error) {
 	checkedPkgIDs := make(map[string]bool)
 	var foundVulns []string
 
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 
 	queue := make([]string, 0) // the queue of nodes in bfs
 	type dfsNode struct {
@@ -505,12 +511,18 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 	nodeMap[pkgVersionID] = dfsNode{}
 	queue = append(queue, pkgVersionID)
 
-	resultChan := make(chan struct {
-		pkgVersionNeighborResponse *model.NeighborsResponse
-		isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
-	})
+	// resultChan := make(chan struct {
+	// 	pkgVersionNeighborResponse *model.NeighborsResponse
+	// 	isDep                      model.AllHasSBOMTreeIncludedDependenciesIsDependency
+	// })
 
-	errChan := make(chan error)
+	// errChan := make(chan error)
+
+	checkedCertifyVulnIDs := make(map[string]bool)
+
+	neighborVulns := make(map[string]*model.NeighborsNeighborsCertifyVuln)
+	neighborVex := make(map[string]*model.NeighborsNeighborsCertifyVEXStatement)
+	var foundCertifyBad []string
 
 	for len(queue) > 0 {
 		now := queue[0]
@@ -529,18 +541,18 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 			if isPurl {
 				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &pkgVersionID}}})
 				if err != nil {
-					return nil, fmt.Errorf("failed getting hasSBOM via purl: %s with error :%w", now, err)
+					return nil, nil, fmt.Errorf("failed getting hasSBOM via purl: %s with error :%w", now, err)
 				}
 			} else {
 				foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Uri: &now})
 				if err != nil {
-					return nil, fmt.Errorf("failed getting hasSBOM via URI: %s with error: %w", now, err)
+					return nil, nil, fmt.Errorf("failed getting hasSBOM via URI: %s with error: %w", now, err)
 				}
 			}
 		} else {
 			foundHasSBOMPkg, err = model.HasSBOMs(ctx, gqlclient, model.HasSBOMSpec{Subject: &model.PackageOrArtifactSpec{Package: &model.PkgSpec{Id: &now}}})
 			if err != nil {
-				return nil, fmt.Errorf("failed getting hasSBOM via ID: %s with error :%w", now, err)
+				return nil, nil, fmt.Errorf("failed getting hasSBOM via ID: %s with error :%w", now, err)
 			}
 		}
 
@@ -548,12 +560,13 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 			if pkgResponse, ok := foundHasSBOMPkg.HasSBOM[0].Subject.(*model.AllHasSBOMTreeSubjectPackage); ok {
 				if pkgResponse.Type != guacType {
 					if !checkedPkgIDs[pkgResponse.Namespaces[0].Names[0].Versions[0].Id] {
-						vulnPath, err := queryVulnsViaPackageNeighbors(ctx, gqlclient, pkgResponse.Namespaces[0].Names[0].Versions[0].Id)
+						vulnPath, bads, err := queryVulnsViaPackageNeighbors(ctx, gqlclient, pkgResponse.Namespaces[0].Names[0].Versions[0].Id)
 						if err != nil {
-							return nil, fmt.Errorf("error querying neighbor: %v", err)
+							return nil, nil, fmt.Errorf("error querying neighbor: %v", err)
 						}
 
 						foundVulns = append(foundVulns, vulnPath...)
+						foundCertifyBad = append(foundCertifyBad, bads...)
 						checkedPkgIDs[pkgResponse.Namespaces[0].Names[0].Versions[0].Id] = true
 					}
 				}
@@ -567,7 +580,7 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 					findMatchingDepPkgVersionIDs, err := findDepPkgVersionIDs(ctx, gqlclient, isDep.DependencyPackage.Type, isDep.DependencyPackage.Namespaces[0].Namespace,
 						isDep.DependencyPackage.Namespaces[0].Names[0].Name, isDep.VersionRange)
 					if err != nil {
-						return nil, fmt.Errorf("error from findMatchingDepPkgVersionIDs:%w", err)
+						return nil, nil, fmt.Errorf("error from findMatchingDepPkgVersionIDs:%w", err)
 					}
 					matchingDepPkgVersionIDs = append(matchingDepPkgVersionIDs, findMatchingDepPkgVersionIDs...)
 				} else {
@@ -586,8 +599,34 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 					if !dfsN.expanded {
 						queue = append(queue, pkgID)
 					}
-					wg.Add(1)
-					go concurrentVulnAndVexNeighbors(ctx, gqlclient, pkgID, isDep, resultChan, &wg, errChan)
+					pkgVersionNeighborResponse, err := model.Neighbors(ctx, gqlclient, pkgID, []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement, model.EdgePackageCertifyBad})
+					if err != nil {
+						return nil, nil, fmt.Errorf("error getting package neighbors:%w", err)
+					}
+
+					for _, neighbor := range pkgVersionNeighborResponse.Neighbors {
+						if certifyVuln, ok := neighbor.(*model.NeighborsNeighborsCertifyVuln); ok {
+							if !checkedCertifyVulnIDs[certifyVuln.Id] {
+								if certifyVuln.Vulnerability.Type != noVulnType {
+									checkedCertifyVulnIDs[certifyVuln.Id] = true
+									for _, vuln := range certifyVuln.Vulnerability.VulnerabilityIDs {
+										neighborVulns[vuln.Id] = certifyVuln
+									}
+								}
+							}
+						}
+
+						if certifyVex, ok := neighbor.(*model.NeighborsNeighborsCertifyVEXStatement); ok {
+							for _, vuln := range certifyVex.Vulnerability.VulnerabilityIDs {
+								neighborVex[vuln.Id] = certifyVex
+							}
+						}
+
+						if certifyBad, ok := neighbor.(*model.NeighborsNeighborsCertifyBad); ok {
+							foundCertifyBad = append(foundCertifyBad, certifyBad.Justification)
+						}
+					}
+
 					checkedPkgIDs[pkgID] = true
 				}
 			}
@@ -596,50 +635,45 @@ func searchPkgViaHasSBOM(ctx context.Context, gqlclient graphql.Client, pkgVersi
 		nodeMap[now] = nowNode
 	}
 
-	// Close the result channel once all goroutines are done
-	go func() {
-		wg.Wait()
-		close(resultChan)
-		close(errChan)
-	}()
-
-	checkedCertifyVulnIDs := make(map[string]bool)
+	// // Close the result channel once all goroutines are done
+	// go func() {
+	// 	wg.Wait()
+	// 	close(resultChan)
+	// 	close(errChan)
+	// }()
 
 	// Collect results from the channel
 
-	neighborVulns := make(map[string]*model.NeighborsNeighborsCertifyVuln)
-	neighborVex := make(map[string]*model.NeighborsNeighborsCertifyVEXStatement)
+	// for result := range resultChan {
+	// 	for _, neighbor := range result.pkgVersionNeighborResponse.Neighbors {
+	// 		if certifyVuln, ok := neighbor.(*model.NeighborsNeighborsCertifyVuln); ok {
+	// 			if !checkedCertifyVulnIDs[certifyVuln.Id] {
+	// 				if certifyVuln.Vulnerability.Type != noVulnType {
+	// 					checkedCertifyVulnIDs[certifyVuln.Id] = true
+	// 					for _, vuln := range certifyVuln.Vulnerability.VulnerabilityIDs {
+	// 						neighborVulns[vuln.Id] = certifyVuln
+	// 					}
+	// 				}
+	// 			}
+	// 		}
 
-	for result := range resultChan {
-		for _, neighbor := range result.pkgVersionNeighborResponse.Neighbors {
-			if certifyVuln, ok := neighbor.(*model.NeighborsNeighborsCertifyVuln); ok {
-				if !checkedCertifyVulnIDs[certifyVuln.Id] {
-					if certifyVuln.Vulnerability.Type != noVulnType {
-						checkedCertifyVulnIDs[certifyVuln.Id] = true
-						for _, vuln := range certifyVuln.Vulnerability.VulnerabilityIDs {
-							neighborVulns[vuln.Id] = certifyVuln
-						}
-					}
-				}
-			}
+	// 		if certifyVex, ok := neighbor.(*model.NeighborsNeighborsCertifyVEXStatement); ok {
+	// 			for _, vuln := range certifyVex.Vulnerability.VulnerabilityIDs {
+	// 				neighborVex[vuln.Id] = certifyVex
+	// 			}
+	// 		}
+	// 	}
+	// }
 
-			if certifyVex, ok := neighbor.(*model.NeighborsNeighborsCertifyVEXStatement); ok {
-				for _, vuln := range certifyVex.Vulnerability.VulnerabilityIDs {
-					neighborVex[vuln.Id] = certifyVex
-				}
-			}
-		}
-	}
-
-	for err := range errChan {
-		if err != nil {
-			return nil, err
-		}
-	}
+	// for err := range errChan {
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	foundVulns = append(foundVulns, removeVulnsWithValidVex(neighborVex, neighborVulns)...)
 
-	return foundVulns, nil
+	return foundVulns, foundCertifyBad, nil
 }
 
 func findDepPkgVersionIDs(ctx context.Context, gqlclient graphql.Client, depPkgType string, depPkgNameSpace string, depPkgName string, versionRange string) ([]string, error) {
@@ -712,15 +746,17 @@ func getPkgResponseFromPurl(ctx context.Context, gqlclient graphql.Client, purl 
 	return pkgResponse, nil
 }
 
-func queryVulnsViaPackageNeighbors(ctx context.Context, gqlclient graphql.Client, pkgVersionID string) ([]string, error) {
+func queryVulnsViaPackageNeighbors(ctx context.Context, gqlclient graphql.Client, pkgVersionID string) ([]string, []string, error) {
 	neighborVulns := make(map[string]*model.NeighborsNeighborsCertifyVuln)
 	neighborVex := make(map[string]*model.NeighborsNeighborsCertifyVEXStatement)
 
-	var edgeTypes = []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement}
+	var foundCertifyBad []string
+
+	var edgeTypes = []model.Edge{model.EdgePackageCertifyVuln, model.EdgePackageCertifyVexStatement, model.EdgePackageCertifyBad}
 
 	pkgVersionNeighborResponse, err := model.Neighbors(ctx, gqlclient, pkgVersionID, edgeTypes)
 	if err != nil {
-		return nil, fmt.Errorf("error querying neighbor for vulnerability: %w", err)
+		return nil, nil, fmt.Errorf("error querying neighbor for vulnerability: %w", err)
 	}
 	certifyVulnFound := false
 	for _, neighbor := range pkgVersionNeighborResponse.Neighbors {
@@ -738,12 +774,16 @@ func queryVulnsViaPackageNeighbors(ctx context.Context, gqlclient graphql.Client
 				neighborVex[vuln.Id] = certifyVex
 			}
 		}
+
+		if certifyBad, ok := neighbor.(*model.NeighborsNeighborsCertifyBad); ok {
+			foundCertifyBad = append(foundCertifyBad, certifyBad.Justification)
+		}
 	}
 	if !certifyVulnFound {
-		return nil, fmt.Errorf("error certify vulnerability node not found, incomplete data. Please ensure certifier has run by running guacone certifier osv")
+		return nil, nil, fmt.Errorf("error certify vulnerability node not found, incomplete data. Please ensure certifier has run by running guacone certifier osv")
 	}
 
-	return removeVulnsWithValidVex(neighborVex, neighborVulns), nil
+	return removeVulnsWithValidVex(neighborVex, neighborVulns), foundCertifyBad, nil
 }
 
 func removeVulnsWithValidVex(neighborVex map[string]*model.NeighborsNeighborsCertifyVEXStatement, neighborVulns map[string]*model.NeighborsNeighborsCertifyVuln) []string {
