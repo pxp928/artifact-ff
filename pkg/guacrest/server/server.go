@@ -74,6 +74,10 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 		return nil, fmt.Errorf("failed to parse hash: %w", err)
 	}
 
+	// if artifact is not found, return nothing
+	if artResponse == nil {
+		return nil, nil
+	}
 	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
@@ -141,6 +145,11 @@ func (s *DefaultServer) GetArtifactSbomInformation(ctx context.Context, request 
 		return nil, fmt.Errorf("failed to parse hash: %w", err)
 	}
 
+	// if artifact is not found, return nothing
+	if artResponse == nil {
+		return nil, nil
+	}
+
 	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactHasSbom, model.EdgeArtifactIsOccurrence})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
@@ -190,6 +199,11 @@ func (s *DefaultServer) GetArtifactSlsaInformation(ctx context.Context, request 
 		return nil, fmt.Errorf("failed to parse hash: %w", err)
 	}
 
+	// if artifact is not found, return nothing
+	if artResponse == nil {
+		return nil, nil
+	}
+
 	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactHasSlsa})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
@@ -218,6 +232,11 @@ func (s *DefaultServer) GetArtifactVulnInformation(ctx context.Context, request 
 	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse hash: %w", err)
+	}
+
+	// if artifact is not found, return nothing
+	if artResponse == nil {
+		return nil, nil
 	}
 
 	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{model.EdgeArtifactIsOccurrence})
