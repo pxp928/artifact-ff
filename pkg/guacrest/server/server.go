@@ -26,6 +26,7 @@ import (
 	"github.com/guacsec/guac/pkg/assembler/helpers"
 	gen "github.com/guacsec/guac/pkg/guacrest/generated"
 	"github.com/guacsec/guac/pkg/misc/depversion"
+	"go.uber.org/zap"
 )
 
 const (
@@ -50,10 +51,11 @@ const (
 // DefaultServer implements the API, backed by the GraphQL Server
 type DefaultServer struct {
 	gqlClient graphql.Client
+	logger    *zap.SugaredLogger
 }
 
-func NewDefaultServer(gqlClient graphql.Client) *DefaultServer {
-	return &DefaultServer{gqlClient: gqlClient}
+func NewDefaultServer(gqlClient graphql.Client, logger *zap.SugaredLogger) *DefaultServer {
+	return &DefaultServer{gqlClient: gqlClient, logger: logger}
 }
 
 func (s *DefaultServer) HealthCheck(ctx context.Context, request gen.HealthCheckRequestObject) (gen.HealthCheckResponseObject, error) {
@@ -69,15 +71,17 @@ func (s *DefaultServer) RetrieveDependencies(ctx context.Context, request gen.Re
 }
 
 func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.GetArtifactInformationRequestObject) (gen.GetArtifactInformationResponseObject, error) {
+	logger := s.logger
 	artResponse, err := getArtifactResponse(ctx, s.gqlClient, request.Hash)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse hash: %w", err)
 	}
-
 	// if artifact is not found, return nothing
 	if artResponse == nil {
 		return nil, nil
 	}
+	logger.Infof("artifact found with ID %s", artResponse)
+
 	neighborResponse, err := model.Neighbors(ctx, s.gqlClient, artResponse.Artifacts[0].Id, []model.Edge{})
 	if err != nil {
 		return nil, fmt.Errorf("error querying neighbors: %v", err)
@@ -96,9 +100,10 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 			foundSlsaList = append(foundSlsaList, v.Slsa.Origin)
 		case *model.NeighborsNeighborsIsOccurrence:
 			// if there is an isOccurrence, check to see if there are slsa attestation associated with it
-
 			switch sub := v.Subject.(type) {
 			case *model.AllIsOccurrencesTreeSubjectPackage:
+				logger.Infof("querying for vulns via pkg ID: %s", sub.Namespaces[0].Names[0].Versions[0].Id)
+
 				vulnsList, badlist, err := searchPkgViaHasSBOM(ctx, s.gqlClient, sub.Namespaces[0].Names[0].Versions[0].Id, 0, true)
 				if err != nil {
 					return nil, fmt.Errorf("query vulns via hasSBOM failed: %v", err)
@@ -126,7 +131,7 @@ func (s *DefaultServer) GetArtifactInformation(ctx context.Context, request gen.
 			continue
 		}
 	}
-
+	logger.Infof("returning results")
 	val := gen.GetArtifactInformation200JSONResponse{
 		InfoJSONResponse: gen.InfoJSONResponse{
 			SbomList:        foundSbomList,
