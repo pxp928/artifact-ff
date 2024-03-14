@@ -28,6 +28,7 @@ import (
 
 	"github.com/guacsec/guac/pkg/assembler"
 	model "github.com/guacsec/guac/pkg/assembler/clients/generated"
+	"github.com/guacsec/guac/pkg/assembler/helpers"
 	asmhelpers "github.com/guacsec/guac/pkg/assembler/helpers"
 	"github.com/guacsec/guac/pkg/handler/processor"
 	"github.com/guacsec/guac/pkg/ingestor/parser/common"
@@ -259,6 +260,25 @@ func (c *cyclonedxParser) GetPredicates(ctx context.Context) *assembler.IngestPr
 
 		preds.IsDependency = append(preds.IsDependency, common.CreateTopLevelIsDeps(toplevel[0], c.packagePackages, nil, "top-level package GUAC heuristic connecting to each file/package")...)
 		preds.HasSBOM = append(preds.HasSBOM, common.CreateTopLevelHasSBOM(toplevel[0], c.doc, c.cdxBom.SerialNumber, timestamp))
+
+		srcInput, err := helpers.VcsToSrc(c.doc.SourceInformation.Source)
+		if err != nil {
+			logger.Fatalf("failed to parse soruce: %v", err)
+		}
+
+		preds.HasSourceAt = append(preds.HasSourceAt, []assembler.HasSourceAtIngest{
+			{
+				Pkg:          toplevel[0],
+				PkgMatchFlag: model.MatchFlags{Pkg: model.PkgMatchTypeSpecificVersion},
+				Src:          srcInput,
+				HasSourceAt: &model.HasSourceAtInputSpec{
+					KnownSince:    timestamp,
+					Justification: "obtained from gitlab runner",
+					Origin:        "gitlab runner",
+					Collector:     "FileCollector",
+				},
+			},
+		}...)
 	}
 
 	for id := range c.packagePackages {

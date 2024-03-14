@@ -32,14 +32,16 @@ const (
 
 type fileCollector struct {
 	path        string
+	source      *string
 	lastChecked time.Time
 	poll        bool
 	interval    time.Duration
 }
 
-func NewFileCollector(ctx context.Context, path string, poll bool, interval time.Duration) *fileCollector {
+func NewFileCollector(ctx context.Context, path string, source *string, poll bool, interval time.Duration) *fileCollector {
 	return &fileCollector{
 		path:     path,
+		source:   source,
 		poll:     poll,
 		interval: interval,
 	}
@@ -87,14 +89,28 @@ func (f *fileCollector) RetrieveArtifacts(ctx context.Context, docChannel chan<-
 			return fmt.Errorf("error reading file: %s, err: %w", path, err)
 		}
 
-		doc := &processor.Document{
-			Blob:   blob,
-			Type:   processor.DocumentUnknown,
-			Format: processor.FormatUnknown,
-			SourceInformation: processor.SourceInformation{
-				Collector: string(FileCollector),
-				Source:    fmt.Sprintf("file:///%s", path),
-			},
+		var doc *processor.Document
+
+		if f.source != nil {
+			doc = &processor.Document{
+				Blob:   blob,
+				Type:   processor.DocumentUnknown,
+				Format: processor.FormatUnknown,
+				SourceInformation: processor.SourceInformation{
+					Collector: string(FileCollector),
+					Source:    *f.source,
+				},
+			}
+		} else {
+			doc = &processor.Document{
+				Blob:   blob,
+				Type:   processor.DocumentUnknown,
+				Format: processor.FormatUnknown,
+				SourceInformation: processor.SourceInformation{
+					Collector: string(FileCollector),
+					Source:    fmt.Sprintf("file:///%s", path),
+				},
+			}
 		}
 
 		docChannel <- doc

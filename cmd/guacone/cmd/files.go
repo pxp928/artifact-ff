@@ -50,10 +50,12 @@ type fileOptions struct {
 	graphqlEndpoint string
 	// csub client options for identifier strings
 	csubClientOptions client.CsubClientOptions
+	//	source of the sbom for ingest into hasSourceAt
+	source *string
 }
 
 var filesCmd = &cobra.Command{
-	Use:   "files [flags] file_path",
+	Use:   "files [flags] file_path source",
 	Short: "take a folder of files and create a GUAC graph, this command talks directly to the graphQL endpoint",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := logging.WithLogger(context.Background())
@@ -99,7 +101,7 @@ var filesCmd = &cobra.Command{
 		}
 
 		// Register collector
-		fileCollector := file.NewFileCollector(ctx, opts.path, false, time.Second)
+		fileCollector := file.NewFileCollector(ctx, opts.path, opts.source, false, time.Second)
 		err = collector.RegisterDocumentCollector(fileCollector, file.FileCollector)
 		if err != nil {
 			logger.Fatalf("unable to register file collector: %v", err)
@@ -146,6 +148,28 @@ var filesCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
+		// httpClient := http.Client{}
+		// gqlclient := graphql.NewClient(opts.graphqlEndpoint, &httpClient)
+
+		// pkgInput, err := helpers.PurlToPkg("pkg:oci/guac_gitlab_runner_poc@sha256%3Abfef5bd7bd9d7674b21dede8af2a9121e059f434c8a288bd81e018631559ff72?arch=amd64&repository_url=registry.gitlab.com%2Fkusaridev%2Fguac_gitlab_runner_poc%2Fguac_gitlab_runner_poc")
+		// if err != nil {
+		// 	logger.Fatalf("failed to parse PURL: %v", err)
+		// }
+
+		// srcInput, err := helpers.VcsToSrc("https://gitlab.com/kusaridev/guac_gitlab_runner_poc")
+		// if err != nil {
+		// 	logger.Fatalf("failed to parse soruce: %v", err)
+		// }
+
+		// if _, err := model.IngestSource(ctx, gqlclient, model.IDorSourceInput{SourceInput: srcInput}); err != nil {
+		// 	logger.Fatal(err)
+		// }
+
+		// if _, err = model.IngestHasSourceAt(ctx, gqlclient, model.IDorPkgInput{PackageInput: pkgInput}, model.MatchFlags{Pkg: model.PkgMatchTypeSpecificVersion}, model.IDorSourceInput{SourceInput: srcInput},
+		// 	model.HasSourceAtInputSpec{KnownSince: time.Now(), Justification: "obtained from gitlab runner", Origin: "gitlab runner", Collector: fileCollector.Type()}); err != nil {
+		// 	logger.Fatal(err)
+		// }
+
 		if gotErr {
 			logger.Fatalf("completed ingestion with error, %v of %v were successful - the following files did not ingest successfully:  %v", totalSuccess, totalNum, printErrors(filesWithErrors))
 		} else {
@@ -169,7 +193,7 @@ func validateFilesFlags(keyPath string, keyID string, graphqlEndpoint string, cs
 		opts.keyID = keyID
 	}
 
-	if len(args) != 1 {
+	if len(args) == 0 {
 		return opts, fmt.Errorf("expected positional argument for file_path")
 	}
 
@@ -179,6 +203,10 @@ func validateFilesFlags(keyPath string, keyID string, graphqlEndpoint string, cs
 	}
 	opts.csubClientOptions = csubOpts
 	opts.path = args[0]
+
+	if len(args) == 2 {
+		opts.source = &args[1]
+	}
 
 	return opts, nil
 }
