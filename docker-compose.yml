@@ -59,6 +59,20 @@ services:
       - ./container_files/guac:/guac:z
       - blobstore:/tmp/blobstore
 
+  guac-collect:
+    networks: [ frontend ]
+    image: $GUAC_IMAGE
+    command: "/opt/guac/guaccollect files testdata"
+    working_dir: /guac
+    restart: on-failure
+    depends_on:
+      guac-collectsub:
+        condition: service_healthy
+    volumes:
+      - ./container_files/guac:/guac:z
+      - ./container_files/testdata:/guac/testdata:z
+      - blobstore:/tmp/blobstore
+
   oci-collector:
     networks: [ frontend ]
     image: $GUAC_IMAGE
