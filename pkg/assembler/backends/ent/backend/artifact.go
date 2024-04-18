@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/guacsec/guac/internal/testing/ptrfrom"
@@ -33,6 +34,59 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
+
+func (b *EntBackend) ArtifactsList(ctx context.Context, artifactSpec model.ArtifactSpec, after *string, first *int, before *string, last *int) (*model.ArtifactConnection, error) {
+	var afterCursor *entgql.Cursor[uuid.UUID]
+	var beforeCursor *entgql.Cursor[uuid.UUID]
+
+	if after != nil {
+		afterUUID, err := uuid.Parse(*after)
+		if err != nil {
+			return nil, err
+		}
+		afterCursor = &ent.Cursor{ID: afterUUID}
+	} else {
+		afterCursor = nil
+	}
+
+	if before != nil {
+		beforeUUID, err := uuid.Parse(*before)
+		if err != nil {
+			return nil, err
+		}
+		beforeCursor = &ent.Cursor{ID: beforeUUID}
+	} else {
+		beforeCursor = nil
+	}
+
+	query, err := b.client.Artifact.Query().
+		Where(artifactQueryPredicates(&artifactSpec)).
+		Limit(MaxPageSize).
+		Paginate(ctx, afterCursor, first, beforeCursor, last)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var edges []*model.ArtifactsEdge
+	for _, edge := range query.Edges {
+		edges = append(edges, &model.ArtifactsEdge{
+			Cursor: edge.Cursor.ID.String(),
+			Node:   toModelArtifact(edge.Node),
+		})
+	}
+
+	return &model.ArtifactConnection{
+		TotalCount: query.TotalCount,
+		PageInfo: &model.PageInfo{
+			HasNextPage:     query.PageInfo.HasNextPage,
+			HasPreviousPage: query.PageInfo.HasPreviousPage,
+			StartCursor:     ptrfrom.String(query.PageInfo.StartCursor.ID.String()),
+			EndCursor:       ptrfrom.String(query.PageInfo.EndCursor.ID.String()),
+		},
+		Edges: edges,
+	}, nil
+}
 
 func (b *EntBackend) Artifacts(ctx context.Context, artifactSpec *model.ArtifactSpec) ([]*model.Artifact, error) {
 	if artifactSpec == nil {

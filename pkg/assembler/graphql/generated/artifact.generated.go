@@ -1680,7 +1680,7 @@ func (ec *executionContext) field_Query_artifactsList_args(ctx context.Context, 
 	var arg1 *string
 	if tmp, ok := rawArgs["after"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg1, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg1, err = ec.unmarshalOCursor2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1698,7 +1698,7 @@ func (ec *executionContext) field_Query_artifactsList_args(ctx context.Context, 
 	var arg3 *string
 	if tmp, ok := rawArgs["before"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg3, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg3, err = ec.unmarshalOCursor2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2257,7 +2257,7 @@ func (ec *executionContext) _ArtifactsEdge_cursor(ctx context.Context, field gra
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNCursor2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ArtifactsEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2267,7 +2267,7 @@ func (ec *executionContext) fieldContext_ArtifactsEdge_cursor(ctx context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Cursor does not have child fields")
 		},
 	}
 	return fc, nil

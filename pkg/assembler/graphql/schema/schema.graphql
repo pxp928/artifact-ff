@@ -17,9 +17,11 @@
 
 # Defines a GraphQL schema for the pagination
 
+scalar Cursor
+
 type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
-    startCursor: ID
-    endCursor: ID
+    startCursor: Cursor
+    endCursor: Cursor
 }

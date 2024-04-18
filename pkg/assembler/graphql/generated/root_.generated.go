@@ -3110,7 +3110,7 @@ type ArtifactConnection {
 }
 
 type ArtifactsEdge {
-  cursor: ID!
+  cursor: Cursor!
   node: Artifact
 }
 
@@ -3150,7 +3150,7 @@ input IDorArtifactInput {
 extend type Query {
   "Returns all artifacts matching a filter."
   artifacts(artifactSpec: ArtifactSpec!): [Artifact!]!
-  artifactsList(artifactSpec: ArtifactSpec!, after: ID, first: Int, before: ID, last: Int): ArtifactConnection
+  artifactsList(artifactSpec: ArtifactSpec!, after: Cursor, first: Int, before: Cursor, last: Int): ArtifactConnection
 }
 
 extend type Mutation {
@@ -5493,11 +5493,13 @@ extend type Mutation {
 
 # Defines a GraphQL schema for the pagination
 
+scalar Cursor
+
 type PageInfo {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
-    startCursor: ID
-    endCursor: ID
+    startCursor: Cursor
+    endCursor: Cursor
 }`, BuiltIn: false},
 	{Name: "../schema/search.graphql", Input: `#
 # Copyright 2023 The GUAC Authors.
