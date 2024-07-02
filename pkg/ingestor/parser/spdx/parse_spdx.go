@@ -32,6 +32,7 @@ import (
 	"github.com/spdx/tools-golang/json"
 	spdx "github.com/spdx/tools-golang/spdx"
 	spdx_common "github.com/spdx/tools-golang/spdx/v2/common"
+	"github.com/spdx/tools-golang/spdx/v2/v2_3"
 )
 
 type spdxParser struct {
@@ -197,33 +198,53 @@ func (s *spdxParser) getPackages(topLevelSPDXIDs []string) error {
 
 func (s *spdxParser) getFiles(topLevelSPDXIDs []string) error {
 	for _, file := range s.spdxDoc.Files {
-		// if checksums exists create an artifact for each of them
-		for _, checksum := range file.Checksums {
-			if isEmptyChecksum(checksum.Value) {
-				continue
+		switch len(file.FileTypes) {
+		case 1:
+			if file.FileTypes[0] == "BINARY" {
+				if err := extractFileInformation(s, file, topLevelSPDXIDs); err != nil {
+					return fmt.Errorf("failed to extractFileInformation with error: %w", err)
+				}
 			}
-			// for each file create a package for each of them so they can be referenced as a dependency
-			purl := asmhelpers.GuacFilePurl(strings.ToLower(string(checksum.Algorithm)), checksum.Value, &file.FileName)
-			pkg, err := asmhelpers.PurlToPkg(purl)
-			if err != nil {
-				return err
+		case 2:
+			if file.FileTypes[0] == "APPLICATION" && file.FileTypes[1] == "BINARY" {
+				if err := extractFileInformation(s, file, topLevelSPDXIDs); err != nil {
+					return fmt.Errorf("failed to extractFileInformation with error: %w", err)
+				}
 			}
-			if slices.Contains(topLevelSPDXIDs, string(file.FileSPDXIdentifier)) {
-				s.topLevelPackages = append(s.topLevelPackages, pkg)
-			}
-			s.filePackages[string(file.FileSPDXIdentifier)] = append(s.filePackages[string(file.FileSPDXIdentifier)], pkg)
-
-			art := &model.ArtifactInputSpec{
-				Algorithm: strings.ToLower(string(checksum.Algorithm)),
-				Digest:    checksum.Value,
-			}
-
-			id := string(file.FileSPDXIdentifier)
-			if slices.Contains(topLevelSPDXIDs, id) {
-				s.topLevelArtifacts[id] = append(s.topLevelArtifacts[id], art)
-			}
-			s.fileArtifacts[id] = append(s.fileArtifacts[id], art)
+		default:
+			continue
 		}
+	}
+	return nil
+}
+
+func extractFileInformation(s *spdxParser, file *v2_3.File, topLevelSPDXIDs []string) error {
+	// if checksums exists create an artifact for each of them
+	for _, checksum := range file.Checksums {
+		if isEmptyChecksum(checksum.Value) {
+			continue
+		}
+		// for each file create a package for each of them so they can be referenced as a dependency
+		purl := asmhelpers.GuacFilePurl(strings.ToLower(string(checksum.Algorithm)), checksum.Value, &file.FileName)
+		pkg, err := asmhelpers.PurlToPkg(purl)
+		if err != nil {
+			return err
+		}
+		if slices.Contains(topLevelSPDXIDs, string(file.FileSPDXIdentifier)) {
+			s.topLevelPackages = append(s.topLevelPackages, pkg)
+		}
+		s.filePackages[string(file.FileSPDXIdentifier)] = append(s.filePackages[string(file.FileSPDXIdentifier)], pkg)
+
+		art := &model.ArtifactInputSpec{
+			Algorithm: strings.ToLower(string(checksum.Algorithm)),
+			Digest:    checksum.Value,
+		}
+
+		id := string(file.FileSPDXIdentifier)
+		if slices.Contains(topLevelSPDXIDs, id) {
+			s.topLevelArtifacts[id] = append(s.topLevelArtifacts[id], art)
+		}
+		s.fileArtifacts[id] = append(s.fileArtifacts[id], art)
 	}
 	return nil
 }
