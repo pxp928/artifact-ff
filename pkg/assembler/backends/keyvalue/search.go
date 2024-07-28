@@ -27,6 +27,10 @@ func (c *demoClient) FindSoftwareList(ctx context.Context, searchText string, af
 	return nil, fmt.Errorf("not implemented: FindSoftwareList")
 }
 
+func (c *demoClient) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	return nil, fmt.Errorf("not implemented: FindAllPkgVulnBasedOnSbom")
+}
+
 func (c *demoClient) FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error) {
 	scanner := c.kv.Keys("artifacts")
 	var res []model.PackageSourceOrArtifact

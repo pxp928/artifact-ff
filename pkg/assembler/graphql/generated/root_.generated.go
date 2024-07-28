@@ -543,6 +543,7 @@ type ComplexityRoot struct {
 		CertifyVEXStatementList   func(childComplexity int, certifyVEXStatementSpec model.CertifyVEXStatementSpec, after *string, first *int) int
 		CertifyVuln               func(childComplexity int, certifyVulnSpec model.CertifyVulnSpec) int
 		CertifyVulnList           func(childComplexity int, certifyVulnSpec model.CertifyVulnSpec, after *string, first *int) int
+		FindAllPkgVulnBasedOnSbom func(childComplexity int, hasSbomid string) int
 		FindSoftware              func(childComplexity int, searchText string) int
 		FindSoftwareList          func(childComplexity int, searchText string, after *string, first *int) int
 		HasMetadata               func(childComplexity int, hasMetadataSpec model.HasMetadataSpec) int
@@ -3202,6 +3203,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.CertifyVulnList(childComplexity, args["certifyVulnSpec"].(model.CertifyVulnSpec), args["after"].(*string), args["first"].(*int)), true
+
+	case "Query.findAllPkgVulnBasedOnSBOM":
+		if e.complexity.Query.FindAllPkgVulnBasedOnSbom == nil {
+			break
+		}
+
+		args, err := ec.field_Query_findAllPkgVulnBasedOnSBOM_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.FindAllPkgVulnBasedOnSbom(childComplexity, args["hasSBOMID"].(string)), true
 
 	case "Query.findSoftware":
 		if e.complexity.Query.FindSoftware == nil {
@@ -7597,6 +7610,9 @@ extend type Query {
   findSoftware(searchText: String!): [PackageSourceOrArtifact!]!
   "Returns a paginated results via CertifyBadConnection"
   findSoftwareList(searchText: String!, after: ID, first: Int): FindSoftwareConnection
+
+  "Returns all certifyVulns (that contain vulnerabilities and not noVuln), certifyVex and IsDependencies related to a package based on an SBOM."
+  findAllPkgVulnBasedOnSBOM(hasSBOMID: ID!): [Node!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/source.graphql", Input: `#

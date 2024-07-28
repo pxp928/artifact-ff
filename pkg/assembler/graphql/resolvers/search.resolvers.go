@@ -19,3 +19,8 @@ func (r *queryResolver) FindSoftware(ctx context.Context, searchText string) ([]
 func (r *queryResolver) FindSoftwareList(ctx context.Context, searchText string, after *string, first *int) (*model.FindSoftwareConnection, error) {
 	return r.Backend.FindSoftwareList(ctx, searchText, after, first)
 }
+
+// FindAllPkgVulnBasedOnSbom is the resolver for the findAllPkgVulnBasedOnSBOM field.
+func (r *queryResolver) FindAllPkgVulnBasedOnSbom(ctx context.Context, hasSbomid string) ([]model.Node, error) {
+	return r.Backend.FindAllPkgVulnBasedOnSbom(ctx, hasSbomid)
+}

@@ -46,9 +46,9 @@ csub-listen-port: 2782
 
 # GQL setup
 gql-backend: keyvalue
-gql-listen-port: 8080
+gql-listen-port: 8081
 gql-debug: true
-gql-addr: http://localhost:8080/query
+gql-addr: http://localhost:8081/query
 
 # REST API setup
 rest-api-server-port: 8081

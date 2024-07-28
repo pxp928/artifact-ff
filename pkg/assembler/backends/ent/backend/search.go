@@ -19,12 +19,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/guacsec/guac/internal/testing/ptrfrom"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/artifact"
+	"github.com/guacsec/guac/pkg/assembler/backends/ent/billofmaterials"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/packagename"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/packageversion"
+	"github.com/guacsec/guac/pkg/assembler/backends/ent/predicate"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/sourcename"
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
+	"github.com/pkg/errors"
 )
 
 // FindSoftware takes in a searchText string and looks for software
@@ -99,4 +103,62 @@ func (b *EntBackend) FindSoftware(ctx context.Context, searchText string) ([]mod
 
 func (b *EntBackend) FindSoftwareList(ctx context.Context, searchText string, after *string, first *int) (*model.FindSoftwareConnection, error) {
 	return nil, fmt.Errorf("not implemented: FindSoftwareList")
+}
+
+func (b *EntBackend) FindAllPkgVulnBasedOnSbom(ctx context.Context, hasSBOMID string) ([]model.Node, error) {
+	var nodes []model.Node
+
+	sbomQuery := b.client.BillOfMaterials.Query().
+		Where(sbomQuery(hasSBOMID))
+
+	record, err := sbomObjectWithIncludes(sbomQuery).
+		Only(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "FindAllPkgVulnBasedOnSbom")
+	}
+	entPkgVersions, err := record.IncludedSoftwarePackages(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get included packages with error: %w", err)
+	}
+
+	for _, pNode := range entPkgVersions {
+		//nodes = append(nodes, toModelPackage(backReferencePackageVersion(pNode)))
+		certVulns, err := b.CertifyVuln(ctx, &model.CertifyVulnSpec{Package: &model.PkgSpec{ID: ptrfrom.String(pkgVersionGlobalID(pNode.ID.String()))}, Vulnerability: &model.VulnerabilitySpec{NoVuln: ptrfrom.Bool(false)}})
+		if err != nil {
+			return nil, fmt.Errorf("failed to get certifyVuln with error: %w", err)
+		}
+		for _, cVuln := range certVulns {
+			nodes = append(nodes, cVuln)
+		}
+	}
+
+	return nodes, nil
+}
+
+func sbomQuery(hasSBOMID string) predicate.BillOfMaterials {
+	predicates := []predicate.BillOfMaterials{
+		optionalPredicate(ptrfrom.String(hasSBOMID), IDEQ),
+	}
+
+	predicates = append(predicates, billofmaterials.HasIncludedSoftwarePackagesWith(packageVersionVulnQuery()))
+
+	return billofmaterials.And(predicates...)
+}
+
+func packageVersionVulnQuery() predicate.PackageVersion {
+	rv := []predicate.PackageVersion{
+		packageversion.HasVulnWith(certifyVulnPredicate(model.CertifyVulnSpec{Vulnerability: &model.VulnerabilitySpec{NoVuln: ptrfrom.Bool(false)}})),
+	}
+
+	return packageversion.And(rv...)
+}
+
+// getSBOMObjectWithIncludes is used recreate the hasSBOM object be eager loading the edges
+func sbomObjectWithIncludes(q *ent.BillOfMaterialsQuery) *ent.BillOfMaterialsQuery {
+	return q.
+		WithPackage(func(q *ent.PackageVersionQuery) {
+			q.WithName(func(q *ent.PackageNameQuery) {})
+		}).
+		WithArtifact().
+		WithIncludedSoftwarePackages(withPackageVersionTree())
 }

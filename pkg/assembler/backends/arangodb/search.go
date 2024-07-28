@@ -23,6 +23,119 @@ import (
 	"github.com/guacsec/guac/pkg/assembler/graphql/model"
 )
 
+// get pkgID for vuln spdx
+/*
+FOR hasSBOM in hasSBOMs
+Filter hasSBOM.downloadLocation == "file:///../guac-data/docs/spdx/spdx_vuln.json"
+return {hasSBOM}
+*/
+
+// get vulnerability info
+/*
+FOR hasSBOM in hasSBOMs
+Filter hasSBOM.packageID == "pkgVersions/23605"
+FOR isDep IN OUTBOUND hasSBOM hasSBOMIncludedDependencyEdges
+FOR depPkg IN OUTBOUND isDep isDependencyDepPkgVersionEdges
+For certVuln IN OUTBOUND depPkg certifyVulnPkgEdges
+For vuln IN OUTBOUND certVuln certifyVulnEdges
+Filter vuln.guacKey != "novuln::"
+return {vuln: vuln ,certvuln: certVuln, depPkg: depPkg, isDep: isDep}
+*/
+
+// get vulnerability and vex information
+/*
+LET vulnValues = (FOR hasSBOM in hasSBOMs
+Filter hasSBOM.packageID == "pkgVersions/23605"
+FOR isDep IN OUTBOUND hasSBOM hasSBOMIncludedDependencyEdges
+FOR depPkg IN OUTBOUND isDep isDependencyDepPkgVersionEdges
+For certVuln IN OUTBOUND depPkg certifyVulnPkgEdges
+For vuln IN OUTBOUND certVuln certifyVulnEdges
+Filter vuln.guacKey != "novuln::"
+return {vuln: vuln ,certvuln: certVuln, depPkg: depPkg, isDep: isDep})
+LET vexValues = (FOR hasSBOM in hasSBOMs
+Filter hasSBOM.packageID == "pkgVersions/23605"
+FOR isDep IN OUTBOUND hasSBOM hasSBOMIncludedDependencyEdges
+FOR depPkg IN OUTBOUND isDep isDependencyDepPkgVersionEdges
+For certVex IN OUTBOUND depPkg certifyVexPkgEdges
+return certVex)
+return {vexValues: vexValues ,vulnValues: vulnValues}
+*/
+
+func (c *arangoClient) FindAllPkgVulnBasedOnSbom(ctx context.Context, pkgID string) ([]model.Node, error) {
+	queryValues := map[string]any{}
+	queryValues["pkgVersionID"] = pkgID
+	query := `
+	LET vulnValues = (FOR hasSBOM in hasSBOMs
+		Filter hasSBOM.packageID == @pkgVersionID
+		FOR isDep IN OUTBOUND hasSBOM hasSBOMIncludedDependencyEdges
+		FOR depPkg IN OUTBOUND isDep isDependencyDepPkgVersionEdges
+		For certVuln IN OUTBOUND depPkg certifyVulnPkgEdges
+		For vuln IN OUTBOUND certVuln certifyVulnEdges
+		Filter vuln.guacKey != "novuln::"
+		return {'certVulnID': certVuln._id, 'isDepID': isDep._id})
+		
+		
+		LET vexValues = (FOR hasSBOM in hasSBOMs
+		Filter hasSBOM.packageID == @pkgVersionID
+		FOR isDep IN OUTBOUND hasSBOM hasSBOMIncludedDependencyEdges
+		FOR depPkg IN OUTBOUND isDep isDependencyDepPkgVersionEdges
+		For certVex IN OUTBOUND depPkg certifyVexPkgEdges
+		return {'certVexID': certVex._id, 'isDepID': isDep._id})
+		
+		return {vexValues: vexValues, vulnValues: vulnValues}`
+
+	cursor, err := executeQueryWithRetry(ctx, c.db, query, queryValues, "FindAllPkgVulnBasedOnSbom")
+	if err != nil {
+		return nil, fmt.Errorf("failed to query FindAllPkgVulnBasedOnSbom: %w", err)
+	}
+	defer cursor.Close()
+
+	type parsedDoc struct {
+		VulnValues []struct {
+			CertVulnID string `json:"certVulnID"`
+			IsDepID    string `json:"isDepID"`
+		} `json:"vulnValues"`
+		VexValues []struct {
+			CertVexID string `json:"certVexID"`
+			IsDepID   string `json:"isDepID"`
+		} `json:"vexValues"`
+	}
+
+	var createdValues []parsedDoc
+	for {
+		var doc parsedDoc
+		_, err := cursor.ReadDocument(ctx, &doc)
+		if err != nil {
+			if driver.IsNoMoreDocuments(err) {
+				break
+			} else {
+				return nil, fmt.Errorf("failed to run search: %w, values: %v", err, queryValues)
+			}
+		} else {
+			createdValues = append(createdValues, doc)
+		}
+	}
+
+	var collectedNodes []model.Node
+	for _, createdValue := range createdValues {
+		for _, vulnStruct := range createdValue.VulnValues {
+			vulnValueNodes, err := c.Nodes(ctx, []string{vulnStruct.CertVulnID, vulnStruct.IsDepID})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get nodes with error: %w", err)
+			}
+			collectedNodes = append(collectedNodes, vulnValueNodes...)
+		}
+		for _, vexStruct := range createdValue.VexValues {
+			vexValueNodes, err := c.Nodes(ctx, []string{vexStruct.CertVexID, vexStruct.IsDepID})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get nodes with error: %w", err)
+			}
+			collectedNodes = append(collectedNodes, vexValueNodes...)
+		}
+	}
+	return collectedNodes, nil
+}
+
 func (c *arangoClient) FindSoftwareList(ctx context.Context, searchText string, after *string, first *int) (*model.FindSoftwareConnection, error) {
 	return nil, fmt.Errorf("not implemented: FindSoftwareList")
 }

@@ -141,6 +141,7 @@ type Backend interface {
 	// Search queries: queries to help find data in GUAC based on text search
 	FindSoftware(ctx context.Context, searchText string) ([]model.PackageSourceOrArtifact, error)
 	FindSoftwareList(ctx context.Context, searchText string, after *string, first *int) (*model.FindSoftwareConnection, error)
+	FindAllPkgVulnBasedOnSbom(ctx context.Context, hasSbomid string) ([]model.Node, error)
 }
 
 // BackendArgs interface allows each backend to specify the arguments needed to

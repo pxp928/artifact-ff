@@ -64,4 +64,7 @@ extend type Query {
   findSoftware(searchText: String!): [PackageSourceOrArtifact!]!
   "Returns a paginated results via CertifyBadConnection"
   findSoftwareList(searchText: String!, after: ID, first: Int): FindSoftwareConnection
+
+  "Returns all certifyVulns (that contain vulnerabilities and not noVuln), certifyVex and IsDependencies related to a package based on an SBOM."
+  findAllPkgVulnBasedOnSBOM(hasSBOMID: ID!): [Node!]!
 }
