@@ -19,10 +19,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/guacsec/guac/internal/testing/ptrfrom"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/artifact"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/billofmaterials"
+	"github.com/guacsec/guac/pkg/assembler/backends/ent/certifyvuln"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/packagename"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/packageversion"
 	"github.com/guacsec/guac/pkg/assembler/backends/ent/predicate"
@@ -108,7 +110,7 @@ func (b *EntBackend) FindSoftwareList(ctx context.Context, searchText string, af
 func (b *EntBackend) FindAllPkgVulnBasedOnSbom(ctx context.Context, hasSBOMID string) ([]model.Node, error) {
 	var nodes []model.Node
 
-	sbomQuery := b.client.BillOfMaterials.Query().
+	sbomQuery := b.client.Debug().BillOfMaterials.Query().
 		Where(sbomQuery(hasSBOMID))
 
 	record, err := sbomObjectWithIncludes(sbomQuery).
@@ -116,21 +118,24 @@ func (b *EntBackend) FindAllPkgVulnBasedOnSbom(ctx context.Context, hasSBOMID st
 	if err != nil {
 		return nil, errors.Wrap(err, "FindAllPkgVulnBasedOnSbom")
 	}
-	entPkgVersions, err := record.IncludedSoftwarePackages(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get included packages with error: %w", err)
-	}
 
-	for _, pNode := range entPkgVersions {
-		//nodes = append(nodes, toModelPackage(backReferencePackageVersion(pNode)))
-		certVulns, err := b.CertifyVuln(ctx, &model.CertifyVulnSpec{Package: &model.PkgSpec{ID: ptrfrom.String(pkgVersionGlobalID(pNode.ID.String()))}, Vulnerability: &model.VulnerabilitySpec{NoVuln: ptrfrom.Bool(false)}})
-		if err != nil {
-			return nil, fmt.Errorf("failed to get certifyVuln with error: %w", err)
-		}
-		for _, cVuln := range certVulns {
-			nodes = append(nodes, cVuln)
-		}
-	}
+	nodes = append(nodes, toModelHasSBOM(record))
+
+	// entPkgVersions, err := record.IncludedSoftwarePackages(ctx)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to get included packages with error: %w", err)
+	// }
+
+	// for _, pNode := range entPkgVersions {
+	// 	//nodes = append(nodes, toModelPackage(backReferencePackageVersion(pNode)))
+	// 	certVulns, err := b.CertifyVuln(ctx, &model.CertifyVulnSpec{Package: &model.PkgSpec{ID: ptrfrom.String(pkgVersionGlobalID(pNode.ID.String()))}, Vulnerability: &model.VulnerabilitySpec{NoVuln: ptrfrom.Bool(false)}})
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("failed to get certifyVuln with error: %w", err)
+	// 	}
+	// 	for _, cVuln := range certVulns {
+	// 		nodes = append(nodes, cVuln)
+	// 	}
+	// }
 
 	return nodes, nil
 }
@@ -146,8 +151,9 @@ func sbomQuery(hasSBOMID string) predicate.BillOfMaterials {
 }
 
 func packageVersionVulnQuery() predicate.PackageVersion {
+	vulnID, _ := uuid.Parse("110d9f78-db10-52ba-99e2-4f65cca5e6c1")
 	rv := []predicate.PackageVersion{
-		packageversion.HasVulnWith(certifyVulnPredicate(model.CertifyVulnSpec{Vulnerability: &model.VulnerabilitySpec{NoVuln: ptrfrom.Bool(false)}})),
+		packageversion.HasVulnWith(certifyvuln.VulnerabilityIDNEQ(vulnID)),
 	}
 
 	return packageversion.And(rv...)
@@ -155,10 +161,18 @@ func packageVersionVulnQuery() predicate.PackageVersion {
 
 // getSBOMObjectWithIncludes is used recreate the hasSBOM object be eager loading the edges
 func sbomObjectWithIncludes(q *ent.BillOfMaterialsQuery) *ent.BillOfMaterialsQuery {
+
 	return q.
 		WithPackage(func(q *ent.PackageVersionQuery) {
 			q.WithName(func(q *ent.PackageNameQuery) {})
 		}).
-		WithArtifact().
-		WithIncludedSoftwarePackages(withPackageVersionTree())
+		WithArtifact()
+	// WithIncludedSoftwarePackages(func(q *ent.PackageVersionQuery) {
+	// 	q.WithName(func(q *ent.PackageNameQuery) {})
+	// 	q.WithVuln(func(q *ent.CertifyVulnQuery) {
+	// 		q.WithVulnerability(func(q *ent.VulnerabilityIDQuery) {
+	// 			vulnerabilityid.VulnerabilityIDNEQ("110d9f78-db10-52ba-99e2-4f65cca5e6c1")
+	// 		})
+	// 	})
+	// })
 }
