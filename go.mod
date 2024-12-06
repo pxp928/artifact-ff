@@ -76,7 +76,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/agnivade/levenshtein v1.2.0 // indirect
 	github.com/alexflint/go-arg v1.4.2 // indirect
 	github.com/alexflint/go-scalar v1.0.0 // indirect
 	github.com/anchore/go-struct-converter v0.0.0-20230627203149-c72ef8859ca9 // indirect
@@ -344,9 +344,9 @@ require (
 	github.com/sigstore/sigstore v1.8.10
 	github.com/spdx/tools-golang v0.5.5
 	github.com/spf13/viper v1.19.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/tikv/client-go/v2 v2.0.8-0.20231115083414-7c96dfd783fb
-	github.com/vektah/gqlparser/v2 v2.5.19
+	github.com/vektah/gqlparser/v2 v2.5.20
 	go.uber.org/mock v0.4.0
 	go.uber.org/ratelimit v0.3.1
 	gocloud.dev v0.40.0
