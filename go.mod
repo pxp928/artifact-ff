@@ -303,7 +303,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.32.6
 	github.com/aws/aws-sdk-go-v2/config v1.28.6
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.70.0
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.36.1
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.37.2
 	github.com/cdevents/sdk-go v0.4.1
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/fsnotify/fsnotify v1.8.0
